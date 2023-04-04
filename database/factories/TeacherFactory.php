@@ -27,7 +27,7 @@ class TeacherFactory extends Factory
 
         return [
             'market_id' => fake()->numberBetween(1, Market::count()),
-            'username' => fake()->userName(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),

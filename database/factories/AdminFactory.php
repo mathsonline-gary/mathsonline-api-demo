@@ -6,9 +6,9 @@ use App\Models\Market;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Student>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Admin>
  */
-class StudentFactory extends Factory
+class AdminFactory extends Factory
 {
     /**
      * Define the model's default state.

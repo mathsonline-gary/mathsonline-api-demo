@@ -14,14 +14,16 @@ class TeacherSeeder extends Seeder
     public function run(): void
     {
         Teacher::factory()
+            ->create([
+                'market_id' => 1,
+                'username' => 'teacher1',
+                'email' => 'teacher1@test.com',
+                'first_name' => 'Teacher',
+                'last_name' => 'One',
+            ]);
+
+        Teacher::factory()
             ->count(50)
-            ->sequence(
-                ['position' => 'Year 1 Teacher'],
-                ['position' => 'Year 2 Teacher'],
-                ['position' => 'Year 3 Teacher'],
-                ['position' => 'Year 4 Teacher'],
-                ['position' => 'Year 5 Teacher'],
-            )
             ->create();
     }
 }
