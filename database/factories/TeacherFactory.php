@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Market;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -25,7 +26,7 @@ class TeacherFactory extends Factory
         ];
 
         return [
-            'market_id' => fake()->numberBetween(1, 2),
+            'market_id' => fake()->numberBetween(1, Market::count()),
             'username' => fake()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
