@@ -18,20 +18,6 @@ class TutorSeeder extends Seeder
     {
         Tutor::factory()
             ->count(50)
-            ->sequence(
-                [
-                    'type_id' => 1,
-                    'username' => null,
-                ],
-                [
-                    'type_id' => 2,
-                    'username' => null,
-                ],
-                [
-                    'type_id' => 3,
-                    'email' => null,
-                ]
-            )
             ->create();
     }
 }

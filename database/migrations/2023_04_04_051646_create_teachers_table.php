@@ -10,35 +10,32 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('tutors', function (Blueprint $table) {
+        Schema::create('teachers', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('market_id')
                 ->constrained('markets');
 
-            $table->foreignId('type_id')
-                ->constrained('tutor_types');
-
             $table->string('username')
+                ->unique();
+
+            $table->string('email');
+
+            $table->string('first_name')
                 ->nullable();
 
-            $table->string('email')
+            $table->string('last_name')
                 ->nullable();
-
-            $table->string('first_name');
-
-            $table->string('last_name');
 
             $table->string('password');
 
-            $table->timestamp('email_verified_at')
+            $table->string('title')
                 ->nullable();
 
-            $table->rememberToken();
+            $table->string('position')
+                ->nullable();
 
             $table->timestamps();
-
-            $table->unique(['username', 'password']);
         });
     }
 
@@ -47,6 +44,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('tutors');
+        Schema::dropIfExists('teachers');
     }
 };

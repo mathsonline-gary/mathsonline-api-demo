@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             MarketSeeder::class,
             TutorTypeSeeder::class,
             TutorSeeder::class,
+            TeacherSeeder::class,
         ]);
     }
 }
