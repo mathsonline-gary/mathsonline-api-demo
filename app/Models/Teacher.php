@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Teacher extends Model
 {
@@ -22,4 +23,10 @@ class Teacher extends Model
     protected $hidden = [
         'password',
     ];
+
+
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
 }
