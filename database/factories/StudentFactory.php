@@ -18,7 +18,6 @@ class StudentFactory extends Factory
     public function definition(): array
     {
         return [
-            'market_id' => fake()->numberBetween(1, Market::count()),
             'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
