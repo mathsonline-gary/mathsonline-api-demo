@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Student;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::prefix('/v1')
+    ->name('api.v1.')
+    ->group(function () {
+        Route::middleware(['auth'])->get('/me', function (Request $request) {
+            $user = $request->user();
+
+            $type = match (get_class($user)) {
+                Teacher::class => 'teacher',
+                Student::class => 'student',
+                default => 'unknown',
+            };
+            return [
+                'type' => $type,
+                'data' => $user,
+            ];
+        });
+    });
