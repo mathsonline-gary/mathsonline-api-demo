@@ -5,14 +5,29 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// Teacher authentication routes.
 Route::prefix('teachers')
     ->group(function () {
         Route::post('/login', [TeacherAuthController::class, 'login'])
             ->name('teachers.login');
+
+        Route::post('/logout', [TeacherAuthController::class, 'logout'])
+            ->name('teachers.logout');
+    });
+
+// Teacher authentication routes.
+Route::prefix('students')
+    ->group(function () {
+        Route::post('/login', [StudentAuthController::class, 'login'])
+            ->name('students.login');
+
+        Route::post('/logout', [StudentAuthController::class, 'logout'])
+            ->name('students.logout');
     });
 
 /*Route::post('/register', [RegisteredUserController::class, 'store'])

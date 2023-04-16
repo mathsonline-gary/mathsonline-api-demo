@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginTeacherRequest;
+use App\Http\Requests\Auth\LoginStudentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class TeacherAuthController extends Controller
+class StudentAuthController extends Controller
 {
-    public function login(LoginTeacherRequest $request)
+    public function login(LoginStudentRequest $request)
     {
         $request->authenticate();
 
@@ -20,7 +20,7 @@ class TeacherAuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('teacher')->logout();
+        Auth::guard('student')->logout();
 
         $request->session()->invalidate();
 
