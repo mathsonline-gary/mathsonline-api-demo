@@ -18,7 +18,7 @@ class Authenticate extends Middleware
 
     public function handle($request, Closure $next, ...$guards): mixed
     {
-        $guards = empty($guards) ? ['teacher', 'student'] : $guards;
+        $guards = empty($guards) ? ['teacher', 'student', 'admin', 'developer'] : $guards;
 
         return parent::handle($request, $next, ...$guards);
     }

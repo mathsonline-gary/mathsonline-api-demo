@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\DeveloperAuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -20,7 +22,7 @@ Route::prefix('teachers')
             ->name('teachers.logout');
     });
 
-// Teacher authentication routes.
+// Student authentication routes.
 Route::prefix('students')
     ->group(function () {
         Route::post('/login', [StudentAuthController::class, 'login'])
@@ -28,6 +30,26 @@ Route::prefix('students')
 
         Route::post('/logout', [StudentAuthController::class, 'logout'])
             ->name('students.logout');
+    });
+
+// Admin authentication routes.
+Route::prefix('admins')
+    ->group(function () {
+        Route::post('/login', [AdminAuthController::class, 'login'])
+            ->name('admins.login');
+
+        Route::post('/logout', [AdminAuthController::class, 'logout'])
+            ->name('admins.logout');
+    });
+
+// Developer authentication routes.
+Route::prefix('developers')
+    ->group(function () {
+        Route::post('/login', [DeveloperAuthController::class, 'login'])
+            ->name('developers.login');
+
+        Route::post('/logout', [DeveloperAuthController::class, 'logout'])
+            ->name('developers.logout');
     });
 
 /*Route::post('/register', [RegisteredUserController::class, 'store'])

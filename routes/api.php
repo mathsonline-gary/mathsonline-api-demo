@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Admin;
+use App\Models\Developer;
 use App\Models\Student;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
@@ -25,8 +27,11 @@ Route::prefix('/v1')
             $type = match (get_class($user)) {
                 Teacher::class => 'teacher',
                 Student::class => 'student',
+                Admin::class => 'admin',
+                Developer::class => 'developer',
                 default => 'unknown',
             };
+
             return [
                 'type' => $type,
                 'data' => $user,
