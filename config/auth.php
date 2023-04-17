@@ -41,6 +41,11 @@ return [
             'provider' => 'teachers',
         ],
 
+        'tutor' => [
+            'driver' => 'session',
+            'provider' => 'tutors',
+        ],
+
         'teacher' => [
             'driver' => 'session',
             'provider' => 'teachers',
@@ -84,6 +89,11 @@ return [
 //            'driver' => 'eloquent',
 //            'model' => App\Models\User::class,
 //        ],
+
+        'tutors' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Tutor::class,
+        ],
 
         'teachers' => [
             'driver' => 'eloquent',
@@ -138,6 +148,13 @@ return [
 //            'throttle' => 60,
 //        ],
 
+        'tutors' => [
+            'provider' => 'tutors',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
         'teachers' => [
             'provider' => 'teachers',
             'table' => 'password_reset_tokens',
@@ -153,14 +170,14 @@ return [
         ],
 
         'admins' => [
-            'provider' => 'students',
+            'provider' => 'admins',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],
 
         'developers' => [
-            'provider' => 'students',
+            'provider' => 'developers',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

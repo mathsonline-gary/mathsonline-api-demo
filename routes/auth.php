@@ -9,8 +9,19 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\Auth\TeacherAuthController;
+use App\Http\Controllers\Auth\TutorAuthController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
+
+// Tutor authentication routes.
+Route::prefix('tutors')
+    ->group(function () {
+        Route::post('/login', [TutorAuthController::class, 'login'])
+            ->name('tutors.login');
+
+        Route::post('/logout', [TutorAuthController::class, 'logout'])
+            ->name('tutors.logout');
+    });
 
 // Teacher authentication routes.
 Route::prefix('teachers')

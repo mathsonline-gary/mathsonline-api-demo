@@ -4,6 +4,7 @@ use App\Models\Admin;
 use App\Models\Developer;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\Tutor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::prefix('/v1')
             $user = $request->user();
 
             $type = match (get_class($user)) {
+                Tutor::class => 'tutor',
                 Teacher::class => 'teacher',
                 Student::class => 'student',
                 Admin::class => 'admin',
