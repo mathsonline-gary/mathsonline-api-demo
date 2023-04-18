@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/v1')
     ->name('api.v1.')
     ->group(function () {
-        Route::middleware(['auth'])->get('/me', function (Request $request) {
+        Route::middleware(['auth:tutor,teacher,student,admin,developer'])->get('/me', function (Request $request) {
             $user = $request->user();
 
             $type = match (get_class($user)) {
