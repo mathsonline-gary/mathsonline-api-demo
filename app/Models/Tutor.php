@@ -12,6 +12,7 @@ class Tutor extends Authenticatable
 
     protected $fillable = [
         'market_id',
+        'school_id',
         'type_id',
         'username',
         'email',

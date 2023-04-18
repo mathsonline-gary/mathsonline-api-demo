@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -13,28 +15,36 @@ use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function store(Request $request): Response
+    public function store(RegisterRequest $request): Response
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        $validated = $request->safe()->only([
+            'first_name',
+            'last_name',
+            'email',
+            'password',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'address_city',
+            'address_state',
+            'address_postcode',
+            'address_country'
+        ]);
+        
+        $tutor = Tutor::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => Hash::make($validated['password']),
+            'type_id' => 1,
+            'market_id' => 1,
+            'school_id' => 2,
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        event(new Registered($tutor));
 
-        event(new Registered($user));
-
-        Auth::login($user);
+        Auth::guard($request->guard)->login($tutor);
 
         return response()->noContent();
     }

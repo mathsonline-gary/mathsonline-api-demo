@@ -12,6 +12,7 @@ class Teacher extends Authenticatable
 
     protected $fillable = [
         'market_id',
+        'school_id',
         'username',
         'email',
         'first_name',
