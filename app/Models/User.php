@@ -1,5 +1,7 @@
 <?php
 
+// TODO: Remove this model when auth logic fully developed.
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
