@@ -18,7 +18,7 @@ class Tutor extends Authenticatable
         'email',
         'first_name',
         'last_name',
-        'password'
+        'password',
     ];
 
     protected $hidden = [

@@ -41,7 +41,7 @@ class SchoolSeeder extends Seeder
             )
             ->count(10)
             ->state([
-                'type' => 'tutor-created school',
+                'type' => 'homeschool',
             ])
             ->create();
 

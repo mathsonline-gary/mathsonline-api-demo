@@ -8,9 +8,16 @@ use Illuminate\Support\Facades\Log;
 
 class SchoolService
 {
+    /**
+     * Create a new school.
+     *
+     * @param array $attributes
+     * @return School
+     */
     public function create(array $attributes)
     {
         $attributes = Arr::only($attributes, [
+            'market_id',
             'name',
             'type',
             'email',
