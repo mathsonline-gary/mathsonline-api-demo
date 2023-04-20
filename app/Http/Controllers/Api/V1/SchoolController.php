@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\School;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
-class SchoolController
+class SchoolController extends Controller
 {
-    use AuthorizesRequests;
-
     public function index()
     {
         $this->authorize('viewAny', School::class);
