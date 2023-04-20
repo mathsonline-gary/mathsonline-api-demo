@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Requests\StoreDeveloperRequest;
-use App\Http\Requests\UpdateDeveloperRequest;
-use App\Models\Developer;
+use App\Http\Requests\StoreAdminRequest;
+use App\Http\Requests\UpdateAdminRequest;
+use App\Models\Admin;
 
-class DeveloperController extends Controller
+class AdminController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,7 +27,7 @@ class DeveloperController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreDeveloperRequest $request)
+    public function store(StoreAdminRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class DeveloperController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Developer $developer)
+    public function show(Admin $admin)
     {
         //
     }
@@ -43,7 +43,7 @@ class DeveloperController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Developer $developer)
+    public function edit(Admin $admin)
     {
         //
     }
@@ -51,7 +51,7 @@ class DeveloperController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDeveloperRequest $request, Developer $developer)
+    public function update(UpdateAdminRequest $request, Admin $admin)
     {
         //
     }
@@ -59,7 +59,7 @@ class DeveloperController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Developer $developer)
+    public function destroy(Admin $admin)
     {
         //
     }
