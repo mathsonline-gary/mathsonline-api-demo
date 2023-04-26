@@ -22,7 +22,6 @@ class Tutor extends User
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     protected $casts = [

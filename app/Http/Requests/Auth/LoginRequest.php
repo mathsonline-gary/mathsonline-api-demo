@@ -25,7 +25,7 @@ class LoginRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $this->role = $this->string('role');
+        $this->guard = Auth::getDefaultDriver();
 
         return true;
     }
@@ -37,31 +37,23 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        $validRoles = ['tutor', 'teacher', 'student', 'admin', 'developer'];
-
-        $rules = [
+        return [
             'role' => [
                 'required',
                 'string',
-                Rule::in($validRoles)
+                Rule::in([$this->guard])
+            ],
+            'email' => [
+                Rule::requiredIf($this->guard === 'tutor'),
+                'string',
+                'email',
+            ],
+            'username' => [
+                Rule::requiredIf(in_array($this->guard, ['teacher', 'student', 'admin', 'developer'])),
+                'string',
             ],
             'password' => ['required', 'string'],
         ];
-
-        switch ($this->role) {
-            case 'tutor':
-                $rules['email'] = ['required', 'string', 'email'];
-
-                break;
-
-            default:
-                $rules['username'] = ['required', 'string'];
-
-                break;
-
-        }
-
-        return $rules;
     }
 
     /**
@@ -72,37 +64,17 @@ class LoginRequest extends FormRequest
      */
     protected function passedValidation(): void
     {
-        switch ($this->role) {
+        switch ($this->guard) {
             case 'tutor':
-                $this->guard = 'tutor';
                 $this->credentials = $this->only('email', 'password');
                 $this->primaryInputKey = 'email';
 
                 break;
 
             case 'teacher':
-                $this->guard = 'teacher';
-                $this->credentials = $this->only('username', 'password');
-                $this->primaryInputKey = 'username';
-
-                break;
-
             case 'student':
-                $this->guard = 'student';
-                $this->credentials = $this->only('username', 'password');
-                $this->primaryInputKey = 'username';
-
-                break;
-
             case 'admin':
-                $this->guard = 'admin';
-                $this->credentials = $this->only('username', 'password');
-                $this->primaryInputKey = 'username';
-
-                break;
-
             case 'developer':
-                $this->guard = 'developer';
                 $this->credentials = $this->only('username', 'password');
                 $this->primaryInputKey = 'username';
 
@@ -115,13 +87,12 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(): \App\Models\User|\Illuminate\Contracts\Auth\Authenticatable|null
     {
         $this->ensureIsNotRateLimited();
 
         if (
-            !Auth::guard($this->guard)
-                ->attempt($this->credentials, $this->boolean('remember'))
+            !Auth::attempt($this->credentials, $this->boolean('remember'))
         ) {
             RateLimiter::hit($this->throttleKey());
 
@@ -131,6 +102,8 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        return Auth::user();
     }
 
     /**

@@ -9,17 +9,11 @@ use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
-    private string $role;
-
-    public string $guard;
-
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        $this->role = $this->string('role');
-
         return true;
     }
 
@@ -88,12 +82,5 @@ class RegisterRequest extends FormRequest
             'address_postal_code' => ['required', 'string', 'max:255'],
             'address_country' => ['required', 'string', 'max:255'],
         ];
-    }
-
-    protected function passedValidation(): void
-    {
-        if ($this->role === 'tutor') {
-            $this->guard = 'tutor';
-        }
     }
 }

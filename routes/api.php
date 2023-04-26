@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Auth\AuthenticatedTokenController;
+use App\Http\Controllers\Api\V1\Auth\RegisteredUserController;
 use App\Models\Admin;
 use App\Models\Developer;
 use App\Models\Student;
@@ -22,6 +24,11 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/v1')
     ->name('api.v1.')
     ->group(function () {
+
+        // Auth routes.
+        Route::post('/register', [RegisteredUserController::class, 'store']);
+        Route::middleware(['default.guard'])->post('/login', [AuthenticatedTokenController::class, 'store']);
+        Route::middleware(['auth:sanctum'])->post('/logout', [AuthenticatedTokenController::class, 'destroy']);
         Route::middleware(['auth:sanctum'])->get('/me', function (Request $request) {
             $user = $request->user();
 
@@ -39,4 +46,5 @@ Route::prefix('/v1')
                 'data' => $user,
             ];
         });
+        
     });
