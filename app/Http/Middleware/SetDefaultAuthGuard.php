@@ -41,7 +41,7 @@ class SetDefaultAuthGuard
                     Auth::setDefaultDriver('admin');
                     break;
 
-                case 'dev':
+                case 'developer':
                     Auth::setDefaultDriver('developer');
                     break;
             }

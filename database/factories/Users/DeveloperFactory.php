@@ -1,14 +1,17 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Users;
 
+use App\Models\Users\Developer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Users\Developer>
+ * @extends Factory<Developer>
  */
 class DeveloperFactory extends Factory
 {
+    protected $model = Developer::class;
+
     /**
      * Define the model's default state.
      *

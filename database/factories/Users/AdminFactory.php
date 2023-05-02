@@ -1,15 +1,18 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Users;
 
 use App\Models\Market;
+use App\Models\Users\Admin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Users\Admin>
+ * @extends Factory<Admin>
  */
 class AdminFactory extends Factory
 {
+    protected $model = Admin::class;
+
     /**
      * Define the model's default state.
      *

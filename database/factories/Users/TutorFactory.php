@@ -1,14 +1,17 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Users;
 
+use App\Models\Users\Tutor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Users\Tutor>
+ * @extends Factory<Tutor>
  */
 class TutorFactory extends Factory
 {
+    protected $model = Tutor::class;
+
     /**
      * Define the model's default state.
      *

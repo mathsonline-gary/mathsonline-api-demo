@@ -21,9 +21,19 @@ Route::prefix('/v1')
     ->group(function () {
 
         // Auth routes.
-        Route::post('/register', [RegisteredUserController::class, 'store']);
-        Route::middleware(['default.guard'])->post('/login', [AuthenticatedTokenController::class, 'store']);
-        Route::middleware(['auth:sanctum'])->post('/logout', [AuthenticatedTokenController::class, 'destroy']);
-        Route::middleware(['auth:sanctum'])->get('/user', [AuthenticatedUserController::class, 'show']);
+        Route::post('/register', [RegisteredUserController::class, 'store'])
+            ->name('register');
+
+        Route::post('/login', [AuthenticatedTokenController::class, 'store'])
+            ->middleware(['default.guard'])
+            ->name('login');
+
+        Route::post('/logout', [AuthenticatedTokenController::class, 'destroy'])
+            ->middleware(['auth:sanctum'])
+            ->name('logout');
+
+        Route::get('/user', [AuthenticatedUserController::class, 'show'])
+            ->middleware(['auth:sanctum'])
+            ->name('user.authenticated');
 
     });
