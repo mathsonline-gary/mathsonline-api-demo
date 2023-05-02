@@ -94,7 +94,31 @@ class AuthenticationTest extends TestCase
             ]));
 
             $response->assertStatus(422);
-            $this->assertEmpty($user->tokens);
+
+            $this->assertEquals(0, $user->tokens()->count());
+        }
+    }
+
+    public function test_authenticated_users_can_logout()
+    {
+        $users = [
+            'tutor' => Tutor::first(),
+            'teacher' => Teacher::first(),
+            'student' => Student::first(),
+            'admin' => Admin::first(),
+            'developer' => Developer::first(),
+        ];
+
+        foreach ($users as $user) {
+            $token = $user->createToken('test_token')->plainTextToken;
+
+            $this->actingAs($user);
+
+            $response = $this->withHeaders(['Authorization' => "Bearer $token"])
+                ->post(route('api.v1.logout'));
+
+            $response->assertStatus(204);
+            $this->assertEquals(0, $user->tokens()->count());
         }
     }
 }
