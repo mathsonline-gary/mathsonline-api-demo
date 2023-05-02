@@ -6,7 +6,7 @@ use App\Models\Market;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Admin>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Users\Admin>
  */
 class AdminFactory extends Factory
 {

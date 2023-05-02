@@ -1,15 +1,18 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
+use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Admin extends User
+class Student extends User
 {
     use HasFactory;
 
     protected $fillable = [
         'market_id',
+        'school_id',
         'username',
         'email',
         'first_name',
@@ -20,4 +23,9 @@ class Admin extends User
     protected $hidden = [
         'password',
     ];
+
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
 }

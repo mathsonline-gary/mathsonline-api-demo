@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Users\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -12,8 +14,6 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    private string $role;
-
     private string $guard;
 
     private array $credentials = [];
@@ -87,7 +87,7 @@ class LoginRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    public function authenticate(): \App\Models\User|\Illuminate\Contracts\Auth\Authenticatable|null
+    public function authenticate(): User|Authenticatable|null
     {
         $this->ensureIsNotRateLimited();
 

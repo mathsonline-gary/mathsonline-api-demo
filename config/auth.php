@@ -87,32 +87,32 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'model' => \App\Models\Users\User::class,
         ],
 
         'tutors' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Tutor::class,
+            'model' => \App\Models\Users\Tutor::class,
         ],
 
         'teachers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Teacher::class,
+            'model' => \App\Models\Users\Teacher::class,
         ],
 
         'students' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Student::class,
+            'model' => \App\Models\Users\Student::class,
         ],
 
         'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
+            'model' => \App\Models\Users\Admin::class,
         ],
 
         'developers' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Developer::class,
+            'model' => \App\Models\Users\Developer::class,
         ],
 
         // 'users' => [

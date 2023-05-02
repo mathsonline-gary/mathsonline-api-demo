@@ -1,13 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\AuthenticatedTokenController;
+use App\Http\Controllers\Api\V1\Auth\AuthenticatedUserController;
 use App\Http\Controllers\Api\V1\Auth\RegisteredUserController;
-use App\Models\Admin;
-use App\Models\Developer;
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\Tutor;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,22 +24,6 @@ Route::prefix('/v1')
         Route::post('/register', [RegisteredUserController::class, 'store']);
         Route::middleware(['default.guard'])->post('/login', [AuthenticatedTokenController::class, 'store']);
         Route::middleware(['auth:sanctum'])->post('/logout', [AuthenticatedTokenController::class, 'destroy']);
-        Route::middleware(['auth:sanctum'])->get('/me', function (Request $request) {
-            $user = $request->user();
+        Route::middleware(['auth:sanctum'])->get('/user', [AuthenticatedUserController::class, 'show']);
 
-            $type = match (get_class($user)) {
-                Tutor::class => 'tutor',
-                Teacher::class => 'teacher',
-                Student::class => 'student',
-                Admin::class => 'admin',
-                Developer::class => 'developer',
-                default => 'unknown',
-            };
-
-            return [
-                'type' => $type,
-                'data' => $user,
-            ];
-        });
-        
     });

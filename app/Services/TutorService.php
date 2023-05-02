@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Tutor;
+use App\Models\Users\Tutor;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;

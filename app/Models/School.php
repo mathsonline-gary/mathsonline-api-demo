@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
+use App\Models\Users\Tutor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
