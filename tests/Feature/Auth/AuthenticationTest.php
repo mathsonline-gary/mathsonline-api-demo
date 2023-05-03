@@ -36,11 +36,12 @@ class AuthenticationTest extends TestCase
                 'role' => $role,
             ]));
 
-            $response->assertStatus(201);
-            $response->assertJson([
-                'token' => true,
-            ]);
-            $this->assertNotEmpty($user->tokens);
+            $response->assertStatus(201)
+                ->assertJson([
+                    'token' => true,
+                ]);
+
+            $this->assertEquals(1, $user->tokens()->count());
         }
     }
 
@@ -67,7 +68,8 @@ class AuthenticationTest extends TestCase
             ]));
 
             $response->assertStatus(422);
-            $this->assertEmpty($user->tokens);
+
+            $this->assertEquals(0, $user->tokens()->count());
         }
     }
 
