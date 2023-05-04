@@ -28,16 +28,45 @@ class School extends Model
         'address_country',
     ];
 
+    /**
+     * Get the school's tutors.
+     *
+     * @return HasMany
+     */
     public function tutors(): HasMany
     {
         return $this->hasMany(Tutor::class);
     }
 
+    /**
+     * Get the school's teachers.
+     *
+     * @return HasMany
+     */
     public function teachers(): HasMany
     {
         return $this->hasMany(Teacher::class);
     }
 
+    /**
+     * Get the school's instructors, can be tutors or teachers.
+     *
+     * @return HasMany
+     */
+    public function instructors(): HasMany
+    {
+        if ($this->type === 'homeschool') {
+            return $this->tutors();
+        }
+
+        return $this->teachers();
+    }
+
+    /**
+     * Get the school's students.
+     *
+     * @return HasMany
+     */
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);

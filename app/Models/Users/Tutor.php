@@ -30,6 +30,11 @@ class Tutor extends User
     ];
 
 
+    /**
+     * Get the tutor's school.
+     *
+     * @return BelongsTo
+     */
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
