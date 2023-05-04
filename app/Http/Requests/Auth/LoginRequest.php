@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     {
         $this->guard = Auth::getDefaultDriver();
 
-        return true;
+        return in_array($this->guard, ['tutors', 'teachers', 'students', 'admins', 'developers']);
     }
 
     /**
@@ -38,18 +38,13 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => [
-                'required',
-                'string',
-                Rule::in([$this->guard])
-            ],
             'email' => [
-                Rule::requiredIf($this->guard === 'tutor'),
+                Rule::requiredIf($this->guard == 'tutors'),
                 'string',
                 'email',
             ],
             'username' => [
-                Rule::requiredIf(in_array($this->guard, ['teacher', 'student', 'admin', 'developer'])),
+                Rule::requiredIf(in_array($this->guard, ['teachers', 'students', 'admins', 'developers'])),
                 'string',
             ],
             'password' => ['required', 'string'],
@@ -65,16 +60,16 @@ class LoginRequest extends FormRequest
     protected function passedValidation(): void
     {
         switch ($this->guard) {
-            case 'tutor':
+            case 'tutors':
                 $this->credentials = $this->only('email', 'password');
                 $this->primaryInputKey = 'email';
 
                 break;
 
-            case 'teacher':
-            case 'student':
-            case 'admin':
-            case 'developer':
+            case 'teachers':
+            case 'students':
+            case 'admins':
+            case 'developers':
                 $this->credentials = $this->only('username', 'password');
                 $this->primaryInputKey = 'username';
 

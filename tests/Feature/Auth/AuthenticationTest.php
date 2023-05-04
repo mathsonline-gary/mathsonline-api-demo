@@ -25,7 +25,7 @@ class AuthenticationTest extends TestCase
         ];
 
         foreach ($users as $role => $user) {
-            $referer = "https://$role.test.com";
+            $referer = config('app.frontend_url') . "/$role";
 
             $response = $this->withHeaders([
                 'Referer' => $referer,
@@ -33,7 +33,6 @@ class AuthenticationTest extends TestCase
                 'email' => $user->email,
                 'username' => $user->username,
                 'password' => 'password',
-                'role' => $role,
             ]));
 
             $response->assertStatus(201)
@@ -42,10 +41,12 @@ class AuthenticationTest extends TestCase
                 ]);
 
             $this->assertEquals(1, $user->tokens()->count());
+            $this->assertEquals($user->id, $user->tokens()->first()->tokenable_id);
+            $this->assertEquals(get_class($user), $user->tokens()->first()->tokenable_type);
         }
     }
 
-    public function test_users_cannot_authenticate_from_an_invalid_referer(): void
+    public function test_users_are_unauthorized_to_authenticate_from_an_invalid_referer(): void
     {
         $users = [
             'tutor' => Tutor::first(),
@@ -55,8 +56,8 @@ class AuthenticationTest extends TestCase
             'developer' => Developer::first(),
         ];
 
-        foreach ($users as $role => $user) {
-            $referer = 'https://invalid.test.com';
+        foreach ($users as $user) {
+            $referer = config('app.frontend_url') . "/invalid-role";
 
             $response = $this->withHeaders([
                 'Referer' => $referer,
@@ -64,10 +65,9 @@ class AuthenticationTest extends TestCase
                 'email' => $user->email,
                 'username' => $user->username,
                 'password' => 'password',
-                'role' => $role,
             ]));
 
-            $response->assertStatus(422);
+            $response->assertStatus(403);
 
             $this->assertEquals(0, $user->tokens()->count());
         }
@@ -84,15 +84,14 @@ class AuthenticationTest extends TestCase
         ];
 
         foreach ($users as $role => $user) {
-            $referer = "https://$role.test.com";
+            $referer = config('app.frontend_url') . "/$role";
 
             $response = $this->withHeaders([
                 'Referer' => $referer,
             ])->postJson(route('api.v1.login', [
                 'email' => $user->email,
                 'username' => $user->username,
-                'password' => 'incorrect-password',
-                'role' => $role,
+                'password' => 'invalid-password',
             ]));
 
             $response->assertStatus(422);

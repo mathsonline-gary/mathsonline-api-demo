@@ -20,19 +20,18 @@ class RegisterRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $marketId = $this->integer('market_id');
-        $firstName = $this->string('first_name')->trim()->toString();
-        $lastName = $this->string('last_name')->trim()->toString();
-        $email = $this->string('email')->trim()->lower()->toString();
-        $phone = preg_replace('/[^0-9]/', '', $this->input('phone'));
+        $firstName = $this->string('first_name')->toString();
+        $lastName = $this->string('last_name')->toString();
+        $email = $this->string('email')->lower()->toString();
+        $phone = $this->string('phone')->replaceMatches('/\D+/', '')->toString();
 
-        $addressLine2 = $this->string('address_line_2')->trim();
         $address = [
-            'line_1' => $this->string('address_line_1')->trim()->toString(),
-            'line_2' => $addressLine2->isEmpty() ? null : $addressLine2->toString(),
-            'city' => $this->string('address_city')->trim()->toString(),
-            'state' => $this->string('address_state')->trim()->toString(),
-            'postal_code' => $this->string('address_postal_code')->trim()->toString(),
-            'country' => $this->string('address_country')->trim()->toString(),
+            'line_1' => $this->string('address_line_1')->toString(),
+            'line_2' => $this->string('address_line_2')->isEmpty() ? null : $this->string('address_line_2')->toString(),
+            'city' => $this->string('address_city')->toString(),
+            'state' => $this->string('address_state')->toString(),
+            'postal_code' => $this->string('address_postal_code')->toString(),
+            'country' => $this->string('address_country')->toString(),
         ];
 
         $this->merge([
@@ -58,11 +57,6 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => [
-                'required',
-                'string',
-                Rule::in(['tutor']),
-            ],
             'market_id' => ['required', 'integer', 'between:1,' . Market::count()],
             'first_name' => ['required', 'string'],
             'last_name' => ['required', 'string'],

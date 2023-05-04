@@ -41,27 +41,27 @@ return [
             'provider' => 'users',
         ],
 
-        'tutor' => [
+        'tutors' => [
             'driver' => 'session',
             'provider' => 'tutors',
         ],
 
-        'teacher' => [
+        'teachers' => [
             'driver' => 'session',
             'provider' => 'teachers',
         ],
 
-        'student' => [
+        'students' => [
             'driver' => 'session',
             'provider' => 'students',
         ],
 
-        'admin' => [
+        'admins' => [
             'driver' => 'session',
             'provider' => 'admins',
         ],
 
-        'developer' => [
+        'developers' => [
             'driver' => 'session',
             'provider' => 'developers',
         ],
@@ -127,7 +127,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | You may specify multiple password reset configurations if you have more
-    | than one user table or model in the application and you want to have
+    | than one user table or model in the application, and you want to have
     | separate password reset settings based on the specific user types.
     |
     | The expiry time is the number of minutes that each reset token will be

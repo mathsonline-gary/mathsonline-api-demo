@@ -25,7 +25,6 @@ Route::prefix('/v1')
             ->name('register');
 
         Route::post('/login', [AuthenticatedTokenController::class, 'store'])
-            ->middleware(['default.guard'])
             ->name('login');
 
         Route::post('/logout', [AuthenticatedTokenController::class, 'destroy'])
