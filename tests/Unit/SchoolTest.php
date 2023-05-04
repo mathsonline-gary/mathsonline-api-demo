@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\School;
+use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,7 +39,6 @@ class SchoolTest extends TestCase
             // Assert that the instructors are associated with the correct school
             $this->assertEquals($school->id, $instructor->school_id);
         }
-
     }
 
     public function test_a_homeschool_has_many_tutors_as_instructors(): void
@@ -65,6 +65,33 @@ class SchoolTest extends TestCase
 
             // Assert that the instructors are associated with the correct school
             $this->assertEquals($school->id, $instructor->school_id);
+        }
+    }
+
+    public function test_a_school_has_many_students(): void
+    {
+        $school = School::factory()->create([
+            'market_id' => 1,
+            'type' => 'homeschool',
+        ]);
+
+        Student::factory()->count(10)->create([
+            'market_id' => $school->market_id,
+            'school_id' => $school->id,
+        ]);
+
+        // Assert that the school has a relationship with the instructors
+        $this->assertInstanceOf(HasMany::class, $school->students());
+
+        // Assert that the school has the correct number of instructors
+        $this->assertEquals(10, $school->students()->count());
+
+        foreach ($school->students as $student) {
+            // Assert that the instructors are tutors
+            $this->assertInstanceOf(Student::class, $student);
+
+            // Assert that the instructors are associated with the correct school
+            $this->assertEquals($school->id, $student->school_id);
         }
     }
 }
