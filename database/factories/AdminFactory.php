@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Market;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,13 +18,18 @@ class AdminFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::factory()
+            ->unverified()
+            ->create([
+                'type' => 'admin',
+                'login' => fake()->unique()->userName(),
+            ]);
+
         return [
             'market_id' => fake()->numberBetween(1, Market::count()),
-            'username' => fake()->unique()->userName(),
+            'user_id' => $user->id,
+            'username' => $user->login,
             'email' => fake()->safeEmail(),
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         ];
     }
 }

@@ -14,14 +14,6 @@ class DeveloperSeeder extends Seeder
     public function run(): void
     {
         Developer::factory()
-            ->create([
-                'username' => 'developer1',
-                'email' => 'developer1@test.com',
-                'first_name' => 'Developer',
-                'last_name' => 'One',
-            ]);
-
-        Developer::factory()
             ->count(10)
             ->create();
     }

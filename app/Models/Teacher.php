@@ -11,19 +11,11 @@ class Teacher extends Model
     use HasFactory;
 
     protected $fillable = [
-        'market_id',
         'username',
         'email',
-        'first_name',
-        'last_name',
         'title',
         'position',
     ];
-
-    protected $hidden = [
-        'password',
-    ];
-
 
     public function school(): BelongsTo
     {

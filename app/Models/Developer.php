@@ -12,12 +12,5 @@ class Developer extends Model
     protected $fillable = [
         'username',
         'email',
-        'first_name',
-        'last_name',
-        'password'
-    ];
-
-    protected $hidden = [
-        'password',
     ];
 }

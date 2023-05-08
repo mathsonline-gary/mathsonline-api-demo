@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Market;
 use App\Models\School;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,13 +19,17 @@ class TutorFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::factory()
+            ->unverified()
+            ->create([
+                'type' => 'tutor',
+                'login' => fake()->safeEmail(),
+            ]);
+
         return [
+            'user_id' => $user->id,
             'type_id' => fake()->numberBetween(1, 3),
-            'username' => fake()->userName(),
-            'email' => fake()->safeEmail(),
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            'email' => $user->login,
         ];
     }
 }

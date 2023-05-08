@@ -15,7 +15,7 @@ return new class extends Migration {
 
             $table->string('name');
 
-            $table->string('type');
+            $table->enum('type', ['homeschool', 'traditional_school']);
 
             $table->string('email')
                 ->nullable();

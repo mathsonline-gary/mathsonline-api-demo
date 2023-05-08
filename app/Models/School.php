@@ -11,9 +11,7 @@ class School extends Model
     use HasFactory;
 
     protected $fillable = [
-        'market_id',
         'name',
-        'type',
         'email',
         'phone',
         'fax',

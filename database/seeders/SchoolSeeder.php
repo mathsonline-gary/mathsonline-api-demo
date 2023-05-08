@@ -16,7 +16,7 @@ class SchoolSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed tutor-created schools.
+        // Seed homeschools.
         School::factory()
             ->has(
                 Tutor::factory()
@@ -41,11 +41,11 @@ class SchoolSeeder extends Seeder
             )
             ->count(10)
             ->state([
-                'type' => 'tutor-created school',
+                'type' => 'homeschool',
             ])
             ->create();
 
-        // Seed traditional schools.
+        // Seed traditional_schools.
         School::factory()
             ->has(
                 Teacher::factory()
@@ -67,7 +67,7 @@ class SchoolSeeder extends Seeder
             )
             ->count(10)
             ->state([
-                'type' => 'traditional school',
+                'type' => 'traditional_school',
             ])
             ->create();
     }
