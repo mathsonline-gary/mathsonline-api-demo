@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::prefix('/v1')
+    ->name('api.v1.')
+    ->middleware(['auth:sanctum'])
+    ->group(function () {
+
+        require __DIR__ . '/tutors.php';
+
+        require __DIR__ . '/teachers.php';
+
+        require __DIR__ . '/students.php';
+
+        require __DIR__ . '/admins.php';
+    });

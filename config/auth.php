@@ -1,5 +1,12 @@
 <?php
 
+use App\Models\Users\Admin;
+use App\Models\Users\Developer;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
+use App\Models\Users\Tutor;
+use App\Models\Users\User;
+
 return [
 
     /*
@@ -41,27 +48,27 @@ return [
             'provider' => 'users',
         ],
 
-        'tutors' => [
+        'tutor' => [
             'driver' => 'session',
             'provider' => 'tutors',
         ],
 
-        'teachers' => [
+        'teacher' => [
             'driver' => 'session',
             'provider' => 'teachers',
         ],
 
-        'students' => [
+        'student' => [
             'driver' => 'session',
             'provider' => 'students',
         ],
 
-        'admins' => [
+        'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
         ],
 
-        'developers' => [
+        'developer' => [
             'driver' => 'session',
             'provider' => 'developers',
         ],
@@ -87,32 +94,32 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\User::class,
+            'model' => User::class,
         ],
 
         'tutors' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\Tutor::class,
+            'model' => Tutor::class,
         ],
 
         'teachers' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\Teacher::class,
+            'model' => Teacher::class,
         ],
 
         'students' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\Student::class,
+            'model' => Student::class,
         ],
 
         'admins' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\Admin::class,
+            'model' => Admin::class,
         ],
 
         'developers' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Users\Developer::class,
+            'model' => Developer::class,
         ],
 
         // 'users' => [

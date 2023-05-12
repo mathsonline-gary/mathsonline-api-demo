@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetAuthenticationDefaults
@@ -19,29 +20,43 @@ class SetAuthenticationDefaults
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $referer = $request->header('Referer');
+        $path = $request->getPathInfo();
 
-        if ($referer) {
-            $path = parse_url($referer, PHP_URL_PATH);
-            $segments = explode('/', trim($path, '/'));
-            $role = $segments[0] ?? null;
+        switch (true) {
+            case Str::startsWith($path, '/tutors'):
+            case Str::startsWith($path, '/api/v1/tutors'):
+                Auth::setDefaultDriver('tutor');
+                Password::setDefaultDriver('tutors');
 
-            $driver = match ($role) {
-                'tutor' => 'tutors',
-                'teacher' => 'teachers',
-                'student' => 'students',
-                'admin' => 'admins',
-                'developer' => 'developers',
-                default => null,
-            };
+                break;
 
-            if ($driver !== null) {
-                // Set default auth guard provider
-                Auth::setDefaultDriver($driver);
+            case Str::startsWith($path, '/teachers'):
+            case Str::startsWith($path, '/api/v1/teachers'):
+                Auth::setDefaultDriver('teacher');
+                Password::setDefaultDriver('teachers');
 
-                // Set default password resetting driver
-                Password::setDefaultDriver($driver);
-            }
+                break;
+
+            case Str::startsWith($path, '/students'):
+            case Str::startsWith($path, '/api/v1/students'):
+                Auth::setDefaultDriver('student');
+                Password::setDefaultDriver('students');
+
+                break;
+
+            case Str::startsWith($path, '/admins'):
+            case Str::startsWith($path, '/api/v1/admins'):
+                Auth::setDefaultDriver('admin');
+                Password::setDefaultDriver('admins');
+
+                break;
+
+            case Str::startsWith($path, '/developers'):
+            case Str::startsWith($path, '/api/v1/developers'):
+                Auth::setDefaultDriver('developer');
+                Password::setDefaultDriver('developers');
+
+                break;
         }
 
         return $next($request);
