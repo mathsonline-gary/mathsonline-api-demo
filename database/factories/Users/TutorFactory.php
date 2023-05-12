@@ -21,7 +21,6 @@ class TutorFactory extends Factory
     {
         return [
             'type_id' => fake()->numberBetween(1, 3),
-            'username' => fake()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),

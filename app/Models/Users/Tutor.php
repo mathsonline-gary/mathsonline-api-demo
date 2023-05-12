@@ -14,7 +14,6 @@ class Tutor extends User
         'market_id',
         'school_id',
         'type_id',
-        'username',
         'email',
         'first_name',
         'last_name',
