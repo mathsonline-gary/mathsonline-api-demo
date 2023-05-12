@@ -1,8 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Auth\AuthenticatedTokenController;
-use App\Http\Controllers\Api\V1\Auth\AuthenticatedUserController;
-use App\Http\Controllers\Api\V1\Auth\RegisteredUserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,23 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('/v1')
-    ->name('api.v1.')
-    ->group(function () {
-
-        // Auth routes.
-        Route::post('/register', [RegisteredUserController::class, 'store'])
-            ->name('register');
-
-        Route::post('/login', [AuthenticatedTokenController::class, 'store'])
-            ->name('login');
-
-        Route::post('/logout', [AuthenticatedTokenController::class, 'destroy'])
-            ->middleware(['auth:sanctum'])
-            ->name('logout');
-
-        Route::get('/user', [AuthenticatedUserController::class, 'show'])
-            ->middleware(['auth:sanctum'])
-            ->name('user.authenticated');
-
-    });
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+    return $request->user();
+});
