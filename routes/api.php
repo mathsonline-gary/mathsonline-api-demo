@@ -19,11 +19,13 @@ Route::prefix('/v1')
     ->middleware(['auth:sanctum'])
     ->group(function () {
 
-        require __DIR__ . '/tutors.php';
+        require __DIR__ . '/api-tutors.php';
 
-        require __DIR__ . '/teachers.php';
+        require __DIR__ . '/api-teachers.php';
 
-        require __DIR__ . '/students.php';
+        require __DIR__ . '/api-students.php';
 
-        require __DIR__ . '/admins.php';
+        require __DIR__ . '/api-admins.php';
+
+        require __DIR__ . '/api-developers.php';
     });

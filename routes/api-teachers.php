@@ -1,21 +1,19 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\AuthenticatedUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Developers Routes
+| Teacher Routes
 |--------------------------------------------------------------------------
 |
-| API routes for developers.
+| API routes for teachers.
 |
 */
 
-Route::prefix('/developers')
-    ->name('developers.')
+Route::prefix('/teachers')
+    ->name('teachers.')
     ->group(function () {
-        Route::get('/me', function (Request $request) {
-            return $request->user();
-        });
+        Route::get('/me', [AuthenticatedUserController::class, 'show']);
     });

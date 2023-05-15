@@ -38,6 +38,15 @@ class SchoolSeeder extends Seeder
                         ];
                     })
             )
+            ->has(
+                Student::factory()
+                    ->count(2)
+                    ->state(function (array $attributes, School $school) {
+                        return [
+                            'market_id' => $school->market_id,
+                        ];
+                    })
+            )
             ->count(10)
             ->state([
                 'type' => 'homeschool',

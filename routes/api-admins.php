@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\AuthenticatedUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +15,5 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/admins')
     ->name('admins.')
     ->group(function () {
-        Route::get('/me', function (Request $request) {
-            return $request->user();
-        });
+        Route::get('/me', [AuthenticatedUserController::class, 'show']);
     });

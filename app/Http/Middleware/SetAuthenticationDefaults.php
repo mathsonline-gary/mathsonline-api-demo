@@ -26,6 +26,7 @@ class SetAuthenticationDefaults
             case Str::startsWith($path, '/tutors'):
             case Str::startsWith($path, '/api/v1/tutors'):
                 Auth::setDefaultDriver('tutor');
+                config(['sanctum.guard' => 'tutor']);
                 Password::setDefaultDriver('tutors');
 
                 break;
@@ -33,6 +34,7 @@ class SetAuthenticationDefaults
             case Str::startsWith($path, '/teachers'):
             case Str::startsWith($path, '/api/v1/teachers'):
                 Auth::setDefaultDriver('teacher');
+                config(['sanctum.guard' => 'teacher']);
                 Password::setDefaultDriver('teachers');
 
                 break;
@@ -40,6 +42,7 @@ class SetAuthenticationDefaults
             case Str::startsWith($path, '/students'):
             case Str::startsWith($path, '/api/v1/students'):
                 Auth::setDefaultDriver('student');
+                config(['sanctum.guard' => 'student']);
                 Password::setDefaultDriver('students');
 
                 break;
@@ -47,6 +50,7 @@ class SetAuthenticationDefaults
             case Str::startsWith($path, '/admins'):
             case Str::startsWith($path, '/api/v1/admins'):
                 Auth::setDefaultDriver('admin');
+                config(['sanctum.guard' => 'admin']);
                 Password::setDefaultDriver('admins');
 
                 break;
@@ -54,6 +58,7 @@ class SetAuthenticationDefaults
             case Str::startsWith($path, '/developers'):
             case Str::startsWith($path, '/api/v1/developers'):
                 Auth::setDefaultDriver('developer');
+                config(['sanctum.guard' => 'developer']);
                 Password::setDefaultDriver('developers');
 
                 break;
