@@ -10,11 +10,11 @@ class AuthenticatedUserController extends Controller
 {
     public function show(Request $request)
     {
-        $guard = Auth::getDefaultDriver();
+        $guard = config('sanctum.guard');
 
         return response()->json([
             'user' => $request->user(),
-            'role' => $guard,
+            'type' => $guard,
         ]);
     }
 }

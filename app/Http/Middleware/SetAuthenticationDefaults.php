@@ -24,7 +24,7 @@ class SetAuthenticationDefaults
 
         switch (true) {
             case Str::startsWith($path, '/tutors'):
-            case Str::startsWith($path, '/api/v1/tutors'):
+            case Str::startsWith($path, '/api/tutors/v1'):
                 Auth::setDefaultDriver('tutor');
                 config(['sanctum.guard' => 'tutor']);
                 Password::setDefaultDriver('tutors');
@@ -32,7 +32,7 @@ class SetAuthenticationDefaults
                 break;
 
             case Str::startsWith($path, '/teachers'):
-            case Str::startsWith($path, '/api/v1/teachers'):
+            case Str::startsWith($path, '/api/teachers/v1'):
                 Auth::setDefaultDriver('teacher');
                 config(['sanctum.guard' => 'teacher']);
                 Password::setDefaultDriver('teachers');
@@ -40,7 +40,7 @@ class SetAuthenticationDefaults
                 break;
 
             case Str::startsWith($path, '/students'):
-            case Str::startsWith($path, '/api/v1/students'):
+            case Str::startsWith($path, '/api/students/v1'):
                 Auth::setDefaultDriver('student');
                 config(['sanctum.guard' => 'student']);
                 Password::setDefaultDriver('students');
@@ -48,7 +48,7 @@ class SetAuthenticationDefaults
                 break;
 
             case Str::startsWith($path, '/admins'):
-            case Str::startsWith($path, '/api/v1/admins'):
+            case Str::startsWith($path, '/api/admins/v1'):
                 Auth::setDefaultDriver('admin');
                 config(['sanctum.guard' => 'admin']);
                 Password::setDefaultDriver('admins');
@@ -56,7 +56,7 @@ class SetAuthenticationDefaults
                 break;
 
             case Str::startsWith($path, '/developers'):
-            case Str::startsWith($path, '/api/v1/developers'):
+            case Str::startsWith($path, '/api/developers/v1'):
                 Auth::setDefaultDriver('developer');
                 config(['sanctum.guard' => 'developer']);
                 Password::setDefaultDriver('developers');

@@ -9,7 +9,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routers for tutor.
-Route::prefix('/tutors/auth')
+Route::prefix('/tutors')
     ->name('tutors.auth.')
     ->group(function () {
         Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -42,7 +42,7 @@ Route::prefix('/tutors/auth')
     });
 
 // Auth routers for teacher.
-Route::prefix('/teachers/auth')
+Route::prefix('/teachers')
     ->name('teachers.auth.')
     ->group(function () {
         Route::post('/login', [AuthenticatedSessionController::class, 'store'])
@@ -63,7 +63,7 @@ Route::prefix('/teachers/auth')
     });
 
 // Auth routers for student.
-Route::prefix('/students/auth')
+Route::prefix('/students')
     ->name('students.auth.')
     ->group(function () {
         Route::post('/login', [AuthenticatedSessionController::class, 'store'])
@@ -84,7 +84,7 @@ Route::prefix('/students/auth')
     });
 
 // Auth routers for admin.
-Route::prefix('/admins/auth')
+Route::prefix('/admins')
     ->name('admins.auth.')
     ->group(function () {
         Route::post('/login', [AuthenticatedSessionController::class, 'store'])
@@ -105,7 +105,7 @@ Route::prefix('/admins/auth')
     });
 
 // Auth routers for developer.
-Route::prefix('/developers/auth')
+Route::prefix('/developers')
     ->name('developers.auth.')
     ->group(function () {
         Route::post('/login', [AuthenticatedSessionController::class, 'store'])

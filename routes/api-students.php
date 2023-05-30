@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('/students')
-    ->name('students.')
+Route::prefix('/students/v1')
+    ->name('students.v1.')
     ->group(function () {
         Route::get('/me', [AuthenticatedUserController::class, 'show']);
     });
