@@ -13,17 +13,11 @@ return new class extends Migration {
         Schema::create('tutors', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('market_id')
-                ->constrained('markets');
-
             $table->foreignId('type_id')
                 ->constrained('tutor_types');
 
-            $table->string('username')
-                ->nullable();
-
             $table->string('email')
-                ->nullable();
+                ->unique();
 
             $table->string('first_name');
 
@@ -31,14 +25,10 @@ return new class extends Migration {
 
             $table->string('password');
 
-            $table->timestamp('email_verified_at')
-                ->nullable();
-
-            $table->rememberToken();
+//            $table->timestamp('email_verified_at')
+//                ->nullable();
 
             $table->timestamps();
-
-            $table->unique(['username', 'password']);
         });
     }
 

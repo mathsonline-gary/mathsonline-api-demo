@@ -13,9 +13,6 @@ return new class extends Migration {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('market_id')
-                ->constrained('markets');
-
             $table->string('username')
                 ->unique();
 

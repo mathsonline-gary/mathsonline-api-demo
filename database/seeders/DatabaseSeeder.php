@@ -9,6 +9,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -18,6 +20,7 @@ class DatabaseSeeder extends Seeder
             SchoolSeeder::class,
             AdminSeeder::class,
             DeveloperSeeder::class,
+            ClassroomSeeder::class,
         ]);
     }
 }

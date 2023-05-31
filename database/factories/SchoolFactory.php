@@ -26,4 +26,32 @@ class SchoolFactory extends Factory
             'address_country' => fake()->country(),
         ];
     }
+
+    /**
+     * Indicate that the school type is homeschool.
+     *
+     * @return SchoolFactory
+     */
+    public function homeschool(): SchoolFactory
+    {
+        return $this->state(function (array $attribute) {
+            return [
+                'type' => 'homeschool',
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the school type is traditional school.
+     *
+     * @return SchoolFactory
+     */
+    public function traditionalSchool(): SchoolFactory
+    {
+        return $this->state(function (array $attribute) {
+            return [
+                'type' => 'traditional school',
+            ];
+        });
+    }
 }

@@ -3,10 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\School;
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\Tutor;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
+use App\Models\Users\Tutor;
 use Illuminate\Database\Seeder;
 
 class SchoolSeeder extends Seeder
@@ -16,14 +15,14 @@ class SchoolSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed tutor-created schools.
+        // Seed homeschools.
         School::factory()
+            ->homeschool()
             ->has(
                 Tutor::factory()
                     ->count(1)
                     ->state(function (array $attributes, School $school) {
                         return [
-                            'market_id' => $school->market_id,
                             'type_id' => 1,
                             'email' => $school->email,
                         ];
@@ -34,41 +33,29 @@ class SchoolSeeder extends Seeder
                     ->count(1)
                     ->state(function (array $attributes, School $school) {
                         return [
-                            'market_id' => $school->market_id,
                             'type_id' => 2,
-                        ];
-                    })
-            )
-            ->count(10)
-            ->state([
-                'type' => 'tutor-created school',
-            ])
-            ->create();
-
-        // Seed traditional schools.
-        School::factory()
-            ->has(
-                Teacher::factory()
-                    ->count(15)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'market_id' => $school->market_id,
                         ];
                     })
             )
             ->has(
                 Student::factory()
-                    ->count(30)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'market_id' => $school->market_id,
-                        ];
-                    })
+                    ->count(2)
             )
             ->count(10)
-            ->state([
-                'type' => 'traditional school',
-            ])
+            ->create();
+
+        // Seed traditional schools.
+        School::factory()
+            ->traditionalSchool()
+            ->has(
+                Teacher::factory()
+                    ->count(15)
+            )
+            ->has(
+                Student::factory()
+                    ->count(30)
+            )
+            ->count(10)
             ->create();
     }
 }
