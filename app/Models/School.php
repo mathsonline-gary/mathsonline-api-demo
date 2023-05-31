@@ -46,7 +46,7 @@ class School extends Model
      */
     public function instructors(): HasMany
     {
-        if ($this->type === 'homeschool') {
+        if ($this->type === EnumSchoolType::Homeschool) {
             return $this->tutors();
         }
 

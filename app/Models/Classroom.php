@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Classroom extends Model
 {
@@ -46,6 +47,17 @@ class Classroom extends Model
     public function secondaryTeachers(): BelongsToMany
     {
         return $this->belongsToMany(Teacher::class, 'classroom_secondary_teacher', 'classroom_id', 'teacher_id')
-            ->where('school_id', $this->school_id);
+            ->where('school_id', $this->school_id)
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the classroom groups for the class.
+     *
+     * @return HasMany
+     */
+    public function classroomGroups(): HasMany
+    {
+        return $this->hasMany(ClassroomGroup::class);
     }
 }

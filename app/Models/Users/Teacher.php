@@ -46,6 +46,7 @@ class Teacher extends User
     public function classroomsAsSecondaryTeacher(): BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'classroom_secondary_teacher', 'teacher_id', 'classroom_id')
-            ->where('school_id', $this->school_id);
+            ->where('school_id', $this->school_id)
+            ->withTimestamps();
     }
 }

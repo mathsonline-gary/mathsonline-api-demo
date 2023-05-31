@@ -10,16 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('classroom_secondary_teacher', function (Blueprint $table) {
-            $table->comment('Pivot table to associate teachers with classrooms as secondary teachers.');
+        Schema::create('classroom_group_student', function (Blueprint $table) {
+            $table->comment('Pivot table to associate students with classroom groups.');
 
             $table->id();
 
-            $table->foreignId('classroom_id')
-                ->constrained('classrooms');
+            $table->foreignId('classroom_group_id')
+                ->constrained('classroom_groups');
 
-            $table->foreignId('teacher_id')
-                ->constrained('teachers');
+            $table->foreignId('student_id')
+                ->constrained('students');
 
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('classroom_secondary_teacher');
+        Schema::dropIfExists('classroom_group_student');
     }
 };
