@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\EnumSchoolType;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,19 +15,8 @@ class School extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'market_id',
-        'name',
-        'type',
-        'email',
-        'phone',
-        'fax',
-        'address_line_1',
-        'address_line_2',
-        'address_city',
-        'address_state',
-        'address_postal_code',
-        'address_country',
+    protected $casts = [
+        'type' => EnumSchoolType::class,
     ];
 
     /**
@@ -70,5 +61,27 @@ class School extends Model
     public function students(): HasMany
     {
         return $this->hasMany(Student::class);
+    }
+
+    /**
+     * Scope a query to only include traditional schools.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeTraditionalSchools(Builder $query): Builder
+    {
+        return $query->where('type', EnumSchoolType::TraditionalSchool);
+    }
+
+    /**
+     * Scope a query to only include homeschools.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeHomeschools(Builder $query): Builder
+    {
+        return $query->where('type', EnumSchoolType::Homeschool);
     }
 }

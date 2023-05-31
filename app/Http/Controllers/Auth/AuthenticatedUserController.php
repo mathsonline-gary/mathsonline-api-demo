@@ -10,11 +10,11 @@ class AuthenticatedUserController extends Controller
 {
     public function show(Request $request)
     {
-        $guard = config('sanctum.guard');
+        $userType = config('sanctum.guard');
 
         return response()->json([
             'user' => $request->user(),
-            'type' => $guard,
+            'type' => $userType,
         ]);
     }
 }

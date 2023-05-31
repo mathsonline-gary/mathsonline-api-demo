@@ -15,14 +15,14 @@ class SchoolSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed tutor-created schools.
+        // Seed homeschools.
         School::factory()
+            ->homeschool()
             ->has(
                 Tutor::factory()
                     ->count(1)
                     ->state(function (array $attributes, School $school) {
                         return [
-                            'market_id' => $school->market_id,
                             'type_id' => 1,
                             'email' => $school->email,
                         ];
@@ -33,7 +33,6 @@ class SchoolSeeder extends Seeder
                     ->count(1)
                     ->state(function (array $attributes, School $school) {
                         return [
-                            'market_id' => $school->market_id,
                             'type_id' => 2,
                         ];
                     })
@@ -41,42 +40,22 @@ class SchoolSeeder extends Seeder
             ->has(
                 Student::factory()
                     ->count(2)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'market_id' => $school->market_id,
-                        ];
-                    })
             )
             ->count(10)
-            ->state([
-                'type' => 'homeschool',
-            ])
             ->create();
 
         // Seed traditional schools.
         School::factory()
+            ->traditionalSchool()
             ->has(
                 Teacher::factory()
                     ->count(15)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'market_id' => $school->market_id,
-                        ];
-                    })
             )
             ->has(
                 Student::factory()
                     ->count(30)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'market_id' => $school->market_id,
-                        ];
-                    })
             )
             ->count(10)
-            ->state([
-                'type' => 'traditional school',
-            ])
             ->create();
     }
 }

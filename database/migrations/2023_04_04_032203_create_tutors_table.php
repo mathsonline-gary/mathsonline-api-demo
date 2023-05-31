@@ -13,9 +13,6 @@ return new class extends Migration {
         Schema::create('tutors', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('market_id')
-                ->constrained('markets');
-
             $table->foreignId('type_id')
                 ->constrained('tutor_types');
 
