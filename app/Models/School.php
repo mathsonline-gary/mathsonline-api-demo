@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class School extends Model
 {
@@ -37,20 +38,6 @@ class School extends Model
     public function teachers(): HasMany
     {
         return $this->hasMany(Teacher::class);
-    }
-
-    /**
-     * Get the school's instructors, can be tutors or teachers.
-     *
-     * @return HasMany
-     */
-    public function instructors(): HasMany
-    {
-        if ($this->type === EnumSchoolType::Homeschool) {
-            return $this->tutors();
-        }
-
-        return $this->teachers();
     }
 
     /**
@@ -83,5 +70,10 @@ class School extends Model
     public function scopeHomeschools(Builder $query): Builder
     {
         return $query->where('type', EnumSchoolType::Homeschool);
+    }
+
+    public function scopePrimaryTutor()
+    {
+
     }
 }

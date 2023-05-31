@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Users;
 
+use App\Models\School;
 use App\Models\Users\Tutor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,5 +27,33 @@ class TutorFactory extends Factory
             'last_name' => fake()->lastName(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
         ];
+    }
+
+    /**
+     * Indicate the tutor is a primary tutor.
+     *
+     * @return TutorFactory
+     */
+    public function primary(): TutorFactory
+    {
+        return $this->state(function () {
+            return [
+                'type_id' => 1,
+            ];
+        });
+    }
+
+    /**
+     * Indicate the tutor is a secondary tutor.
+     *
+     * @return TutorFactory
+     */
+    public function secondary(): TutorFactory
+    {
+        return $this->state(function () {
+            return [
+                'type_id' => 2,
+            ];
+        });
     }
 }

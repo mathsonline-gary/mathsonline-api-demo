@@ -32,6 +32,7 @@ class Student extends User
         return $this->belongsToMany(ClassroomGroup::class)
             ->whereHas('classroom', function (Builder $query) {
                 $query->where('school_id', $this->school_id);
-            });
+            })
+            ->withTimestamps();
     }
 }

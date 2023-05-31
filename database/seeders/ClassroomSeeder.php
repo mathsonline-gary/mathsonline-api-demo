@@ -24,9 +24,9 @@ class ClassroomSeeder extends Seeder
 
             // Seed classrooms.
             $classrooms = Classroom::factory()
+                ->count(5)
                 ->ofSchool($school)
                 ->ownedBy($teachers->random())
-                ->count(5)
                 ->create();
 
             $classrooms->each(function ($classroom) use ($teachers, $students) {
@@ -42,9 +42,9 @@ class ClassroomSeeder extends Seeder
 
                 // Seed custom classroom groups.
                 $customClassroomGroups = ClassroomGroup::factory()
+                    ->count(2)
                     ->for($classroom)
                     ->default(false)
-                    ->count(2)
                     ->create();
 
                 // Seed students for each classroom and classroom group

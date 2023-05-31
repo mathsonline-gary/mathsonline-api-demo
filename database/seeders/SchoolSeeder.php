@@ -17,35 +17,30 @@ class SchoolSeeder extends Seeder
     {
         // Seed homeschools.
         School::factory()
+            ->count(10)
             ->homeschool()
             ->has(
                 Tutor::factory()
-                    ->count(1)
+                    ->primary()
                     ->state(function (array $attributes, School $school) {
                         return [
-                            'type_id' => 1,
                             'email' => $school->email,
                         ];
                     })
             )
             ->has(
                 Tutor::factory()
-                    ->count(1)
-                    ->state(function (array $attributes, School $school) {
-                        return [
-                            'type_id' => 2,
-                        ];
-                    })
+                    ->secondary()
             )
             ->has(
                 Student::factory()
                     ->count(2)
             )
-            ->count(10)
             ->create();
 
         // Seed traditional schools.
         School::factory()
+            ->count(10)
             ->traditionalSchool()
             ->has(
                 Teacher::factory()
@@ -55,7 +50,6 @@ class SchoolSeeder extends Seeder
                 Student::factory()
                     ->count(30)
             )
-            ->count(10)
             ->create();
     }
 }

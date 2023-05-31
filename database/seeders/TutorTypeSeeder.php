@@ -15,7 +15,6 @@ class TutorTypeSeeder extends Seeder
         $seed = [
             ['name' => 'primary parent'],
             ['name' => 'secondary parent'],
-            ['name' => 'school parent'],
         ];
 
         DB::table('tutor_types')

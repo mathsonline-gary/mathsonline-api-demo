@@ -34,6 +34,7 @@ class ClassroomGroup extends Model
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class)
-            ->where('school_id', $this->classroom->school_id);
+            ->where('school_id', $this->classroom->school_id)
+            ->withTimestamps();
     }
 }
