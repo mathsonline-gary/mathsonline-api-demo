@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\EnumSchoolType;
 use App\Models\Market;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -36,7 +37,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => 'homeschool',
+                'type' => EnumSchoolType::Homeschool,
             ];
         });
     }
@@ -50,7 +51,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => 'traditional school',
+                'type' => EnumSchoolType::TraditionalSchool,
             ];
         });
     }

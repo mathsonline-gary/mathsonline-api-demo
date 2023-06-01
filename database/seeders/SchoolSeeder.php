@@ -44,7 +44,11 @@ class SchoolSeeder extends Seeder
             ->traditionalSchool()
             ->has(
                 Teacher::factory()
-                    ->count(15)
+                    ->admin()
+            )
+            ->has(
+                Teacher::factory()
+                    ->count(14)
             )
             ->has(
                 Student::factory()

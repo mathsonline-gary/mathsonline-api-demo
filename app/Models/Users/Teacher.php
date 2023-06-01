@@ -13,6 +13,15 @@ class Teacher extends User
 {
     use HasFactory;
 
+    protected $fillable = [
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'title',
+        'position',
+    ];
+
     protected $hidden = [
         'password',
     ];

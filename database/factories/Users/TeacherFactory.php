@@ -37,4 +37,18 @@ class TeacherFactory extends Factory
             'position' => fake()->randomElement($positions)
         ];
     }
+
+    /**
+     * Indicate the teacher has the administrator access.
+     *
+     * @return TeacherFactory
+     */
+    public function admin(): TeacherFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_admin' => true,
+            ];
+        });
+    }
 }
