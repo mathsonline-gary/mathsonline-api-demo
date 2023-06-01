@@ -11,7 +11,7 @@ class TeacherShowingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teachers_with_administrator_access_can_get_the_profile_of_a_teacher_in_same_school(): void
+    public function test_teacher_administrators_can_get_the_profile_of_a_teacher_in_same_school(): void
     {
         // Create a test school.
         $school = School::factory()
@@ -38,7 +38,7 @@ class TeacherShowingTest extends TestCase
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher->id));
 
         // Assert that the request is successful.
-        $response->assertStatus(200);
+        $response->assertOk();
 
         // Assert that the teacher profile is correct.
         $response->assertJson([
@@ -46,7 +46,7 @@ class TeacherShowingTest extends TestCase
         ]);
     }
 
-    public function test_teachers_without_administrator_access_are_unauthorised_to_get_the_profile_of_another_teacher_in_same_school(): void
+    public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_another_teacher_in_same_school(): void
     {
         // Create a test school.
         $school = School::factory()
@@ -71,10 +71,10 @@ class TeacherShowingTest extends TestCase
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
-    public function test_teachers_with_administrator_access_are_unauthorized_to_get_the_profile_of_a_teacher_in_different_school(): void
+    public function test_teacher_administrators_are_unauthorized_to_get_the_profile_of_a_teacher_in_different_school(): void
     {
         // Create a test school 1.
         $school1 = School::factory()
@@ -106,10 +106,10 @@ class TeacherShowingTest extends TestCase
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 
-    public function test_teachers_without_administrator_access_are_unauthorised_to_get_the_profile_of_a_teacher_in_different_school(): void
+    public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_a_teacher_in_different_school(): void
     {
         // Create a test school 1.
         $school1 = School::factory()
@@ -140,6 +140,6 @@ class TeacherShowingTest extends TestCase
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
-        $response->assertStatus(403);
+        $response->assertForbidden();
     }
 }

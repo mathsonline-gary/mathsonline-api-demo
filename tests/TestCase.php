@@ -2,17 +2,17 @@
 
 namespace Tests;
 
+use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-
     /**
-     * Indicates whether the default seeder should run before each test.
+     * Run market seeder before each test.
      *
-     * @var bool
+     * @var string
      */
-    protected bool $seed = true;
+    protected string $seeder = MarketSeeder::class;
 }
