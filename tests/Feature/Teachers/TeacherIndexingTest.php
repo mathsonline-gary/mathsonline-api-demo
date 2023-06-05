@@ -4,12 +4,21 @@ namespace Tests\Feature\Teachers;
 
 use App\Models\School;
 use App\Models\Users\Teacher;
+use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TeacherIndexingTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * Run MarketSeeder before each test.
+     *
+     * @var string
+     * @see MarketSeeder
+     */
+    protected string $seeder = MarketSeeder::class;
 
     public function test_teacher_administrators_can_only_get_the_list_of_teachers_in_same_school(): void
     {

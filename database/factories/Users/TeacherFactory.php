@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Users;
 
+use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -48,6 +49,21 @@ class TeacherFactory extends Factory
         return $this->state(function () {
             return [
                 'is_admin' => true,
+            ];
+        });
+    }
+
+    /**
+     * Indicate the teacher to belong to a given school.
+     *
+     * @param School $school
+     * @return TeacherFactory
+     */
+    public function ofSchool(School $school): TeacherFactory
+    {
+        return $this->state(function () use ($school) {
+            return [
+                'school_id' => $school->id,
             ];
         });
     }

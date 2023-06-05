@@ -4,6 +4,7 @@ namespace Tests\Feature\Teachers;
 
 use App\Models\School;
 use App\Models\Users\Teacher;
+use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,7 +33,7 @@ class TeacherShowingTest extends TestCase
             ]);
 
         // Authenticate as the teacher admin.
-        $this->actingAs($teacherAdmin);
+        $this->actingAs($teacherAdmin, 'teacher');
 
         // Send request
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher->id));
@@ -41,7 +42,7 @@ class TeacherShowingTest extends TestCase
         $response->assertOk();
 
         // Assert that the teacher profile is correct.
-        $response->assertJson([
+        $response->assertJsonFragment([
             'id' => $teacher->id,
         ]);
     }
@@ -65,7 +66,7 @@ class TeacherShowingTest extends TestCase
             ]);
 
         // Authenticate as a non-admin teacher.
-        $this->actingAs($teacher1);
+        $this->actingAs($teacher1, 'teacher');
 
         // Send request.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
@@ -100,7 +101,7 @@ class TeacherShowingTest extends TestCase
             ]);
 
         // Authenticate as teacher admin in school 1.
-        $this->actingAs($teacher1);
+        $this->actingAs($teacher1, 'teacher');
 
         // Send request to get the teacher profile in school 2.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
@@ -134,7 +135,7 @@ class TeacherShowingTest extends TestCase
             ]);
 
         // Authenticate as teacher admin in school 1.
-        $this->actingAs($teacher1);
+        $this->actingAs($teacher1, 'teacher');
 
         // Send request to get the teacher profile in school 2.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
