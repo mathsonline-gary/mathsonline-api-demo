@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\Web\Auth\AuthenticatedUserController;
+use App\Http\Controllers\Web\Tutors\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Students Routes
+| Tutor Routes
 |--------------------------------------------------------------------------
 |
-| API routes for students.
+| API routes for tutors.
 |
 */
 
-Route::prefix('/students/v1')
-    ->name('students.v1.')
+Route::prefix('/tutors/v1')
+    ->name('tutors.v1.')
     ->group(function () {
-        Route::get('/me', [AuthenticatedUserController::class, 'show']);
+
+        Route::get('/me', [AuthController::class, 'me']);
     });

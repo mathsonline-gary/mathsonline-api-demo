@@ -17,4 +17,12 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth/auth-teachers.php';
+
+require __DIR__ . '/auth/auth-students.php';
+
+require __DIR__ . '/auth/auth-admins.php';
+
+require __DIR__ . '/auth/auth-developers.php';
+
+require __DIR__ . '/auth/auth-tutors.php';

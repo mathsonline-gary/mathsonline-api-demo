@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
-use App\Http\Controllers\Web\Auth\AuthenticatedUserController;
+use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/teachers/v1')
     ->name('teachers.v1.')
     ->group(function () {
-        Route::get('/me', [AuthenticatedUserController::class, 'show'])
+        Route::get('/me', [AuthController::class, 'me'])
             ->name('me');
 
         // Teacher module routes.
