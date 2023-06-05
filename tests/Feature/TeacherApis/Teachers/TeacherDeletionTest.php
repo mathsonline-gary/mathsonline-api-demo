@@ -1,12 +1,10 @@
 <?php
 
-namespace Tests\Feature\Teachers;
+namespace Tests\Feature\TeacherApis\Teachers;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class TeacherUpdatingTest extends TestCase
+class TeacherDeletionTest extends TestCase
 {
     /**
      * A basic feature test example.

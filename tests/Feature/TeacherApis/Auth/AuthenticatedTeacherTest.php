@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\Feature\Teachers;
+namespace Tests\Feature\TeacherApis\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class TeacherCreationTest extends TestCase
+class AuthenticatedTeacherTest extends TestCase
 {
     /**
      * A basic feature test example.

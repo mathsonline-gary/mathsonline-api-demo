@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Teachers;
+namespace Tests\Feature\TeacherApis\Teachers;
 
 use App\Models\School;
 use App\Models\Users\Teacher;

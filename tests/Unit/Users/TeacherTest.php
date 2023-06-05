@@ -13,6 +13,10 @@ class TeacherTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @return void
+     * @see Teacher::school()
+     */
     public function test_a_teacher_belongs_to_a_school(): void
     {
         $school = School::factory()->create([
@@ -34,6 +38,10 @@ class TeacherTest extends TestCase
         $this->assertEquals($school->id, $teacher->school->id);
     }
 
+    /**
+     * @return void
+     * @see Teacher::classroomsAsOwner()
+     */
     public function test_a_teacher_may_own_classrooms()
     {
         $school = School::factory()->create([
@@ -65,6 +73,10 @@ class TeacherTest extends TestCase
         $this->assertTrue($classrooms->contains($classroom2));
     }
 
+    /**
+     * @return void
+     * @see Teacher::classroomsAsOwner()
+     */
     public function test_a_teacher_may_not_own_any_classroom()
     {
         $school = School::factory()->create([
@@ -82,6 +94,10 @@ class TeacherTest extends TestCase
         $this->assertEmpty($classrooms);
     }
 
+    /**
+     * @return void
+     * @see Teacher::classroomsAsSecondaryTeacher()
+     */
     public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms()
     {
         $school = School::factory()->create([
@@ -120,6 +136,10 @@ class TeacherTest extends TestCase
         $this->assertTrue($classrooms1->contains($classroom2));
     }
 
+    /**
+     * @return void
+     * @see Teacher::classroomsAsSecondaryTeacher()
+     */
     public function test_a_teacher_may_not_be_the_secondary_teacher_of_any_classroom()
     {
         $school = School::factory()->create([
@@ -156,6 +176,10 @@ class TeacherTest extends TestCase
         $this->assertFalse($classrooms->contains($classroom2));
     }
 
+    /**
+     * @return void
+     * @see Teacher::isAdmin()
+     */
     public function test_a_teacher_is_admin()
     {
         $school = School::factory()->create([

@@ -1,13 +1,19 @@
 <?php
 
-namespace Tests\Feature\Teachers;
+namespace Tests\Feature\TeacherApis\Teachers;
 
+use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Models\School;
 use App\Models\Users\Teacher;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * Test teacher showing endpoint for teachers.
+ *
+ * @see /routes/api-teachers.php
+ * @see TeacherController::show()
+ */
 class TeacherShowingTest extends TestCase
 {
     use RefreshDatabase;
