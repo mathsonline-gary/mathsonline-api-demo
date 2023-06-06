@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\EnumClassroomType;
-use App\Enums\EnumSchoolType;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
@@ -39,8 +37,8 @@ class ClassroomFactory extends Factory
             return [
                 'school_id' => $school->id,
                 'type' => match ($school->type) {
-                    EnumSchoolType::TraditionalSchool => EnumClassroomType::TraditionalClassroom,
-                    EnumSchoolType::Homeschool => EnumClassroomType::HomeschoolClassroom,
+                    School::TRADITIONAL_SCHOOL => Classroom::TRADITIONAL_CLASSROOM,
+                    School::HOMESCHOOL => Classroom::HOMESCHOOL_CLASSROOM,
                 }
             ];
         });

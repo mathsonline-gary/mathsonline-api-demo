@@ -39,7 +39,7 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => TutorType::where(['name' => 'primary parent'])->first()->id,
+                'type_id' => TutorType::where(['name' => TutorType::PRIMARY_PARENT])->first()->id,
             ];
         });
     }
@@ -53,7 +53,7 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => TutorType::where(['name' => 'secondary parent'])->first()->id,
+                'type_id' => TutorType::where(['name' => TutorType::SECONDARY_PARENT])->first()->id,
             ];
         });
     }

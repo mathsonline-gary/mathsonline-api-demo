@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\EnumClassroomType;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +13,9 @@ class Classroom extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'type' => EnumClassroomType::class
-    ];
+    public const TRADITIONAL_CLASSROOM = 'traditional classroom';
+
+    public const HOMESCHOOL_CLASSROOM = 'homeschool classroom';
 
     /**
      * Get the school associated with the classroom.

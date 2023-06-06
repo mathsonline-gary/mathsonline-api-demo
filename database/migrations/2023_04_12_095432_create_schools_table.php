@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\EnumSchoolType;
+use App\Models\School;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +17,8 @@ return new class extends Migration {
             $table->string('name');
 
             $table->enum('type', [
-                EnumSchoolType::TraditionalSchool->value,
-                EnumSchoolType::Homeschool->value,
+                School::TRADITIONAL_SCHOOL,
+                School::HOMESCHOOL,
             ]);
 
             $table->string('email')
