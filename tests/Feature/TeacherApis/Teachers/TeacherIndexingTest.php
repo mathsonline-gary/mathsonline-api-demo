@@ -30,16 +30,14 @@ class TeacherIndexingTest extends TestCase
         // Create a test teacher admin in school 1.
         $teacherAdmin = Teacher::factory()
             ->admin()
-            ->create([
-                'school_id' => $school1->id,
-            ]);
+            ->ofSchool($school1)
+            ->create();
 
         // Create test teachers in school 1.
         $teachers1 = Teacher::factory()
             ->count(10)
-            ->create([
-                'school_id' => $school1->id,
-            ]);
+            ->ofSchool($school1)
+            ->create();
 
         // Create test school 2.
         $school2 = School::factory()
@@ -49,12 +47,11 @@ class TeacherIndexingTest extends TestCase
         // Create test teachers in school 2.
         Teacher::factory()
             ->count(10)
-            ->create([
-                'school_id' => $school2->id,
-            ]);
+            ->ofSchool($school2)
+            ->create();
 
         // Authenticate as the teacher admin.
-        $this->actingAs($teacherAdmin);
+        $this->actingAs($teacherAdmin, 'teacher');
 
         // Send request
         $response = $this->getJson(route('api.teachers.v1.teachers.index'));
@@ -99,22 +96,20 @@ class TeacherIndexingTest extends TestCase
 
         // Create a non-admin teacher in the school.
         $nonAdminTeacher = Teacher::factory()
-            ->create([
-                'school_id' => $school->id,
-            ]);
+            ->ofSchool($school)
+            ->create();
 
         // Create test teachers in the school.
         Teacher::factory()
             ->count(10)
-            ->create([
-                'school_id' => $school->id,
-            ]);
+            ->ofSchool($school)
+            ->create();
 
         // Authenticate as the non-admin teacher.
-        $this->actingAs($nonAdminTeacher);
+        $this->actingAs($nonAdminTeacher, 'teacher');
 
         // Send request
-        $response = $this->get(route('api.teachers.v1.teachers.index'));
+        $response = $this->getJson(route('api.teachers.v1.teachers.index'));
 
         // Assert that the request is unauthorised.
         $response->assertForbidden();

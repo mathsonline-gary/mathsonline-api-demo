@@ -17,7 +17,16 @@ class TeacherController extends Controller
 
     public function index(Request $request)
     {
-        return response('teachers.index');
+        /* @var Teacher $teacher */
+        $teacher = $request->user();
+
+        $this->authorize('viewAnyInSchool', [Teacher::class, $teacher->school_id]);
+
+        $teachers = $this->teacherService->search([
+            'school_id' => $teacher->school_id,
+        ]);
+
+        return TeacherResource::collection($teachers);
     }
 
     public function show(Request $request, Teacher $teacher)

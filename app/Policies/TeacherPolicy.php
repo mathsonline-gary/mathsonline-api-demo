@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\School;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\Response;
@@ -17,11 +18,26 @@ class TeacherPolicy
     }
 
     /**
+     * Determine whether the user can view any teacher in given school.
+     *
+     * @param User $user
+     * @param int $schoolId
+     * @return bool
+     */
+    public function viewAnyInSchool(User $user, int $schoolId): bool
+    {
+        return $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $schoolId;
+    }
+
+    /**
      * Determine whether the user can view the model.
      */
-    public function view(Teacher $user, Teacher $teacher): bool
+    public function view(User $user, Teacher $teacher): bool
     {
-        return $user->isAdmin() &&
+        return $user instanceof Teacher &&
+            $user->isAdmin() &&
             $user->school_id === $teacher->school_id;
     }
 

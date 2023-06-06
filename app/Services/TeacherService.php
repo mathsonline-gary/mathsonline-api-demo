@@ -6,6 +6,8 @@ use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class TeacherService
 {
@@ -39,5 +41,30 @@ class TeacherService
         }
 
         return $teacher;
+    }
+
+    /**
+     * Search teachers by options.
+     *
+     * @param array{
+     *     school_id?: int,
+     *     pagination?: bool
+     * } $options
+     * @return LengthAwarePaginator|Collection<Teacher>
+     */
+    public function search(array $options = []): Collection|LengthAwarePaginator
+    {
+        $query = Teacher::with([
+            'classroomsAsOwner',
+            'classroomsAsSecondaryTeacher',
+        ]);
+
+        if (isset($options['school_id'])) {
+            $query = $query->where(['school_id' => $options['school_id']]);
+        }
+
+        return $options['pagination'] ?? true
+            ? $query->paginate()
+            : $query->get();
     }
 }
