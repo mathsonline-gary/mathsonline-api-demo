@@ -16,6 +16,7 @@ class Teacher extends User
     protected $fillable = [
         'username',
         'email',
+        'password',
         'first_name',
         'last_name',
         'title',

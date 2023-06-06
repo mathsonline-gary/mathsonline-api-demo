@@ -63,7 +63,7 @@ class TeacherIndexingTest extends TestCase
         $response->assertJsonCount($teachers1->count() + 1, 'data');
 
         // Assert the response has the expected attributes of each teacher.
-        $response->assertJsonStructure([
+        $response->assertJsonFragment([
             'data' => [
                 '*' => [
                     'username',

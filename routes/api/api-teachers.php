@@ -25,4 +25,7 @@ Route::prefix('/teachers/v1')
 
         Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])
             ->name('teachers.show');
+
+        Route::post('/teachers/', [TeacherController::class, 'store'])
+            ->name('teachers.store');
     });

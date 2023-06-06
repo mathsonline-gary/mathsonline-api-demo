@@ -44,9 +44,11 @@ class TeacherPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, int $schoolId): bool
     {
-        return true;
+        return $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $schoolId;
     }
 
     /**

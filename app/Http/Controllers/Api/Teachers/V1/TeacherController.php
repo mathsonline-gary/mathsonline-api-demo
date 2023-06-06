@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Http\Requests\StoreTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
@@ -39,5 +40,29 @@ class TeacherController extends Controller
         ]);
 
         return new TeacherResource($teacher);
+    }
+
+    public function store(StoreTeacherRequest $request)
+    {
+        /** @var Teacher $user */
+        $user = $request->user();
+
+        $validated = $request->safe()->only([
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+            'is_admin',
+        ]);
+        
+        $teacher = $this->teacherService->create([
+            ...$validated,
+            'school_id' => $user->id,
+        ]);
+
+        return response()->json($teacher, 201);
     }
 }

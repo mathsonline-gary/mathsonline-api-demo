@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 
 class TeacherService
 {
@@ -66,5 +68,35 @@ class TeacherService
         return $options['pagination'] ?? true
             ? $query->paginate()
             : $query->get();
+    }
+
+    /**
+     * Create a teacher by given attributes.
+     *
+     * @param array $attributes
+     * @return Teacher
+     */
+    public function create(array $attributes): Teacher
+    {
+        $attributes = Arr::only($attributes, [
+            'school_id',
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+            'is_admin',
+        ]);
+
+        $teacher = new Teacher([
+            ...$attributes,
+            'password' => Hash::make($attributes['password']),
+        ]);
+        
+        $teacher->save();
+
+        return $teacher;
     }
 }
