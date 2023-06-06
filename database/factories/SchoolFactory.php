@@ -24,6 +24,10 @@ class SchoolFactory extends Factory
             'address_state' => fake()->countryCode(),
             'address_postal_code' => fake()->postcode(),
             'address_country' => fake()->country(),
+            'type' => fake()->randomElement([
+                School::HOMESCHOOL,
+                School::TRADITIONAL_SCHOOL
+            ]),
         ];
     }
 

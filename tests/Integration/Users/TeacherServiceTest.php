@@ -36,12 +36,12 @@ class TeacherServiceTest extends TestCase
      *
      * @test
      */
-    public function it_can_find_a_teacher(): void
+    public function it_finds_a_teacher(): void
     {
         $this->seed([
             MarketSeeder::class
         ]);
-        
+
         $school = School::factory()->create([
             'market_id' => 1,
             'type' => 'traditional school',
