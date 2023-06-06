@@ -67,6 +67,7 @@ class TeacherCreationTest extends TestCase
             'last_name' => $payload['last_name'],
             'position' => $payload['position'],
             'title' => $payload['title'],
+            'is_admin' => $payload['is_admin'],
         ]);
 
         // Assert that the response does not include the teacher's password

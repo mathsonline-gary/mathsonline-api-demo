@@ -57,12 +57,12 @@ class TeacherController extends Controller
             'position',
             'is_admin',
         ]);
-        
+
         $teacher = $this->teacherService->create([
             ...$validated,
-            'school_id' => $user->id,
+            'school_id' => $user->school_id,
         ]);
 
-        return response()->json($teacher, 201);
+        return response()->json(new TeacherResource($teacher), 201);
     }
 }

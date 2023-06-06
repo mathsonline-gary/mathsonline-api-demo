@@ -94,7 +94,9 @@ class TeacherService
             ...$attributes,
             'password' => Hash::make($attributes['password']),
         ]);
-        
+
+        $teacher->is_admin = $attributes['is_admin'];
+
         $teacher->save();
 
         return $teacher;
