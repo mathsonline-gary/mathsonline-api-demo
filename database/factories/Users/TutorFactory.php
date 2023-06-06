@@ -4,6 +4,7 @@ namespace Database\Factories\Users;
 
 use App\Models\School;
 use App\Models\Users\Tutor;
+use App\Models\Users\TutorType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,7 @@ class TutorFactory extends Factory
     public function definition(): array
     {
         return [
-            'type_id' => fake()->numberBetween(1, 3),
+            'type_id' => fake()->randomElement(TutorType::pluck('id')->all()),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -38,7 +39,7 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => 1,
+                'type_id' => TutorType::where(['name' => 'primary parent'])->first()->id,
             ];
         });
     }
@@ -52,7 +53,22 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => 2,
+                'type_id' => TutorType::where(['name' => 'secondary parent'])->first()->id,
+            ];
+        });
+    }
+
+    /**
+     * Indicate the tutor to belong to a given school.
+     *
+     * @param School $school
+     * @return TutorFactory
+     */
+    public function ofSchool(School $school): TutorFactory
+    {
+        return $this->state(function () use ($school) {
+            return [
+                'school_id' => $school->id,
             ];
         });
     }

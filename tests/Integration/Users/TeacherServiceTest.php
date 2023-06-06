@@ -5,6 +5,8 @@ namespace Tests\Integration\Users;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
+use Database\Seeders\MarketSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -14,6 +16,8 @@ use Tests\TestCase;
  */
 class TeacherServiceTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected TeacherService $teacherService;
 
     protected function setUp(): void
@@ -34,6 +38,10 @@ class TeacherServiceTest extends TestCase
      */
     public function it_can_find_a_teacher(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+        
         $school = School::factory()->create([
             'market_id' => 1,
             'type' => 'traditional school',

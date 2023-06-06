@@ -5,6 +5,7 @@ namespace Tests\Feature\TeacherApis\Teachers;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Models\School;
 use App\Models\Users\Teacher;
+use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,6 +21,10 @@ class TeacherShowingTest extends TestCase
 
     public function test_teacher_administrators_can_get_the_profile_of_a_teacher_in_same_school(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
         // Create a test school.
         $school = School::factory()
             ->traditionalSchool()
@@ -55,6 +60,10 @@ class TeacherShowingTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_another_teacher_in_same_school(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
         // Create a test school.
         $school = School::factory()
             ->traditionalSchool()
@@ -83,6 +92,10 @@ class TeacherShowingTest extends TestCase
 
     public function test_teacher_administrators_are_unauthorized_to_get_the_profile_of_a_teacher_in_different_school(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
         // Create a test school 1.
         $school1 = School::factory()
             ->traditionalSchool()
@@ -118,6 +131,10 @@ class TeacherShowingTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_a_teacher_in_different_school(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+        
         // Create a test school 1.
         $school1 = School::factory()
             ->traditionalSchool()

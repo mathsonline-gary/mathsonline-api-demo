@@ -5,6 +5,7 @@ namespace Tests\Unit\Users;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
+use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +20,10 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_belongs_to_a_school(): void
     {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
         $school = School::factory()->create([
             'market_id' => 1,
             'type' => 'traditional school',
@@ -44,10 +49,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_may_own_classrooms()
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
+
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
 
         $teacher = Teacher::factory()
             ->ofSchool($school)
@@ -79,10 +87,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_may_not_own_any_classroom()
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
+
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
 
         $teacher = Teacher::factory()
             ->ofSchool($school)
@@ -100,10 +111,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms()
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
+
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
 
         $owner = Teacher::factory()
             ->ofSchool($school)
@@ -142,10 +156,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_may_not_be_the_secondary_teacher_of_any_classroom()
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
+
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
 
         $owner = Teacher::factory()
             ->ofSchool($school)
@@ -182,10 +199,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_is_admin()
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
+
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
 
         // Create a teacher admin
         $adminTeacher = Teacher::factory()

@@ -14,7 +14,7 @@ class SchoolFactory extends Factory
     public function definition(): array
     {
         return [
-            'market_id' => fake()->numberBetween(1, Market::count()),
+            'market_id' => fake()->randomElement(Market::pluck('id')->all()),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),
