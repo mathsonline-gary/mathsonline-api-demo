@@ -30,7 +30,7 @@ class TeacherController extends Controller
         return TeacherResource::collection($teachers);
     }
 
-    public function show(Request $request, Teacher $teacher)
+    public function show(Teacher $teacher)
     {
         $this->authorize('view', $teacher);
 
@@ -64,5 +64,14 @@ class TeacherController extends Controller
         ]);
 
         return response()->json(new TeacherResource($teacher), 201);
+    }
+
+    public function destroy(Teacher $teacher)
+    {
+        $this->authorize('delete', $teacher);
+
+        $this->teacherService->delete($teacher->id);
+
+        return response()->noContent();
     }
 }

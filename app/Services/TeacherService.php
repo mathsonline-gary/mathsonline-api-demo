@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Users\Teacher;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -100,5 +99,16 @@ class TeacherService
         $teacher->save();
 
         return $teacher;
+    }
+
+    /**
+     * Delete teacher(s) for the given ID(s).
+     *
+     * @param array|int|string|Collection $ids
+     * @return int
+     */
+    public function delete(array|int|string|Collection $ids): int
+    {
+        return Teacher::destroy($ids);
     }
 }

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 trait TeacherHelpers
 {
-
     /**
      * Create teacher(s) with admin access.
      *

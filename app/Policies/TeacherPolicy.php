@@ -64,7 +64,9 @@ class TeacherPolicy
      */
     public function delete(User $user, Teacher $teacher): bool
     {
-        return true;
+        return $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $teacher->school_id;
     }
 
     /**
