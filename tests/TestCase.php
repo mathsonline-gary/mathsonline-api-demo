@@ -2,10 +2,13 @@
 
 namespace Tests;
 
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\Traits\SchoolHelpers;
+use Tests\Traits\TeacherHelpers;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication;
+    use CreatesApplication,
+        SchoolHelpers,
+        TeacherHelpers;
 }

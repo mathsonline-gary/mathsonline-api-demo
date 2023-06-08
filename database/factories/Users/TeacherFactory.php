@@ -54,6 +54,20 @@ class TeacherFactory extends Factory
     }
 
     /**
+     * Indicate the teacher has no administrator access.
+     *
+     * @return TeacherFactory
+     */
+    public function nonAdmin(): TeacherFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_admin' => false,
+            ];
+        });
+    }
+
+    /**
      * Indicate the teacher to belong to a given school.
      *
      * @param School $school

@@ -12,7 +12,7 @@ use Tests\TestCase;
 /**
  * Test teacher showing endpoint for teachers.
  *
- * @see /routes/api-teachers.php
+ * @see /routes/api/api-teachers.php
  * @see TeacherController::show()
  */
 class TeacherShowingTest extends TestCase
@@ -25,28 +25,13 @@ class TeacherShowingTest extends TestCase
             MarketSeeder::class
         ]);
 
-        // Create a test school.
-        $school = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school = $this->createTraditionalSchool();
 
-        // Create a test teacher admin in the school.
-        $teacherAdmin = Teacher::factory()
-            ->admin()
-            ->create([
-                'school_id' => $school->id,
-            ]);
+        $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacher = $this->createNonAdminTeacher($school);
 
-        // Create a test teacher in the school.
-        $teacher = Teacher::factory()
-            ->create([
-                'school_id' => $school->id,
-            ]);
+        $this->actingAsTeacher($teacherAdmin);
 
-        // Authenticate as the teacher admin.
-        $this->actingAs($teacherAdmin, 'teacher');
-
-        // Send request
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher->id));
 
         // Assert that the request is successful.
@@ -64,26 +49,13 @@ class TeacherShowingTest extends TestCase
             MarketSeeder::class
         ]);
 
-        // Create a test school.
-        $school = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school = $this->createTraditionalSchool();
 
-        // Create two non-admin teachers.
-        $teacher1 = Teacher::factory()
-            ->create([
-                'school_id' => $school->id,
-            ]);
+        $teacher1 = $this->createNonAdminTeacher($school);
+        $teacher2 = $this->createNonAdminTeacher($school);
 
-        $teacher2 = Teacher::factory()
-            ->create([
-                'school_id' => $school->id,
-            ]);
+        $this->actingAsTeacher($teacher1);
 
-        // Authenticate as a non-admin teacher.
-        $this->actingAs($teacher1, 'teacher');
-
-        // Send request.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
@@ -96,33 +68,14 @@ class TeacherShowingTest extends TestCase
             MarketSeeder::class
         ]);
 
-        // Create a test school 1.
-        $school1 = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school1 = $this->createTraditionalSchool();
+        $school2 = $this->createTraditionalSchool();
 
-        // Create a teacher admin in school 1.
-        $teacher1 = Teacher::factory()
-            ->admin()
-            ->create([
-                'school_id' => $school1->id,
-            ]);
+        $teacher1 = $this->createTeacherAdmin($school1);
+        $teacher2 = $this->createNonAdminTeacher($school2);
 
-        // Create a school 2.
-        $school2 = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $this->actingAsTeacher($teacher1);
 
-        // Create a teacher in school 2.
-        $teacher2 = Teacher::factory()
-            ->create([
-                'school_id' => $school2->id,
-            ]);
-
-        // Authenticate as teacher admin in school 1.
-        $this->actingAs($teacher1, 'teacher');
-
-        // Send request to get the teacher profile in school 2.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
@@ -134,33 +87,15 @@ class TeacherShowingTest extends TestCase
         $this->seed([
             MarketSeeder::class
         ]);
-        
-        // Create a test school 1.
-        $school1 = School::factory()
-            ->traditionalSchool()
-            ->create();
 
-        // Create a non-admin teacher in school 1.
-        $teacher1 = Teacher::factory()
-            ->create([
-                'school_id' => $school1->id,
-            ]);
+        $school1 = $this->createTraditionalSchool();
+        $school2 = $this->createTraditionalSchool();
 
-        // Create a school 2.
-        $school2 = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $teacher1 = $this->createNonAdminTeacher($school1);
+        $teacher2 = $this->createNonAdminTeacher($school2);
 
-        // Create a teacher in school 2.
-        $teacher2 = Teacher::factory()
-            ->create([
-                'school_id' => $school2->id,
-            ]);
+        $this->actingAsTeacher($teacher1);
 
-        // Authenticate as teacher admin in school 1.
-        $this->actingAs($teacher1, 'teacher');
-
-        // Send request to get the teacher profile in school 2.
         $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
