@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
@@ -16,15 +17,14 @@ class TeacherController extends Controller
     {
     }
 
-    public function index(Request $request)
+    public function index(IndexTeacherRequest $request)
     {
         /* @var Teacher $teacher */
         $teacher = $request->user();
 
-        $this->authorize('viewAnyInSchool', [Teacher::class, $teacher->school_id]);
-
         $teachers = $this->teacherService->search([
             'school_id' => $teacher->school_id,
+            'key' => $request->input('search'),
         ]);
 
         return TeacherResource::collection($teachers);

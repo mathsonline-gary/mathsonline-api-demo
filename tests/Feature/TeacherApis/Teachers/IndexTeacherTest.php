@@ -76,4 +76,50 @@ class IndexTeacherTest extends TestCase
         // Assert that the request is unauthorised.
         $response->assertForbidden();
     }
+
+    public function test_teacher_admins_can_wild_search_teachers(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $teacherAdmin = $this->createTeacherAdmin($school, 1, [
+            'username' => 'gary',
+            'first_name' => 'Gary',
+            'last_name' => 'Zhang',
+            'email' => 'gary@test.com'
+        ]);
+
+        $teacher1 = $this->createNonAdminTeacher($school, 1, [
+            'username' => 'tom',
+            'first_name' => 'Tom',
+            'last_name' => 'Porter',
+            'email' => 'tom.porter@mathsonline.com.au'
+        ]);
+
+        $teacher2 = $this->createNonAdminTeacher($school, 1, [
+            'username' => 'mike',
+            'first_name' => 'Mike',
+            'last_name' => 'Smith',
+            'email' => 'mike.smith@mathsonline.com.au'
+        ]);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search' => 'gary']));
+
+        $response->assertSuccessful();
+
+        // Assert that the search result is correct
+        $response->assertJsonFragment(['id' => $teacherAdmin->id])
+            ->assertJsonMissing(['id' => $teacher1->id])
+            ->assertJsonMissing(['id' => $teacher2->id]);
+
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search' => 'mathsonline']));
+
+        // Assert that the search result is correct
+        $response->assertJsonMissing(['id' => $teacherAdmin->id])
+            ->assertJsonFragment(['id' => $teacher1->id])
+            ->assertJsonFragment(['id' => $teacher2->id]);
+    }
 }

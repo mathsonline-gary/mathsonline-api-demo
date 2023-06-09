@@ -49,12 +49,15 @@ class TeacherService
      *
      * @param array{
      *     school_id?: int,
+     *     key?: string,
      *     pagination?: bool
      * } $options
      * @return LengthAwarePaginator|Collection<Teacher>
      */
     public function search(array $options = []): Collection|LengthAwarePaginator
     {
+        $searchKey = $options['key'] ?? null;
+
         $query = Teacher::with([
             'classroomsAsOwner',
             'classroomsAsSecondaryTeacher',
@@ -62,6 +65,13 @@ class TeacherService
 
         if (isset($options['school_id'])) {
             $query = $query->where(['school_id' => $options['school_id']]);
+        }
+
+        if ($searchKey && $searchKey !== '') {
+            $query = $query->where('username', 'like', "%$searchKey%")
+                ->orWhere('first_name', 'like', "%$searchKey%")
+                ->orWhere('last_name', 'like', "%$searchKey%")
+                ->orWhere('email', 'like', "%$searchKey%");
         }
 
         return $options['pagination'] ?? true

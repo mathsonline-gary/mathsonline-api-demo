@@ -12,21 +12,8 @@ class TeacherPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can view any teacher in given school.
-     *
-     * @param User $user
-     * @param int $schoolId
-     * @return bool
-     */
-    public function viewAnyInSchool(User $user, int $schoolId): bool
-    {
         return $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $schoolId;
+            $user->isAdmin();
     }
 
     /**
