@@ -63,6 +63,16 @@ class Teacher extends User
     }
 
     /**
+     * Indicate that if the teacher owns any classroom.
+     *
+     * @return bool
+     */
+    public function isClassroomOwner(): bool
+    {
+        return $this->classroomsAsOwner()->count() > 0;
+    }
+
+    /**
      * Get the classrooms of which the teacher is a secondary teacher.
      *
      * @return BelongsToMany
@@ -71,5 +81,15 @@ class Teacher extends User
     {
         return $this->belongsToMany(Classroom::class, 'classroom_secondary_teacher', 'teacher_id', 'classroom_id')
             ->withTimestamps();
+    }
+
+    /**
+     * Indicate that if the teacher is a secondary teacher of any classroom.
+     *
+     * @return bool
+     */
+    public function isSecondaryTeacher(): bool
+    {
+        return $this->classroomsAsSecondaryTeacher()->count() > 0;
     }
 }

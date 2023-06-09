@@ -102,13 +102,18 @@ class TeacherService
     }
 
     /**
-     * Delete teacher(s) for the given ID(s).
+     * Delete teacher for the given ID.
      *
-     * @param array<int>|int|string|Collection<Teacher> $ids
-     * @return int The number of teacher(s) deleted.
+     * @param Teacher $teacher The teacher to be deleted.
+     *
+     * @return void
      */
-    public function delete(array|int|string|Collection $ids): int
+    public function delete(Teacher $teacher): void
     {
-        return Teacher::destroy($ids);
+        // Remove the teacher from secondary teacher list
+        $teacher->classroomsAsSecondaryTeacher()->detach();
+
+        // Delete the teacher
+        $teacher->delete();
     }
 }

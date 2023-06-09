@@ -23,24 +23,48 @@ class DestroyTeacherTest extends TestCase
         $school = $this->createTraditionalSchool();
 
         $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacher = $this->createNonAdminTeacher($school);
 
-        $teachers = $this->createNonAdminTeacher($school, 10);
+        $classroom1 = $this->createClassroom($teacherAdmin);
+        $classroom2 = $this->createClassroom($teacherAdmin);
 
-        // Assert 'teachers' database table contains the correct number of teachers
-        $this->assertDatabaseCount('teachers', $teachers->count() + 1);
+        $this->addSecondaryTeachers($classroom1, [$teacher->id]);
+        $this->addSecondaryTeachers($classroom2, [$teacher->id]);
+
+        // Assert that $teacher is in the database
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+
+        // Assert that classrooms were created
+        $this->assertDatabaseHas('classrooms', ['id' => $classroom1->id])
+            ->assertDatabaseHas('classrooms', ['id' => $classroom2->id]);
+
+        // Assert $teacher was added as a secondary teacher of $classroom1 and $classroom2
+        $this->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom1->id,
+            'teacher_id' => $teacher->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom2->id,
+            'teacher_id' => $teacher->id,
+        ])->assertTrue($teacher->isSecondaryTeacher());
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', [
-            'ids' => $teachers->pluck('id')->toArray()
-        ]));
+        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
 
-        // Assert the response returns no content
+        // Assert that the response returns no content
         $response->assertNoContent();
 
-        // Assert all teachers was deleted, except to $teacherAdmin
-        $this->assertDatabaseCount('teachers', 1);
-        $this->assertDatabaseHas('teachers', ['id' => $teacherAdmin->id]);
+        // Assert that $teacher was removed from database
+        $this->assertDatabaseMissing('teachers', ['id' => $teacher->id]);
+
+        // Assert that $teacher was removed from the secondary teachers list
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom1->id,
+            'teacher_id' => $teacher->id,
+        ])->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom2->id,
+            'teacher_id' => $teacher->id,
+        ]);
     }
 
     public function test_teacher_admins_are_unauthorised_to_delete_teachers_in_another_school()
@@ -51,48 +75,73 @@ class DestroyTeacherTest extends TestCase
         $school2 = $this->createTraditionalSchool();
 
         $teacherAdmin = $this->createTeacherAdmin($school1);
+        $teacher = $this->createNonAdminTeacher($school2);
 
-        $teachers = $this->createNonAdminTeacher($school2, 10);
-
-        // Assert that the number of teachers stored in the database is correct
-        $this->assertDatabaseCount('teachers', $teachers->count() + 1);
+        // Assert that $teacher is in the database
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', [
-            'ids' => $teachers->pluck('id')->toArray()
-        ]));
+        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthorised
         $response->assertForbidden();
 
-        // Assert that there is no teacher deleted
-        $this->assertDatabaseCount('teachers', $teachers->count() + 1);
+        // Assert that $teacher is not deleted
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
     }
 
-    public function test_non_admin_teacher_are_unauthorised_to_delete_teachers()
+    public function test_teacher_admins_are_unauthorised_to_delete_teachers_who_own_classrooms()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacher = $this->createNonAdminTeacher($school);
+
+        $classroom = $this->createClassroom($teacher);
+
+        // Assert that $teacher is in the database
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+
+        // Assert that $teacher owns $classroom
+        $this->assertDatabaseHas('classrooms', [
+            'id' => $classroom->id,
+            'owner_id' => $teacher->id,
+        ])->assertTrue($teacher->isClassroomOwner());
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+
+        // Assert that the request is unauthorised
+        $response->assertForbidden();
+
+        // Assert that $teacher is not deleted
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+    }
+
+    public function test_non_admin_teachers_are_unauthorised_to_delete_teachers()
     {
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
 
         $nonAdminTeacher = $this->createNonAdminTeacher($school);
+        $teacher = $this->createNonAdminTeacher($school);
 
-        $teachers = $this->createNonAdminTeacher($school, 10);
-
-        // Assert that the number of teachers stored in the database is correct
-        $this->assertDatabaseCount('teachers', $teachers->count() + 1);
+        // Assert that $teacher is in the database
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', [
-            'ids' => $teachers->pluck('id')->toArray()
-        ]));
+        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthorised
         $response->assertForbidden();
 
-        // Assert that there is no teacher deleted
-        $this->assertDatabaseCount('teachers', $teachers->count() + 1);
+        // Assert that $teacher is not deleted
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
     }
 }

@@ -2,10 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\School;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
-use Illuminate\Auth\Access\Response;
 
 class TeacherPolicy
 {
@@ -63,38 +61,14 @@ class TeacherPolicy
      * Determine whether the user can delete the model.
      *
      * @param User $user The current authenticated user.
-     * @param array<int> $teacherIds The list of IDs of teachers to be deleted.
-     *
+     * @param Teacher $teacher The teacher is to be deleted.
      * @return bool
      */
-    public function delete(User $user, array $teacherIds): bool
+    public function delete(User $user, Teacher $teacher): bool
     {
-        // Get the school IDs of the teachers to be deleted
-        $teacherSchoolIds = Teacher::whereIn('id', $teacherIds)
-            ->pluck('school_id')
-            ->toArray();
-        
-        return count($teacherIds) > 0 &&
-            count($teacherSchoolIds) > 0 &&
-            $user instanceof Teacher &&
+        return $user instanceof Teacher &&
             $user->isAdmin() &&
-            count(array_unique($teacherSchoolIds)) === 1 &&
-            $user->school_id === $teacherSchoolIds[0];
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Teacher $teacher): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Teacher $teacher): bool
-    {
-        return true;
+            $user->school_id === $teacher->school_id &&
+            !$teacher->isClassroomOwner();
     }
 }

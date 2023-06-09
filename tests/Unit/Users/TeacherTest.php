@@ -107,6 +107,29 @@ class TeacherTest extends TestCase
 
     /**
      * @return void
+     * @see Teacher::isClassroomOwner()
+     */
+    public function test_if_a_teacher_is_classroom_owner()
+    {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
+        $school = $this->createTraditionalSchool();
+
+        $teacher = $this->createTeacherAdmin($school);
+
+        // Assert that the teacher does not own a classroom
+        $this->assertFalse($teacher->isClassroomOwner());
+
+        $classroom = $this->createClassroom($teacher);
+
+        // Assert that the teacher owns a classroom
+        $this->assertTrue($teacher->isClassroomOwner());
+    }
+
+    /**
+     * @return void
      * @see Teacher::classroomsAsSecondaryTeacher()
      */
     public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms()
@@ -191,6 +214,32 @@ class TeacherTest extends TestCase
         // Assert that the classrooms collection does not contain the created classrooms
         $this->assertFalse($classrooms->contains($classroom1));
         $this->assertFalse($classrooms->contains($classroom2));
+    }
+
+    /**
+     * @return void
+     * @see Teacher::isSecondaryTeacher()
+     */
+    public function test_if_a_teacher_is_secondary_teacher(): void
+    {
+        $this->seed([
+            MarketSeeder::class
+        ]);
+
+        $school = $this->createTraditionalSchool();
+
+        $owner = $this->createTeacherAdmin($school);
+        $teacher = $this->createNonAdminTeacher($school);
+
+        $classroom = $this->createClassroom($owner);
+
+        // Assert that $teacher is not a secondary teacher
+        $this->assertFalse($teacher->isSecondaryTeacher());
+
+        $this->addSecondaryTeachers($classroom, [$teacher->id]);
+        
+        // Assert that $teacher is a secondary teacher
+        $this->assertTrue($teacher->isSecondaryTeacher());
     }
 
     /**
