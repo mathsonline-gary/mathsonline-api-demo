@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('/teachers/v1')
-    ->name('teachers.v1.')
+    ->name('api.teachers.v1.')
     ->group(function () {
         Route::get('/me', [AuthController::class, 'me'])
             ->name('me');
