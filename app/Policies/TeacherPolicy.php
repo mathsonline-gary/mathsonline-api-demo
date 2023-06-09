@@ -61,12 +61,25 @@ class TeacherPolicy
 
     /**
      * Determine whether the user can delete the model.
+     *
+     * @param User $user The current authenticated user.
+     * @param array<int> $teacherIds The list of IDs of teachers to be deleted.
+     *
+     * @return bool
      */
-    public function delete(User $user, Teacher $teacher): bool
+    public function delete(User $user, array $teacherIds): bool
     {
-        return $user instanceof Teacher &&
+        // Get the school IDs of the teachers to be deleted
+        $teacherSchoolIds = Teacher::whereIn('id', $teacherIds)
+            ->pluck('school_id')
+            ->toArray();
+        
+        return count($teacherIds) > 0 &&
+            count($teacherSchoolIds) > 0 &&
+            $user instanceof Teacher &&
             $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+            count(array_unique($teacherSchoolIds)) === 1 &&
+            $user->school_id === $teacherSchoolIds[0];
     }
 
     /**

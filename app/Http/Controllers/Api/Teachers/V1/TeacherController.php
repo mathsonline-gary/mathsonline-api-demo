@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
-use App\Http\Requests\StoreTeacherRequest;
+use App\Http\Requests\Teachers\DestroyTeacherRequest;
+use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
@@ -66,12 +67,13 @@ class TeacherController extends Controller
         return response()->json(new TeacherResource($teacher), 201);
     }
 
-    public function destroy(Teacher $teacher)
+    public function destroy(DestroyTeacherRequest $request)
     {
-        $this->authorize('delete', $teacher);
+        $teacherIds = $request->input('ids');
 
-        $this->teacherService->delete($teacher->id);
+        $this->teacherService->delete($teacherIds);
 
         return response()->noContent();
     }
 }
+

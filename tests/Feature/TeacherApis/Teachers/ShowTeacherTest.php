@@ -15,7 +15,7 @@ use Tests\TestCase;
  * @see /routes/api/api-teachers.php
  * @see TeacherController::show()
  */
-class TeacherShowingTest extends TestCase
+class ShowTeacherTest extends TestCase
 {
     use RefreshDatabase;
 

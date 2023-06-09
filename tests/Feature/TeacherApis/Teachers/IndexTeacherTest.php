@@ -14,7 +14,7 @@ use Tests\TestCase;
  * @see /routes/api/api-teachers.php
  * @see TeacherController::index()
  */
-class TeacherIndexingTest extends TestCase
+class IndexTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -63,7 +63,7 @@ class TeacherIndexingTest extends TestCase
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
         $this->seed([MarketSeeder::class]);
-        
+
         $school = $this->createTraditionalSchool();
 
         $nonAdminTeacher = $this->createNonAdminTeacher($school);

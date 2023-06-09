@@ -8,7 +8,7 @@ use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TeacherCreationTest extends TestCase
+class CreateTeacherTest extends TestCase
 {
     use RefreshDatabase;
 

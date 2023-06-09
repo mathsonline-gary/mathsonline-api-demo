@@ -104,8 +104,8 @@ class TeacherService
     /**
      * Delete teacher(s) for the given ID(s).
      *
-     * @param array|int|string|Collection $ids
-     * @return int
+     * @param array<int>|int|string|Collection<Teacher> $ids
+     * @return int The number of teacher(s) deleted.
      */
     public function delete(array|int|string|Collection $ids): int
     {
