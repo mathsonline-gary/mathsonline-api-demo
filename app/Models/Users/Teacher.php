@@ -2,12 +2,14 @@
 
 namespace App\Models\Users;
 
+use App\Models\Activity;
 use App\Models\Classroom;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Teacher extends User
 {
@@ -91,5 +93,15 @@ class Teacher extends User
     public function isSecondaryTeacher(): bool
     {
         return $this->classroomsAsSecondaryTeacher()->count() > 0;
+    }
+
+    /**
+     * Get all the teacher's activities.
+     *
+     * @return MorphMany
+     */
+    public function activities(): MorphMany
+    {
+        return $this->morphMany(Activity::class, 'actionable');
     }
 }

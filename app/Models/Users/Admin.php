@@ -2,7 +2,9 @@
 
 namespace App\Models\Users;
 
+use App\Models\Activity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Admin extends User
 {
@@ -20,4 +22,14 @@ class Admin extends User
     protected $hidden = [
         'password',
     ];
+
+    /**
+     * Get all the admin's activities.
+     *
+     * @return MorphMany
+     */
+    public function activities(): MorphMany
+    {
+        return $this->morphMany(Activity::class, 'actionable');
+    }
 }

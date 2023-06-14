@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers\Web\Teachers;
 
+use App\Events\Auth\LoggedIn;
+use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Teacher;
+use App\Services\ActivityService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(protected AuthService $authService)
+    public function __construct(
+        protected AuthService     $authService,
+        protected ActivityService $activityService,
+    )
     {
     }
 
@@ -19,12 +25,18 @@ class AuthController extends Controller
     {
         $this->authService->login($request);
 
+        LoggedIn::dispatch($this->authService->teacher());
+
         return response()->noContent();
     }
 
     public function logout(Request $request): Response
     {
+        $teacher = $this->authService->teacher();
+
         $this->authService->logout($request);
+
+        LoggedOut::dispatch($teacher);
 
         return response()->noContent();
     }
@@ -47,9 +59,9 @@ class AuthController extends Controller
         return response()->json(['status' => __($status)]);
     }
 
-    public function me(Request $request)
+    public function me()
     {
-        $teacher = $request->user();
+        $teacher = $this->authService->teacher();
 
         if ($teacher instanceof Teacher) {
             return response()->json([
