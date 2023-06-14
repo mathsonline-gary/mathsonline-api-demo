@@ -6,13 +6,11 @@ use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Activity;
 use App\Models\Users\Teacher;
 use App\Services\ActivityService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {

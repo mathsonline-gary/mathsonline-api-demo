@@ -15,6 +15,7 @@ class Activity extends Model
      */
     protected $casts = [
         'data' => 'json',
+        'created_at' => 'datetime',
     ];
 
     /**
@@ -25,7 +26,10 @@ class Activity extends Model
     protected $fillable = [
         'action',
         'data',
+        'created_at',
     ];
+
+    public $timestamps = false;
 
     // Define the available actions.
     public const ACTION_LOGGED_IN = 'logged_in';

@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Users\Admin;
+use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
+use App\Models\Users\Tutor;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -119,5 +122,35 @@ class AuthService
     public function student(): ?Student
     {
         return auth('student')->user();
+    }
+
+    /**
+     * Get the authenticated tutor.
+     *
+     * @return Tutor|null
+     */
+    public function tutor(): ?Tutor
+    {
+        return auth('tutor')->user();
+    }
+
+    /**
+     * Get the authenticated admin.
+     *
+     * @return Admin|null
+     */
+    public function admin(): ?Admin
+    {
+        return auth('admin')->user();
+    }
+
+    /**
+     * Get the authenticated developer.
+     *
+     * @return Developer|null
+     */
+    public function developer(): ?Developer
+    {
+        return auth('developer')->user();
     }
 }

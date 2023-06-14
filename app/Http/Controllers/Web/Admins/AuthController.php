@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers\Web\Admins;
 
+use App\Events\Auth\LoggedIn;
+use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Admin;
-use App\Models\Users\Developer;
+use App\Services\ActivityService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(protected AuthService $authService)
+    public function __construct(
+        protected AuthService     $authService,
+        protected ActivityService $activityService,
+    )
     {
     }
 
@@ -20,12 +25,18 @@ class AuthController extends Controller
     {
         $this->authService->login($request);
 
+        LoggedIn::dispatch($this->authService->admin());
+
         return response()->noContent();
     }
 
     public function logout(Request $request): Response
     {
+        $admin = $this->authService->admin();
+
         $this->authService->logout($request);
+
+        LoggedOut::dispatch($admin);
 
         return response()->noContent();
     }

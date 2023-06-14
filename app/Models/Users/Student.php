@@ -39,7 +39,7 @@ class Student extends User
     }
 
     /**
-     * Get all the teacher's activities.
+     * Get all the student's activities.
      *
      * @return MorphMany
      */
