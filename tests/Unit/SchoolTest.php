@@ -6,6 +6,8 @@ use App\Models\School;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
+use Database\Seeders\MarketSeeder;
+use Database\Seeders\TutorTypeSeeder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,71 +16,90 @@ class SchoolTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_traditional_school_has_many_teachers_as_instructors(): void
+    /**
+     * @return void
+     *
+     * @see School::teachers()
+     */
+    public function test_a_traditional_school_has_many_teachers(): void
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
-        ]);
+        $this->seed([MarketSeeder::class]);
 
-        Teacher::factory()->count(10)->create([
-            'market_id' => $school->market_id,
-            'school_id' => $school->id,
-        ]);
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
+
+        Teacher::factory()
+            ->count(10)
+            ->ofSchool($school)
+            ->create();
 
         // Assert that the school has a relationship with the instructors
-        $this->assertInstanceOf(HasMany::class, $school->instructors());
+        $this->assertInstanceOf(HasMany::class, $school->teachers());
 
         // Assert that the school has the correct number of instructors
-        $this->assertEquals(10, $school->instructors()->count());
+        $this->assertEquals(10, $school->teachers()->count());
 
-        foreach ($school->instructors as $instructor) {
+        foreach ($school->teachers as $teacher) {
             // Assert that the instructors are tutors
-            $this->assertInstanceOf(Teacher::class, $instructor);
+            $this->assertInstanceOf(Teacher::class, $teacher);
 
             // Assert that the instructors are associated with the correct school
-            $this->assertEquals($school->id, $instructor->school_id);
+            $this->assertEquals($school->id, $teacher->school_id);
         }
     }
 
-    public function test_a_homeschool_has_many_tutors_as_instructors(): void
+    /**
+     * @return void
+     *
+     * @see School::tutors()
+     */
+    public function test_a_homeschool_has_many_tutors(): void
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'homeschool',
+        $this->seed([
+            MarketSeeder::class,
+            TutorTypeSeeder::class,
         ]);
 
-        Tutor::factory()->count(10)->create([
-            'market_id' => $school->market_id,
-            'school_id' => $school->id,
-        ]);
+        $school = School::factory()
+            ->homeschool()
+            ->create();
+
+        Tutor::factory()
+            ->count(10)
+            ->ofSchool($school)
+            ->create();
 
         // Assert that the school has a relationship with the instructors
-        $this->assertInstanceOf(HasMany::class, $school->instructors());
+        $this->assertInstanceOf(HasMany::class, $school->tutors());
 
         // Assert that the school has the correct number of instructors
-        $this->assertEquals(10, $school->instructors()->count());
+        $this->assertEquals(10, $school->tutors()->count());
 
-        foreach ($school->instructors as $instructor) {
+        foreach ($school->tutors as $tutor) {
             // Assert that the instructors are tutors
-            $this->assertInstanceOf(Tutor::class, $instructor);
+            $this->assertInstanceOf(Tutor::class, $tutor);
 
             // Assert that the instructors are associated with the correct school
-            $this->assertEquals($school->id, $instructor->school_id);
+            $this->assertEquals($school->id, $tutor->school_id);
         }
     }
 
+    /**
+     * @return void
+     *
+     * @see School::students()
+     */
     public function test_a_school_has_many_students(): void
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'homeschool',
-        ]);
+        $this->seed([MarketSeeder::class]);
 
-        Student::factory()->count(10)->create([
-            'market_id' => $school->market_id,
-            'school_id' => $school->id,
-        ]);
+        $school = School::factory()->create();
+
+        Student::factory()
+            ->count(10)
+            ->ofSchool($school)
+            ->create();
 
         // Assert that the school has a relationship with the instructors
         $this->assertInstanceOf(HasMany::class, $school->students());
@@ -92,6 +113,80 @@ class SchoolTest extends TestCase
 
             // Assert that the instructors are associated with the correct school
             $this->assertEquals($school->id, $student->school_id);
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @see School::scopeTraditionalSchools()
+     *
+     * @test
+     */
+    public function it_gets_traditional_schools(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $traditionalSchools = School::factory()
+            ->count(10)
+            ->traditionalSchool()
+            ->create();
+
+        $homeschools = School::factory()
+            ->count(10)
+            ->homeschool()
+            ->create();
+
+        $result = School::traditionalSchools()->get();
+
+        // Assert the number of found schools is correct
+        $this->assertCount(10, $result);
+
+        // Assert all traditional schools are excluded
+        foreach ($traditionalSchools as $traditionalSchool) {
+            $this->assertTrue($result->contains($traditionalSchool));
+        }
+
+        // Assert all homeschools are included
+        foreach ($homeschools as $homeschool) {
+            $this->assertFalse($result->contains($homeschool));
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @see School::scopeHomeschools()
+     *
+     * @test
+     */
+    public function it_gets_homeschools(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $traditionalSchools = School::factory()
+            ->count(10)
+            ->traditionalSchool()
+            ->create();
+
+        $homeschools = School::factory()
+            ->count(10)
+            ->homeschool()
+            ->create();
+
+        $result = School::homeschools()->get();
+
+        // Assert the number of found schools is correct
+        $this->assertCount(10, $result);
+
+        // Assert all traditional schools are excluded
+        foreach ($traditionalSchools as $traditionalSchool) {
+            $this->assertFalse($result->contains($traditionalSchool));
+        }
+
+        // Assert all homeschools are included
+        foreach ($homeschools as $homeschool) {
+            $this->assertTrue($result->contains($homeschool));
         }
     }
 }

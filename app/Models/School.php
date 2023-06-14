@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\EnumSchoolType;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
@@ -15,9 +14,9 @@ class School extends Model
 {
     use HasFactory;
 
-    protected $casts = [
-        'type' => EnumSchoolType::class,
-    ];
+    public const TRADITIONAL_SCHOOL = 'traditional school';
+
+    public const HOMESCHOOL = 'homeschool';
 
     /**
      * Get the school's tutors.
@@ -40,20 +39,6 @@ class School extends Model
     }
 
     /**
-     * Get the school's instructors, can be tutors or teachers.
-     *
-     * @return HasMany
-     */
-    public function instructors(): HasMany
-    {
-        if ($this->type === 'homeschool') {
-            return $this->tutors();
-        }
-
-        return $this->teachers();
-    }
-
-    /**
      * Get the school's students.
      *
      * @return HasMany
@@ -71,7 +56,7 @@ class School extends Model
      */
     public function scopeTraditionalSchools(Builder $query): Builder
     {
-        return $query->where('type', EnumSchoolType::TraditionalSchool);
+        return $query->where('type', School::TRADITIONAL_SCHOOL);
     }
 
     /**
@@ -82,6 +67,6 @@ class School extends Model
      */
     public function scopeHomeschools(Builder $query): Builder
     {
-        return $query->where('type', EnumSchoolType::Homeschool);
+        return $query->where('type', School::HOMESCHOOL);
     }
 }

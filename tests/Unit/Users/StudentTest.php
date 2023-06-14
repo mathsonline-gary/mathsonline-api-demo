@@ -2,8 +2,10 @@
 
 namespace Tests\Unit\Users;
 
+use App\Models\Market;
 use App\Models\School;
-use App\Models\Users\Teacher;
+use App\Models\Users\Student;
+use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,15 +16,17 @@ class StudentTest extends TestCase
 
     public function test_a_student_belongs_to_a_school(): void
     {
-        $school = School::factory()->create([
-            'market_id' => 1,
-            'type' => 'traditional school',
+        $this->seed([
+            MarketSeeder::class
         ]);
 
-        $student = Teacher::factory()->create([
-            'market_id' => $school->market_id,
-            'school_id' => $school->id,
-        ]);
+        $school = School::factory()
+            ->traditionalSchool()
+            ->create();
+
+        $student = Student::factory()
+            ->ofSchool($school)
+            ->create();
 
         // Assert that the student has a relationship with the school
         $this->assertInstanceOf(BelongsTo::class, $student->school());

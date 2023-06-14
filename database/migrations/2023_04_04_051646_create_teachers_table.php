@@ -33,6 +33,10 @@ return new class extends Migration {
             $table->string('position')
                 ->nullable();
 
+            $table->boolean('is_admin')
+                ->default(false)
+                ->comment('Indicate whether this teacher has the administrator access.');
+
             $table->timestamps();
         });
     }

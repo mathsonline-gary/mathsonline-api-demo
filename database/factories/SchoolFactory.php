@@ -13,7 +13,7 @@ class SchoolFactory extends Factory
     public function definition(): array
     {
         return [
-            'market_id' => fake()->numberBetween(1, Market::count()),
+            'market_id' => fake()->randomElement(Market::pluck('id')->all()),
             'name' => fake()->name(),
             'email' => fake()->safeEmail(),
             'phone' => fake()->phoneNumber(),
@@ -24,6 +24,10 @@ class SchoolFactory extends Factory
             'address_state' => fake()->countryCode(),
             'address_postal_code' => fake()->postcode(),
             'address_country' => fake()->country(),
+            'type' => fake()->randomElement([
+                School::HOMESCHOOL,
+                School::TRADITIONAL_SCHOOL
+            ]),
         ];
     }
 
@@ -36,7 +40,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => 'homeschool',
+                'type' => School::HOMESCHOOL,
             ];
         });
     }
@@ -50,7 +54,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => 'traditional school',
+                'type' => School::TRADITIONAL_SCHOOL,
             ];
         });
     }

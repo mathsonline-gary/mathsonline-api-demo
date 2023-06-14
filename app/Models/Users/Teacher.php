@@ -13,9 +13,34 @@ class Teacher extends User
 {
     use HasFactory;
 
+    protected $fillable = [
+        'username',
+        'email',
+        'password',
+        'first_name',
+        'last_name',
+        'title',
+        'position',
+        'school_id',
+    ];
+
     protected $hidden = [
         'password',
     ];
+
+    protected $casts = [
+        'is_admin' => 'bool',
+    ];
+
+    /**
+     * Identify if the teacher has the administrator access.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
 
     /**
      * Get the school of the teacher.
@@ -34,18 +59,37 @@ class Teacher extends User
      */
     public function classroomsAsOwner(): HasMany
     {
-        return $this->hasMany(Classroom::class, 'owner_id')
-            ->where('school_id', $this->school_id);
+        return $this->hasMany(Classroom::class, 'owner_id');
     }
 
     /**
-     * Get the classrooms where the teacher is a secondary teacher.
+     * Indicate that if the teacher owns any classroom.
+     *
+     * @return bool
+     */
+    public function isClassroomOwner(): bool
+    {
+        return $this->classroomsAsOwner()->count() > 0;
+    }
+
+    /**
+     * Get the classrooms of which the teacher is a secondary teacher.
      *
      * @return BelongsToMany
      */
     public function classroomsAsSecondaryTeacher(): BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'classroom_secondary_teacher', 'teacher_id', 'classroom_id')
-            ->where('school_id', $this->school_id);
+            ->withTimestamps();
+    }
+
+    /**
+     * Indicate that if the teacher is a secondary teacher of any classroom.
+     *
+     * @return bool
+     */
+    public function isSecondaryTeacher(): bool
+    {
+        return $this->classroomsAsSecondaryTeacher()->count() > 0;
     }
 }

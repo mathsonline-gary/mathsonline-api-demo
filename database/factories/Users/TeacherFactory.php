@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Users;
 
+use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -36,5 +37,48 @@ class TeacherFactory extends Factory
             'title' => fake()->title(),
             'position' => fake()->randomElement($positions)
         ];
+    }
+
+    /**
+     * Indicate the teacher has the administrator access.
+     *
+     * @return TeacherFactory
+     */
+    public function admin(): TeacherFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_admin' => true,
+            ];
+        });
+    }
+
+    /**
+     * Indicate the teacher has no administrator access.
+     *
+     * @return TeacherFactory
+     */
+    public function nonAdmin(): TeacherFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_admin' => false,
+            ];
+        });
+    }
+
+    /**
+     * Indicate the teacher to belong to a given school.
+     *
+     * @param School $school
+     * @return TeacherFactory
+     */
+    public function ofSchool(School $school): TeacherFactory
+    {
+        return $this->state(function () use ($school) {
+            return [
+                'school_id' => $school->id,
+            ];
+        });
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-use App\Enums\EnumClassroomType;
-use App\Enums\EnumSchoolType;
+use App\Models\Classroom;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,8 +21,8 @@ return new class extends Migration {
                 ->constrained('teachers');
 
             $table->enum('type', [
-                EnumClassroomType::TraditionalClassroom->value,
-                EnumSchoolType::Homeschool->value,
+                Classroom::TRADITIONAL_CLASSROOM,
+                Classroom::HOMESCHOOL_CLASSROOM,
             ]);
 
             $table->string('name');

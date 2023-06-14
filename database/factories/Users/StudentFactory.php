@@ -2,6 +2,7 @@
 
 namespace Database\Factories\Users;
 
+use App\Models\School;
 use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,5 +27,20 @@ class StudentFactory extends Factory
             'last_name' => fake()->lastName(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         ];
+    }
+
+    /**
+     * Indicate the student to belong to a given school.
+     *
+     * @param School $school
+     * @return StudentFactory
+     */
+    public function ofSchool(School $school): StudentFactory
+    {
+        return $this->state(function () use ($school) {
+            return [
+                'school_id' => $school->id,
+            ];
+        });
     }
 }

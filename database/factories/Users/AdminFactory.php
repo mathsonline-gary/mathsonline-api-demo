@@ -21,7 +21,7 @@ class AdminFactory extends Factory
     public function definition(): array
     {
         return [
-            'market_id' => fake()->numberBetween(1, Market::count()),
+            'market_id' => fake()->randomElement(Market::pluck('id')->all()),
             'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
