@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -97,5 +99,25 @@ class AuthService
         }
 
         return $status;
+    }
+
+    /**
+     * Get the authenticated teacher.
+     *
+     * @return Teacher|null
+     */
+    public function teacher(): ?Teacher
+    {
+        return auth('teacher')->user();
+    }
+
+    /**
+     * Get the authenticated student.
+     *
+     * @return Student|null
+     */
+    public function student(): ?Student
+    {
+        return auth('student')->user();
     }
 }
