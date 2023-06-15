@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
+use App\Events\Teachers\TeacherCreated;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class CreateTeacherTest extends TestCase
@@ -44,6 +46,8 @@ class CreateTeacherTest extends TestCase
             'is_admin' => true,
         ];
 
+        Event::fake();
+
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
         // Assert that the response has a successful status code
@@ -72,6 +76,12 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response does not include the teacher's password
         $response->assertJsonMissing(['password']);
+
+        // Assert that the TeacherCreated event was dispatched with the correct parameters
+        Event::assertDispatched(TeacherCreated::class, function ($event) use ($teacherAdmin, $payload) {
+            return $event->creator->id === $teacherAdmin->id &&
+                $event->teacher->username === $payload['username'];
+        });
     }
 
     public function test_non_admin_teachers_are_unauthorized_to_add_teacher(): void

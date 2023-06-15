@@ -34,6 +34,7 @@ class Activity extends Model
     // Define the available actions.
     public const ACTION_LOGGED_IN = 'logged_in';
     public const ACTION_LOGGED_OUT = 'logged_out';
+    public const ACTION_TEACHER_CREATED = 'created_teacher';
 
     /**
      * Get the tokenable model that the activity belongs to.

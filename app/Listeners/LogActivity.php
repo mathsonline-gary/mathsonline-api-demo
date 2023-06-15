@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Teachers\TeacherCreated;
 use App\Models\Activity;
 use App\Services\ActivityService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,6 +31,10 @@ class LogActivity implements ShouldQueue
 
         if ($event instanceof LoggedOut) {
             $this->activityService->create($event->user, Activity::ACTION_LOGGED_OUT);
+        }
+
+        if ($event instanceof TeacherCreated) {
+            $this->activityService->create($event->creator, Activity::ACTION_TEACHER_CREATED, ['teacher_id' => $event->teacher->id]);
         }
     }
 }

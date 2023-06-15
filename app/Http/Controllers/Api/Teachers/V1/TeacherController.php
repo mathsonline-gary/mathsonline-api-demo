@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Teachers\TeacherCreated;
 use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
+use App\Services\AuthService;
 use App\Services\TeacherService;
-use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
     public function __construct(
-        protected TeacherService $teacherService
+        protected TeacherService $teacherService,
+        protected AuthService    $authService,
     )
     {
     }
 
     public function index(IndexTeacherRequest $request)
     {
-        /* @var Teacher $teacher */
-        $teacher = $request->user();
+        $user = $this->authService->teacher();
 
         $teachers = $this->teacherService->search([
-            'school_id' => $teacher->school_id,
+            'school_id' => $user->school_id,
             'key' => $request->input('search'),
         ]);
 
@@ -44,8 +45,7 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request)
     {
-        /** @var Teacher $user */
-        $user = $request->user();
+        $user = $this->authService->teacher();
 
         $validated = $request->safe()->only([
             'username',
@@ -62,6 +62,8 @@ class TeacherController extends Controller
             ...$validated,
             'school_id' => $user->school_id,
         ]);
+
+        TeacherCreated::dispatch($user, $teacher);
 
         return response()->json(new TeacherResource($teacher), 201);
     }

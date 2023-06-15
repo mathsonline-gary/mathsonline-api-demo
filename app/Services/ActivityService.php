@@ -16,10 +16,10 @@ class ActivityService
      *
      * @param Teacher|Student|Admin|Developer|null $actor
      * @param string $action
-     * @param array $data
+     * @param array|null $data
      * @return void
      */
-    public function create(Teacher|Student|Admin|Developer|null $actor, string $action, array $data = []): void
+    public function create(Teacher|Student|Admin|Developer|null $actor, string $action, array $data = null): void
     {
         if ($actor && in_array($action, Activity::getActions())) {
             $actor->activities()->create([
