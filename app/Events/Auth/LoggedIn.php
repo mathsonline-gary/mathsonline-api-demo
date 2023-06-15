@@ -7,6 +7,7 @@ use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -14,6 +15,8 @@ use Illuminate\Queue\SerializesModels;
 class LoggedIn
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public Carbon $loggedInAt;
 
     /**
      * Create a new event instance.
@@ -24,5 +27,6 @@ class LoggedIn
         public Teacher|Student|Admin|Developer|Tutor|null $user,
     )
     {
+        $this->loggedInAt = Carbon::now();
     }
 }

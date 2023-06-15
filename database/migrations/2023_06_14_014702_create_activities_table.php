@@ -23,7 +23,7 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('JSON data associate with the action.');
 
-            $table->timestamp('created_at');
+            $table->timestamp('acted_at');
         });
     }
 

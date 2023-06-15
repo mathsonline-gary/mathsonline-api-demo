@@ -16,16 +16,17 @@ class ActivityService
      *
      * @param Teacher|Student|Admin|Developer|null $actor
      * @param string $action
+     * @param Carbon|null $actedAt
      * @param array|null $data
      * @return void
      */
-    public function create(Teacher|Student|Admin|Developer|null $actor, string $action, array $data = null): void
+    public function create(Teacher|Student|Admin|Developer|null $actor, string $action, Carbon $actedAt = null, array $data = null): void
     {
         if ($actor && in_array($action, Activity::getActions())) {
             $actor->activities()->create([
                 'action' => $action,
                 'data' => $data,
-                'created_at' => Carbon::now(),
+                'acted_at' => $actedAt ?? Carbon::now(),
             ]);
         }
     }

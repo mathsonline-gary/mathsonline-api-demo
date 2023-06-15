@@ -26,15 +26,15 @@ class Activity extends Model
     protected $fillable = [
         'action',
         'data',
-        'created_at',
+        'acted_at',
     ];
 
     public $timestamps = false;
 
     // Define the available actions.
-    public const ACTION_LOGGED_IN = 'logged_in';
-    public const ACTION_LOGGED_OUT = 'logged_out';
-    public const ACTION_TEACHER_CREATED = 'created_teacher';
+    public const ACTION_LOG_IN = 'log_in';
+    public const ACTION_LOG_OUT = 'log_out';
+    public const ACTION_CREATE_TEACHER = 'create_teacher';
 
     /**
      * Get the tokenable model that the activity belongs to.
