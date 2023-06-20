@@ -21,14 +21,4 @@ class Developer extends User
     protected $hidden = [
         'password',
     ];
-
-    /**
-     * Get all the developer's actions.
-     *
-     * @return MorphMany
-     */
-    public function actions(): MorphMany
-    {
-        return $this->morphMany(Action::class, 'actionable');
-    }
 }

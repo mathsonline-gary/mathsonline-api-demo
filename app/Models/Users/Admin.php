@@ -22,14 +22,4 @@ class Admin extends User
     protected $hidden = [
         'password',
     ];
-
-    /**
-     * Get all the admin's actions.
-     *
-     * @return MorphMany
-     */
-    public function actions(): MorphMany
-    {
-        return $this->morphMany(Action::class, 'actionable');
-    }
 }

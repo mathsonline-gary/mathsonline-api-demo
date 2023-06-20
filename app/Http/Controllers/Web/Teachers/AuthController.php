@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers\Web\Teachers;
 
-use App\Enums\ActionTypes;
-use App\Events\Auth\LoggedIn;
-use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Teacher;
@@ -25,19 +22,13 @@ class AuthController extends Controller
     public function login(LoginRequest $request): Response
     {
         $this->authService->login($request);
-        
-        LoggedIn::dispatch($this->authService->teacher());
 
         return response()->noContent();
     }
 
     public function logout(Request $request): Response
     {
-        $teacher = $this->authService->teacher();
-
         $this->authService->logout($request);
-
-        LoggedOut::dispatch($teacher);
 
         return response()->noContent();
     }
@@ -62,7 +53,7 @@ class AuthController extends Controller
 
     public function me()
     {
-        $teacher = $this->authService->teacher();
+        $teacher = $this->authService->user();
 
         if ($teacher instanceof Teacher) {
             return response()->json([

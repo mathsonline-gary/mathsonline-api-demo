@@ -25,18 +25,12 @@ class AuthController extends Controller
     {
         $this->authService->login($request);
 
-        LoggedIn::dispatch($this->authService->student());
-
         return response()->noContent();
     }
 
     public function logout(Request $request): Response
     {
-        $student = $this->authService->student();
-
         $this->authService->logout($request);
-
-        LoggedOut::dispatch($student);
 
         return response()->noContent();
     }

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Events\Auth\LoggedIn;
+use App\Events\Auth\LoggedOut;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
@@ -31,6 +33,8 @@ class AuthService
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        LoggedIn::dispatch($this->user());
     }
 
     /**
@@ -41,11 +45,15 @@ class AuthService
      */
     public function logout(Request $request): void
     {
+        $user = $this->user();
+
         Auth::logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        LoggedOut::dispatch($user);
     }
 
     /**

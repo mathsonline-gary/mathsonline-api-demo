@@ -45,9 +45,9 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request)
     {
-        $user = $this->authService->teacher();
+        $authenticatedTeacher = $this->authService->teacher();
 
-        $validated = $request->safe()->only([
+        $attributes = $request->safe()->only([
             'username',
             'email',
             'password',
@@ -59,12 +59,10 @@ class TeacherController extends Controller
         ]);
 
         $teacher = $this->teacherService->create([
-            ...$validated,
-            'school_id' => $user->school_id,
+            ...$attributes,
+            'school_id' => $authenticatedTeacher->school_id,
         ]);
-
-        TeacherCreated::dispatch($user, $teacher);
-
+        
         return response()->json(new TeacherResource($teacher), 201);
     }
 

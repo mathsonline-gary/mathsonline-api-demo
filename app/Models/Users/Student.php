@@ -37,14 +37,4 @@ class Student extends User
             })
             ->withTimestamps();
     }
-
-    /**
-     * Get all the student's actions.
-     *
-     * @return MorphMany
-     */
-    public function actions(): MorphMany
-    {
-        return $this->morphMany(Action::class, 'actionable');
-    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\Teachers\TeacherCreated;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Hash;
 
 class TeacherService
 {
+    public function __construct(
+        protected AuthService $authService,
+    )
+    {
+    }
+
     /**
      * Find a teacher record by ID with additional options.
      *
@@ -107,6 +114,8 @@ class TeacherService
         $teacher->is_admin = $attributes['is_admin'];
 
         $teacher->save();
+
+        TeacherCreated::dispatch($this->authService->user(), $teacher);
 
         return $teacher;
     }

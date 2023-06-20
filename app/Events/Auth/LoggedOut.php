@@ -2,11 +2,7 @@
 
 namespace App\Events\Auth;
 
-use App\Models\Users\Admin;
-use App\Models\Users\Developer;
-use App\Models\Users\Student;
-use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -22,10 +18,10 @@ class LoggedOut
     /**
      * Create a new event instance.
      *
-     * @param Teacher|Student|Admin|Developer|Tutor|null $user
+     * @param User|null $user
      */
     public function __construct(
-        public Teacher|Student|Admin|Developer|Tutor|null $user,
+        public User|null $user,
     )
     {
         $this->loggedOutAt = Carbon::now();
