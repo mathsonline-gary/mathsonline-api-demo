@@ -1,8 +1,7 @@
 <?php
 
-namespace Tests\Unit\Users;
+namespace Tests\Unit\Models\Users;
 
-use App\Models\Market;
 use App\Models\School;
 use App\Models\Users\Student;
 use Database\Seeders\MarketSeeder;

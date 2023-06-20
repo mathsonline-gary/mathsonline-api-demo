@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Users;
+namespace Tests\Unit\Models\Users;
 
 use App\Models\Classroom;
 use App\Models\School;
@@ -237,7 +237,7 @@ class TeacherTest extends TestCase
         $this->assertFalse($teacher->isSecondaryTeacher());
 
         $this->addSecondaryTeachers($classroom, [$teacher->id]);
-        
+
         // Assert that $teacher is a secondary teacher
         $this->assertTrue($teacher->isSecondaryTeacher());
     }

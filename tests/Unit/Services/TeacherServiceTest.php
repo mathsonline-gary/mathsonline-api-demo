@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Integration\Users;
+namespace Tests\Unit\Services;
 
 use App\Models\School;
 use App\Models\Users\Teacher;
