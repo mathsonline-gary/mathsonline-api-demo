@@ -62,7 +62,9 @@ class TeacherController extends Controller
             ...$attributes,
             'school_id' => $authenticatedTeacher->school_id,
         ]);
-        
+
+        TeacherCreated::dispatch($this->authService->teacher(), $teacher);
+
         return response()->json(new TeacherResource($teacher), 201);
     }
 
