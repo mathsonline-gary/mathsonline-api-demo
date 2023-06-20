@@ -12,7 +12,6 @@ use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
 use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

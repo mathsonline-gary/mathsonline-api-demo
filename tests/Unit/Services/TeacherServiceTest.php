@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\School;
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
 use Database\Seeders\MarketSeeder;

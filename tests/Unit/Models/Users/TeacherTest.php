@@ -85,7 +85,7 @@ class TeacherTest extends TestCase
      * @return void
      * @see Teacher::classroomsAsOwner()
      */
-    public function test_a_teacher_may_not_own_any_classroom()
+    public function test_a_teacher_may_not_own_classroom()
     {
         $this->seed([
             MarketSeeder::class
@@ -177,7 +177,7 @@ class TeacherTest extends TestCase
      * @return void
      * @see Teacher::classroomsAsSecondaryTeacher()
      */
-    public function test_a_teacher_may_not_be_the_secondary_teacher_of_any_classroom()
+    public function test_a_teacher_may_not_be_the_secondary_teacher_of_classroom()
     {
         $this->seed([
             MarketSeeder::class
@@ -274,5 +274,14 @@ class TeacherTest extends TestCase
 
         // Call the isAdmin method and assert that it returns false
         $this->assertFalse($nonAdminTeacher->isAdmin());
+    }
+
+    /**
+     * @return void
+     * @see Teacher::actions()
+     */
+    public function test_a_teacher_has_many_actions_logged()
+    {
+        // TODO
     }
 }
