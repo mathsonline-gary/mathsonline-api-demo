@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\Activity;
+use App\Enums\ActionTypes;
+use App\Models\Action;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,13 +12,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('activities', function (Blueprint $table) {
+        Schema::create('actions', function (Blueprint $table) {
             $table->id();
 
             // morphs column to store the polymorphic relationship
             $table->morphs('actionable');
 
-            $table->enum('action', Activity::getActions());
+            $table->string('action');
 
             $table->json('data')
                 ->nullable()
@@ -32,6 +33,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('activities');
+        Schema::dropIfExists('actions');
     }
 };

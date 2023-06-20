@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
-use App\Listeners\LogActivity;
+use App\Listeners\LogAction;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -26,18 +26,18 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         LoggedIn::class => [
-            LogActivity::class,
+            LogAction::class,
         ],
 
         LoggedOut::class => [
-            LogActivity::class,
+            LogAction::class,
         ],
         // --------------------------------------------------------------------------------
 
         // Teacher events mappings
         // --------------------------------------------------------------------------------
         TeacherCreated::class => [
-            LogActivity::class,
+            LogAction::class,
         ],
         // --------------------------------------------------------------------------------
     ];

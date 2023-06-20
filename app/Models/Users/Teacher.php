@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Models\Activity;
+use App\Models\Action;
 use App\Models\Classroom;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -96,12 +96,12 @@ class Teacher extends User
     }
 
     /**
-     * Get all the teacher's activities.
+     * Get all the teacher's actions.
      *
      * @return MorphMany
      */
-    public function activities(): MorphMany
+    public function actions(): MorphMany
     {
-        return $this->morphMany(Activity::class, 'actionable');
+        return $this->morphMany(Action::class, 'actionable');
     }
 }

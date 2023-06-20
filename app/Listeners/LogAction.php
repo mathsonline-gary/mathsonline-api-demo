@@ -2,19 +2,20 @@
 
 namespace App\Listeners;
 
+use App\Enums\ActionTypes;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
-use App\Models\Activity;
-use App\Services\ActivityService;
+use App\Models\Action;
+use App\Services\ActionService;
 
-class LogActivity
+class LogAction
 {
     /**
      * Create the event listener.
      */
     public function __construct(
-        protected ActivityService $activityService,
+        protected ActionService $actionService,
     )
     {
     }
@@ -25,15 +26,15 @@ class LogActivity
     public function handle($event): void
     {
         if ($event instanceof LoggedIn) {
-            $this->activityService->create($event->user, Activity::ACTION_LOG_IN, $event->loggedInAt);
+            $this->actionService->create($event->user, ActionTypes::LOG_IN, $event->loggedInAt);
         }
 
         if ($event instanceof LoggedOut) {
-            $this->activityService->create($event->user, Activity::ACTION_LOG_OUT, $event->loggedOutAt);
+            $this->actionService->create($event->user, ActionTypes::LOG_OUT, $event->loggedOutAt);
         }
 
         if ($event instanceof TeacherCreated) {
-            $this->activityService->create($event->creator, Activity::ACTION_CREATE_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
+            $this->actionService->create($event->creator, ActionTypes::CREATE_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
         }
     }
 }

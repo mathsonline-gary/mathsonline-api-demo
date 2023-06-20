@@ -7,7 +7,7 @@ use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Student;
-use App\Services\ActivityService;
+use App\Services\ActionService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,8 +15,8 @@ use Illuminate\Http\Response;
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService     $authService,
-        protected ActivityService $activityService,
+        protected AuthService   $authService,
+        protected ActionService $actionService,
     )
     {
     }
