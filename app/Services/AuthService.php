@@ -8,7 +8,9 @@ use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
+use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -152,5 +154,15 @@ class AuthService
     public function developer(): ?Developer
     {
         return auth('developer')->user();
+    }
+
+    /**
+     * Get current authenticated user.
+     *
+     * @return User|null
+     */
+    public function user(): ?User
+    {
+        return auth()->user();
     }
 }
