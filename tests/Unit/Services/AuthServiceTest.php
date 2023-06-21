@@ -2,10 +2,15 @@
 
 namespace Tests\Unit\Services;
 
+use App\Events\Auth\LoggedIn;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 /**
@@ -24,6 +29,23 @@ class AuthServiceTest extends TestCase
         parent::setUp();
 
         $this->authService = new AuthService();
+    }
+
+    public function test_it_can_login_a_teacher()
+    {
+        // TODO: decouple login process: middleware, request, controller, service
+    }
+
+    public function test_it_can_logout_a_teacher()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->actingAsTeacher($teacher);
+
+        // TODO
     }
 
     /**
