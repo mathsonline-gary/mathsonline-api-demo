@@ -18,7 +18,7 @@ return new class extends Migration {
             // morphs column to store the polymorphic relationship
             $table->morphs('actionable');
 
-            $table->string('action');
+            $table->string('type');
 
             $table->json('data')
                 ->nullable()

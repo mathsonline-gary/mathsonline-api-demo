@@ -17,7 +17,7 @@ class Action extends Model
      * @var array
      */
     protected $casts = [
-        'action' => ActionTypes::class,
+        'type' => ActionTypes::class,
         'data' => 'json',
         'acted_at' => 'datetime',
     ];
@@ -28,7 +28,7 @@ class Action extends Model
      * @var array
      */
     protected $fillable = [
-        'action',
+        'type',
         'data',
         'acted_at',
     ];

@@ -50,7 +50,7 @@ class ActionServiceTest extends TestCase
 
         // Assert that the created action is correct.
         $this->assertCount(1, $teacher->actions);
-        $this->assertEquals($type, $teacher->actions->first()->action);
+        $this->assertEquals($type, $teacher->actions->first()->type);
         $this->assertEquals($actedAt->timestamp, $teacher->actions->first()->acted_at->timestamp);
         $this->assertEquals($data, $teacher->actions->first()->data);
     }

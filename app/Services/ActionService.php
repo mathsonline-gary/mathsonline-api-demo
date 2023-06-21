@@ -18,15 +18,15 @@ class ActionService
      * Store the action of given actor into database.
      *
      * @param User|null $actor
-     * @param ActionTypes $action
+     * @param ActionTypes $type
      * @param Carbon|null $actedAt
      * @param array|null $data
      * @return Action|null
      */
-    public function create(User|null $actor, ActionTypes $action, Carbon $actedAt = null, array $data = null): ?Action
+    public function create(User|null $actor, ActionTypes $type, Carbon $actedAt = null, array $data = null): ?Action
     {
         return $actor?->actions()->create([
-            'action' => $action,
+            'type' => $type,
             'data' => $data,
             'acted_at' => $actedAt ?? Carbon::now(),
         ]);

@@ -16,7 +16,7 @@ class ActionFactory extends Factory
     public function definition(): array
     {
         return [
-            'action' => fake()->randomElement(array_column(ActionTypes::cases(), 'value')),
+            'type' => fake()->randomElement(array_column(ActionTypes::cases(), 'value')),
             'data' => [
                 'key_1' => 'value_1',
                 'key_2' => [
