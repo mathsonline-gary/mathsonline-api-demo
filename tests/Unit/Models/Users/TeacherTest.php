@@ -2,11 +2,13 @@
 
 namespace Tests\Unit\Models\Users;
 
+use App\Models\Action;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -282,6 +284,13 @@ class TeacherTest extends TestCase
      */
     public function test_a_teacher_has_many_actions_logged()
     {
-        // TODO
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+        $this->createAction($teacher, 10);
+
+        $this->assertInstanceOf(MorphMany::class, $teacher->actions());
+        $this->assertCount(10, $teacher->actions);
     }
 }
