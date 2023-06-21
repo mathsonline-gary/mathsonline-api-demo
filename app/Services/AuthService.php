@@ -120,7 +120,7 @@ class AuthService
      */
     public function teacher(): ?Teacher
     {
-        return auth('teacher')->user();
+        return $this->user()?->asTeacher();
     }
 
     /**
@@ -130,7 +130,7 @@ class AuthService
      */
     public function student(): ?Student
     {
-        return auth('student')->user();
+        return $this->user()?->asStudent();
     }
 
     /**
@@ -140,7 +140,7 @@ class AuthService
      */
     public function tutor(): ?Tutor
     {
-        return auth('tutor')->user();
+        return $this->user()?->asTutor();
     }
 
     /**
@@ -150,7 +150,7 @@ class AuthService
      */
     public function admin(): ?Admin
     {
-        return auth('admin')->user();
+        return $this->user()?->asAdmin();
     }
 
     /**
@@ -160,7 +160,7 @@ class AuthService
      */
     public function developer(): ?Developer
     {
-        return auth('developer')->user();
+        return $this->user()?->asDeveloper();
     }
 
     /**

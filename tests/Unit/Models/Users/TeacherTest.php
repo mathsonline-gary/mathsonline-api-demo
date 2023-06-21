@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models\Users;
 
-use App\Models\Action;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
@@ -124,7 +123,7 @@ class TeacherTest extends TestCase
         // Assert that the teacher does not own a classroom
         $this->assertFalse($teacher->isClassroomOwner());
 
-        $classroom = $this->createClassroom($teacher);
+        $this->createClassroom($teacher);
 
         // Assert that the teacher owns a classroom
         $this->assertTrue($teacher->isClassroomOwner());
@@ -292,5 +291,76 @@ class TeacherTest extends TestCase
 
         $this->assertInstanceOf(MorphMany::class, $teacher->actions());
         $this->assertCount(10, $teacher->actions);
+    }
+
+    /**
+     * @return void
+     * @see Teacher::asTeacher()
+     */
+    public function test_a_teacher_is_a_teacher()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->assertInstanceOf(Teacher::class, $teacher->asTeacher());
+        $this->assertEquals($teacher->id, $teacher->asTeacher()->id);
+    }
+
+    /**
+     * @return void
+     * @see Teacher::asStudent()
+     */
+    public function test_a_teacher_is_not_a_student()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->assertNull($teacher->asStudent());
+    }
+
+    /**
+     * @return void
+     * @see Teacher::asTutor()
+     */
+    public function test_a_teacher_is_not_a_tutor()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->assertNull($teacher->asTutor());
+    }
+
+    /**
+     * @return void
+     * @see Teacher::asAdmin()
+     */
+    public function test_a_teacher_is_not_an_admin()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->assertNull($teacher->asAdmin());
+    }
+
+    /**
+     * @return void
+     * @see Teacher::asDeveloper()
+     */
+    public function test_a_teacher_is_not_a_developer()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createTeacherAdmin($school);
+
+        $this->assertNull($teacher->asDeveloper());
     }
 }
