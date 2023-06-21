@@ -10,9 +10,6 @@ use Illuminate\Database\Seeder;
 
 class SchoolSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         // Seed homeschools.
@@ -39,6 +36,31 @@ class SchoolSeeder extends Seeder
             ->create();
 
         // Seed traditional schools.
+        School::factory()
+            ->traditionalSchool()
+            ->has(
+                Teacher::factory()
+                    ->admin()
+                    ->state(['username' => 'teacher.admin',])
+            )
+            ->has(
+                Teacher::factory()
+                    ->state(['username' => 'non.admin.teacher'])
+            )
+            ->has(
+                Teacher::factory()
+                    ->count(13)
+            )
+            ->has(
+                Student::factory()
+                    ->state(['username' => 'example.student'])
+            )
+            ->has(
+                Student::factory()
+                    ->count(30)
+            )
+            ->create();
+
         School::factory()
             ->count(10)
             ->traditionalSchool()
