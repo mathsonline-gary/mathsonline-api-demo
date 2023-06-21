@@ -6,7 +6,7 @@ use App\Enums\ActionTypes;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
-use App\Models\Action;
+use App\Events\Teachers\TeacherDeleted;
 use App\Services\ActionService;
 
 class LogAction
@@ -35,6 +35,10 @@ class LogAction
 
         if ($event instanceof TeacherCreated) {
             $this->actionService->create($event->creator, ActionTypes::CREATE_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
+        }
+
+        if ($event instanceof TeacherDeleted) {
+            $this->actionService->create($event->actor, ActionTypes::DELETE_TEACHER, $event->deletedAt, ['teacher' => $event->teacher]);
         }
     }
 }

@@ -38,9 +38,7 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_finds_a_teacher(): void
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
+        $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
 
@@ -75,9 +73,7 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_searches_teachers_by_school_id()
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
+        $this->seed([MarketSeeder::class]);
 
         $school1 = $this->createTraditionalSchool();
         $school2 = $this->createTraditionalSchool();
@@ -115,9 +111,7 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_fuzzy_search_teachers()
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
+        $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
 

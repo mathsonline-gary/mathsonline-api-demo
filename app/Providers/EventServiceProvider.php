@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
+use App\Events\Teachers\TeacherDeleted;
 use App\Listeners\LogAction;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -37,6 +38,10 @@ class EventServiceProvider extends ServiceProvider
         // Teacher events mappings
         // --------------------------------------------------------------------------------
         TeacherCreated::class => [
+            LogAction::class,
+        ],
+
+        TeacherDeleted::class => [
             LogAction::class,
         ],
         // --------------------------------------------------------------------------------

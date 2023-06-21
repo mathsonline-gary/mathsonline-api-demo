@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Events\Teachers\TeacherCreated;
+use App\Events\Teachers\TeacherDeleted;
 use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Resources\TeacherResource;
@@ -73,6 +74,8 @@ class TeacherController extends Controller
         $this->authorize('delete', $teacher);
 
         $this->teacherService->delete($teacher);
+
+        TeacherDeleted::dispatch($this->authService->teacher(), $teacher);
 
         return response()->noContent();
     }

@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
+use App\Events\Teachers\TeacherDeleted;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -49,6 +51,8 @@ class DestroyTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacherAdmin);
 
+        Event::fake();
+
         $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
 
         // Assert that the response returns no content
@@ -65,6 +69,12 @@ class DestroyTeacherTest extends TestCase
             'classroom_id' => $classroom2->id,
             'teacher_id' => $teacher->id,
         ]);
+
+        // Assert that
+        Event::assertDispatched(TeacherDeleted::class, function ($event) use ($teacherAdmin, $teacher) {
+            return $event->actor->id === $teacherAdmin->id &&
+                $event->teacher->id === $teacher->id;
+        });
     }
 
     public function test_teacher_admins_are_unauthorised_to_delete_teachers_in_another_school()
