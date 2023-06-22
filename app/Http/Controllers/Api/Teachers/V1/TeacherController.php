@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
+use App\Events\Teachers\TeacherUpdated;
 use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
+use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\TeacherService;
+use Illuminate\Support\Arr;
 
 class TeacherController extends Controller
 {
@@ -67,6 +70,35 @@ class TeacherController extends Controller
         TeacherCreated::dispatch($this->authService->teacher(), $teacher);
 
         return response()->json(new TeacherResource($teacher), 201);
+    }
+
+    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    {
+        $this->authorize('update', $teacher);
+
+        $attributes = $request->safe()->only([
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+            'is_admin',
+        ]);
+
+        $authenticatedTeacher = $this->authService->teacher();
+
+        // Prevent non-admin teachers from changing admin access.
+        if (!$authenticatedTeacher->isAdmin()) {
+            $attributes = Arr::except($attributes, 'is_admin');
+        }
+
+        $updatedTeacher = $this->teacherService->update($teacher, $attributes);
+
+        TeacherUpdated::dispatch($authenticatedTeacher, $teacher, $updatedTeacher);
+
+        return response()->json(new TeacherResource($updatedTeacher));
     }
 
     public function destroy(Teacher $teacher)

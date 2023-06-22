@@ -26,4 +26,5 @@ enum ActionTypes: string
     */
     case CREATE_TEACHER = 'create teacher';
     case DELETE_TEACHER = 'delete teacher';
+    case UPDATE_TEACHER = 'update teacher';
 }

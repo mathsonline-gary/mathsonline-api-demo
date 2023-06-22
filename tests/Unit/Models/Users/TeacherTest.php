@@ -118,7 +118,7 @@ class TeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         // Assert that the teacher does not own a classroom
         $this->assertFalse($teacher->isClassroomOwner());
@@ -229,7 +229,7 @@ class TeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $owner = $this->createTeacherAdmin($school);
+        $owner = $this->createAdminTeacher($school);
         $teacher = $this->createNonAdminTeacher($school);
 
         $classroom = $this->createClassroom($owner);
@@ -286,7 +286,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
         $this->createAction($teacher, 10);
 
         $this->assertInstanceOf(MorphMany::class, $teacher->actions());
@@ -302,7 +302,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->assertInstanceOf(Teacher::class, $teacher->asTeacher());
         $this->assertEquals($teacher->id, $teacher->asTeacher()->id);
@@ -317,7 +317,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->assertNull($teacher->asStudent());
     }
@@ -331,7 +331,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->assertNull($teacher->asTutor());
     }
@@ -345,7 +345,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->assertNull($teacher->asAdmin());
     }
@@ -359,7 +359,7 @@ class TeacherTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->assertNull($teacher->asDeveloper());
     }

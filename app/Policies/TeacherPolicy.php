@@ -8,7 +8,7 @@ use App\Models\Users\User;
 class TeacherPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view any teachers.
      */
     public function viewAny(User $user): bool
     {
@@ -17,7 +17,7 @@ class TeacherPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine whether the user can view the teacher.
      */
     public function view(User $user, Teacher $teacher): bool
     {
@@ -27,7 +27,7 @@ class TeacherPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine whether the user can create teachers in the same school.
      */
     public function create(User $user, int $schoolId): bool
     {
@@ -37,19 +37,24 @@ class TeacherPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine whether the user can update the teacher.
      */
     public function update(User $user, Teacher $teacher): bool
     {
-        return true;
+        // User is a teacher, and is updating personal profile.
+        $condition1 = $user instanceof Teacher &&
+            $user->id === $teacher->id;
+
+        // User is an admin teacher, and is updating a teacher in the same school.
+        $condition2 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $teacher->school_id;
+
+        return $condition1 || $condition2;
     }
 
     /**
-     * Determine whether the user can delete the model.
-     *
-     * @param User $user The current authenticated user.
-     * @param Teacher $teacher The teacher is to be deleted.
-     * @return bool
+     * Determine whether the user can delete the teacher.
      */
     public function delete(User $user, Teacher $teacher): bool
     {

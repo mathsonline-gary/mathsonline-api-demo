@@ -41,7 +41,7 @@ class AuthServiceTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->actingAsTeacher($teacher);
 
@@ -56,7 +56,7 @@ class AuthServiceTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $teacher = $this->createTeacherAdmin($school);
+        $teacher = $this->createAdminTeacher($school);
 
         $this->actingAsTeacher($teacher);
 

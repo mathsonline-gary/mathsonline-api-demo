@@ -29,6 +29,9 @@ Route::prefix('/teachers/v1')
         Route::post('/teachers/', [TeacherController::class, 'store'])
             ->name('teachers.store');
 
+        Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])
+            ->name('teachers.update');
+
         Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])
             ->name('teachers.destroy');
     });

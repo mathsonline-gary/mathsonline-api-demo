@@ -6,6 +6,7 @@ use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
+use App\Events\Teachers\TeacherUpdated;
 use App\Listeners\LogAction;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -42,6 +43,10 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         TeacherDeleted::class => [
+            LogAction::class,
+        ],
+
+        TeacherUpdated::class => [
             LogAction::class,
         ],
         // --------------------------------------------------------------------------------

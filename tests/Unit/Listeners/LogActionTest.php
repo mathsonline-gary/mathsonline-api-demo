@@ -5,6 +5,8 @@ namespace Tests\Unit\Listeners;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
+use App\Events\Teachers\TeacherDeleted;
+use App\Events\Teachers\TeacherUpdated;
 use App\Listeners\LogAction;
 use App\Providers\EventServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,5 +30,7 @@ class LogActionTest extends TestCase
         Event::assertListening(LoggedIn::class, LogAction::class);
         Event::assertListening(LoggedOut::class, LogAction::class);
         Event::assertListening(TeacherCreated::class, LogAction::class);
+        Event::assertListening(TeacherDeleted::class, LogAction::class);
+        Event::assertListening(TeacherUpdated::class, LogAction::class);
     }
 }

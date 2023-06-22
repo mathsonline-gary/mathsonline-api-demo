@@ -25,7 +25,7 @@ class IndexTeacherTest extends TestCase
         $school1 = $this->createTraditionalSchool();
         $school2 = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school1);
+        $teacherAdmin = $this->createAdminTeacher($school1);
         $teachers1 = $this->createNonAdminTeacher($school1, 10);
         $this->createNonAdminTeacher($school2, 10);
 
@@ -83,7 +83,7 @@ class IndexTeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school, 1, [
+        $teacherAdmin = $this->createAdminTeacher($school, 1, [
             'username' => 'gary',
             'first_name' => 'Gary',
             'last_name' => 'Zhang',

@@ -78,8 +78,8 @@ class TeacherServiceTest extends TestCase
         $school1 = $this->createTraditionalSchool();
         $school2 = $this->createTraditionalSchool();
 
-        $this->createTeacherAdmin($school1, 5);
-        $this->createTeacherAdmin($school2, 5);
+        $this->createAdminTeacher($school1, 5);
+        $this->createAdminTeacher($school2, 5);
 
         $result = $this->teacherService->search([
             'school_id' => $school1->id,
@@ -115,8 +115,8 @@ class TeacherServiceTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacher1 = $this->createTeacherAdmin($school, 1, ['username' => 'john']);
-        $teacher2 = $this->createTeacherAdmin($school, 1, ['username' => 'gary']);
+        $teacher1 = $this->createAdminTeacher($school, 1, ['username' => 'john']);
+        $teacher2 = $this->createAdminTeacher($school, 1, ['username' => 'gary']);
 
         $teacher3 = $this->createNonAdminTeacher($school, 1, ['first_name' => 'John']);
         $teacher4 = $this->createNonAdminTeacher($school, 1, ['first_name' => 'Gary']);
@@ -160,7 +160,7 @@ class TeacherServiceTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $this->createTeacherAdmin($school, 10);
+        $this->createAdminTeacher($school, 10);
 
         $result = $this->teacherService->search([
             'pagination' => false,
@@ -179,9 +179,7 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_creates_a_teacher()
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
+        $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
 
@@ -210,5 +208,57 @@ class TeacherServiceTest extends TestCase
         $this->assertEquals($attributes['title'], $teacher->title);
         $this->assertEquals($attributes['position'], $teacher->position);
         $this->assertFalse($teacher->is_admin);
+    }
+
+    /**
+     * Test the TeacherService can update a teacher.
+     *
+     * @see TeacherService::update()
+     */
+    public function test_it_updates_a_teacher()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $teacher = $this->createAdminTeacher($school);
+
+        $attributes = [
+            'username' => 'john_doe',
+            'email' => 'john@test.com',
+            'password' => 'password123',
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'title' => 'Mr',
+            'position' => 'Maths Teacher',
+            'is_admin' => false,
+        ];
+
+        $result = $this->teacherService->update($teacher, $attributes);
+
+        // Assert that it returns the updated teacher.
+        $this->assertInstanceOf(Teacher::class, $teacher);
+        $this->assertEquals($teacher->id, $result->id);
+        $this->assertEquals($teacher->school_id, $result->school_id);
+        $this->assertEquals($attributes['username'], $result->username);
+        $this->assertEquals($attributes['email'], $result->email);
+        $this->assertTrue(Hash::check($attributes['password'], $result->password));
+        $this->assertEquals($attributes['first_name'], $result->first_name);
+        $this->assertEquals($attributes['last_name'], $result->last_name);
+        $this->assertEquals($attributes['title'], $result->title);
+        $this->assertEquals($attributes['position'], $result->position);
+        $this->assertFalse($teacher->is_admin);
+
+        // Assert that the teacher was updated correctly.
+        $updatedTeacher = Teacher::find($teacher->id);
+        $this->assertEquals($teacher->school_id, $updatedTeacher->school_id);
+        $this->assertEquals($attributes['username'], $updatedTeacher->username);
+        $this->assertEquals($attributes['email'], $updatedTeacher->email);
+        $this->assertTrue(Hash::check($attributes['password'], $updatedTeacher->password));
+        $this->assertEquals($attributes['first_name'], $updatedTeacher->first_name);
+        $this->assertEquals($attributes['last_name'], $updatedTeacher->last_name);
+        $this->assertEquals($attributes['title'], $updatedTeacher->title);
+        $this->assertEquals($attributes['position'], $updatedTeacher->position);
+        $this->assertFalse($updatedTeacher->is_admin);
     }
 }
