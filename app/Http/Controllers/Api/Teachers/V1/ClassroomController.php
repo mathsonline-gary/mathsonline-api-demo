@@ -23,10 +23,16 @@ class ClassroomController extends Controller
 
         $authenticatedTeacher = $this->authService->teacher();
 
-        $classrooms = $this->classroomService->search([
+        $options = [
             'school_id' => $authenticatedTeacher->school_id,
             'key' => $request->input('search_key'),
-        ]);
+        ];
+
+        if (!$authenticatedTeacher->isAdmin()) {
+            $options['owner_id'] = $authenticatedTeacher->id;
+        }
+
+        $classrooms = $this->classroomService->search($options);
 
         return ClassroomResource::collection($classrooms);
     }

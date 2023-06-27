@@ -14,8 +14,7 @@ class ClassroomPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin();
+        return $user instanceof Teacher;
     }
 
     /**

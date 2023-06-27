@@ -15,6 +15,7 @@ class ClassroomService
      * @param array{
      *     school_id?: int,
      *     key?: string,
+     *     owner_id?: int|string,
      *     pagination?: bool,
      *     with_school?: bool,
      *     with_owner?: bool,
@@ -39,6 +40,8 @@ class ClassroomService
             $query->where('school_id', $options['school_id']);
         })->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
             $query->where('name', 'like', "%$searchKey%");
+        })->when(isset($options['owner_id']), function (Builder $query) use ($options) {
+            $query->where('owner_id', $options['owner_id']);
         });
 
         return $query->when($options['pagination'] ?? true, function (Builder $query) {
