@@ -13,6 +13,15 @@ class Classroom extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'school_id',
+        'owner_id',
+        'type',
+        'name',
+        'pass_grade',
+        'attempts',
+    ];
+
     public const TRADITIONAL_CLASSROOM = 'traditional classroom';
 
     public const HOMESCHOOL_CLASSROOM = 'homeschool classroom';

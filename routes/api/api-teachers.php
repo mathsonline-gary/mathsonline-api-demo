@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -34,4 +35,8 @@ Route::prefix('/teachers/v1')
 
         Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])
             ->name('teachers.destroy');
+
+        // Classroom module routes.
+        Route::get('/classrooms', [ClassroomController::class, 'index'])
+            ->name('classrooms.index');
     });

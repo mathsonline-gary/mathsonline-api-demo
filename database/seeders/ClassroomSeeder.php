@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Models\School;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ClassroomSeeder extends Seeder
@@ -38,7 +37,9 @@ class ClassroomSeeder extends Seeder
                 $defaultClassroomGroup = ClassroomGroup::factory()
                     ->for($classroom)
                     ->default(true)
-                    ->create();
+                    ->create([
+                        'name' => 'Classroom ' . $classroom->id . ' default group',
+                    ]);
 
                 // Seed custom classroom groups.
                 $customClassroomGroups = ClassroomGroup::factory()
@@ -53,7 +54,7 @@ class ClassroomSeeder extends Seeder
                 $defaultClassroomGroup->students()->attach($studentsInClass);
 
                 $customClassroomGroups->each(function ($classroomGroup) use ($studentsInClass) {
-                    /* @var $classroomGroup ClassroomGroup */
+                    /* @var ClassroomGroup $classroomGroup */
                     $classroomGroup->students()->attach($studentsInClass->random(5));
                 });
             });

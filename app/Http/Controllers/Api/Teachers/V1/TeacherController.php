@@ -25,11 +25,13 @@ class TeacherController extends Controller
 
     public function index(IndexTeacherRequest $request)
     {
+        $this->authorize('viewAny', Teacher::class);
+
         $user = $this->authService->teacher();
 
         $teachers = $this->teacherService->search([
             'school_id' => $user->school_id,
-            'key' => $request->input('search'),
+            'key' => $request->input('search_key'),
         ]);
 
         return TeacherResource::collection($teachers);

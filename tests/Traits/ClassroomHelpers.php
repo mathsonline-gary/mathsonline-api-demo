@@ -4,7 +4,7 @@ namespace Tests\Traits;
 
 use App\Models\Classroom;
 use App\Models\Users\Teacher;
-use Ramsey\Collection\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 trait ClassroomHelpers
 {
