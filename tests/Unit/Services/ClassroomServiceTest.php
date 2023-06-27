@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\Classroom;
 use App\Services\ClassroomService;
 use Database\Seeders\MarketSeeder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
@@ -66,10 +66,52 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_fuzzy_searches_classrooms(): void
     {
-        // TODO
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $owner = $this->createAdminTeacher($school);
+
+        $classroom1 = $this->createClassroom($owner, 1, ['name' => 'Class 1']);
+        $classroom2 = $this->createClassroom($owner, 1, ['name' => 'Classroom 2']);
+        $classroom3 = $this->createClassroom($owner, 1, ['name' => 'Class 3']);
+
+        $result1 = $this->classroomService->search(['key' => '1']);
+        $result2 = $this->classroomService->search(['key' => 'room']);
+        $result3 = $this->classroomService->search(['key' => 'class']);
+
+        // Assert that $result1 is correct.
+        $this->assertTrue($result1->contains($classroom1));
+        $this->assertFalse($result1->contains($classroom2));
+        $this->assertFalse($result1->contains($classroom3));
+
+        // Assert that $result2 is correct.
+        $this->assertFalse($result2->contains($classroom1));
+        $this->assertTrue($result2->contains($classroom2));
+        $this->assertFalse($result2->contains($classroom3));
+
+        // Assert that $result3 is correct.
+        $this->assertTrue($result3->contains($classroom1));
+        $this->assertTrue($result3->contains($classroom2));
+        $this->assertTrue($result3->contains($classroom3));
     }
 
+    /**
+     * @see ClassroomService::search().
+     */
     public function test_it_returns_search_result_without_pagination(): void
     {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $owner = $this->createAdminTeacher($school);
+        $classrooms = $this->createClassroom($owner, 30);
+
+        $result = $this->classroomService->search(['pagination' => false]);
+
+        // Assert that the result is a collection of classrooms instead of pagination.
+        $this->assertInstanceOf(Collection::class, $result);
+
+        // Assert that the result contains all searched data, rather than paginating it.
+        $this->assertCount($classrooms->count(), $result);
     }
 }

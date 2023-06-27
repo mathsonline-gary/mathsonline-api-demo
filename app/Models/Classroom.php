@@ -43,8 +43,7 @@ class Classroom extends Model
      */
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class, 'owner_id')
-            ->where('school_id', $this->school_id);
+        return $this->belongsTo(Teacher::class, 'owner_id');
     }
 
     /**
@@ -55,7 +54,6 @@ class Classroom extends Model
     public function secondaryTeachers(): BelongsToMany
     {
         return $this->belongsToMany(Teacher::class, 'classroom_secondary_teacher', 'classroom_id', 'teacher_id')
-            ->where('school_id', $this->school_id)
             ->withTimestamps();
     }
 

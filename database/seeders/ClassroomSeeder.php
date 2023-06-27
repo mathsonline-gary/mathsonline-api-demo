@@ -36,7 +36,7 @@ class ClassroomSeeder extends Seeder
                 // Seed the default classroom group.
                 $defaultClassroomGroup = ClassroomGroup::factory()
                     ->for($classroom)
-                    ->default(true)
+                    ->default()
                     ->create([
                         'name' => 'Classroom ' . $classroom->id . ' default group',
                     ]);
@@ -45,7 +45,7 @@ class ClassroomSeeder extends Seeder
                 $customClassroomGroups = ClassroomGroup::factory()
                     ->count(2)
                     ->for($classroom)
-                    ->default(false)
+                    ->custom()
                     ->create();
 
                 // Seed students for each classroom and classroom group

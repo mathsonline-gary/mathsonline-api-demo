@@ -3,13 +3,14 @@
 namespace Tests\Traits;
 
 use App\Models\Classroom;
+use App\Models\ClassroomGroup;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 
 trait ClassroomHelpers
 {
     /**
-     * Create classroom(s) for the given teacher.
+     * Create classroom(s) for the given teacher, and add default classroom group(s) of each.
      *
      * @param Teacher $owner
      * @param int $count
@@ -22,6 +23,7 @@ trait ClassroomHelpers
             ->count($count)
             ->ofSchool($owner->school)
             ->ownedBy($owner)
+            ->has(ClassroomGroup::factory()->default())
             ->create($attributes);
 
         return $count === 1 ? $classrooms->first() : $classrooms;
@@ -39,5 +41,24 @@ trait ClassroomHelpers
     {
         $classroom->secondaryTeachers()
             ->attach($teacherIds);
+    }
+
+    /**
+     * Add custom classroom groups to the given classroom.
+     *
+     * @param Classroom $classroom
+     * @param int $count
+     * @param array $attributes
+     * @return Collection|ClassroomGroup
+     */
+    public function createCustomClassroomGroup(Classroom $classroom, int $count = 1, array $attributes = []): Collection|ClassroomGroup
+    {
+        $groups = ClassroomGroup::factory()
+            ->count($count)
+            ->ofClassroom($classroom)
+            ->custom()
+            ->create($attributes);
+
+        return $count === 1 ? $groups->first() : $groups;
     }
 }

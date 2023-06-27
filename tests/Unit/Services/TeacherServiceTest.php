@@ -166,7 +166,7 @@ class TeacherServiceTest extends TestCase
             'pagination' => false,
         ]);
 
-        // Assert that it returns a pagination by default.
+        // Assert that it returns the collection instead of pagination.
         $this->assertInstanceOf(Collection::class, $result);
     }
 

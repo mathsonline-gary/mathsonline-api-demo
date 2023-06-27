@@ -14,6 +14,18 @@ class ClassroomResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'school_id' => $this->school_id,
+            'school' => $this->whenLoaded('school'),
+            'type' => $this->type,
+            'name' => $this->name,
+            'owner_id' => $this->owner_id,
+            'owner' => $this->whenLoaded('owner'),
+            'secondary_teachers' => $this->whenLoaded('secondaryTeachers'),
+            'groups' => $this->whenLoaded('classroomGroups'),
+            'pass_grade' => $this->pass_grade,
+            'attempts' => $this->attempts,
+        ];
     }
 }
