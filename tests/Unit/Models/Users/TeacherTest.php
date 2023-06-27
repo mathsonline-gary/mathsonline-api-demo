@@ -287,7 +287,7 @@ class TeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
         $teacher = $this->createAdminTeacher($school);
-        $this->createAction($teacher, 10);
+        $this->createActivity($teacher, 10);
 
         $this->assertInstanceOf(MorphMany::class, $teacher->activities());
         $this->assertCount(10, $teacher->activities());

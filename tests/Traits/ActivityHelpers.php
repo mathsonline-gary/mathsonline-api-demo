@@ -16,7 +16,7 @@ trait ActivityHelpers
      * @param array $attributes
      * @return Collection|Activity
      */
-    public function createAction(User $actor, int $count = 1, array $attributes = []): Collection|Activity
+    public function createActivity(User $actor, int $count = 1, array $attributes = []): Collection|Activity
     {
         $activities = Activity::factory()
             ->count($count)
