@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web\Admins;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Admin;
-use App\Services\ActionService;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -13,8 +12,7 @@ use Illuminate\Http\Response;
 class AuthController extends Controller
 {
     public function __construct(
-        protected AuthService   $authService,
-        protected ActionService $actionService,
+        protected AuthService $authService,
     )
     {
     }

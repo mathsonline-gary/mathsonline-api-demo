@@ -2,21 +2,21 @@
 
 namespace App\Listeners;
 
-use App\Enums\ActionTypes;
+use App\Enums\ActivityTypes;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
-use App\Services\ActionService;
+use App\Services\ActivityService;
 
-class LogAction
+class LogActivity
 {
     /**
      * Create the event listener.
      */
     public function __construct(
-        protected ActionService $actionService,
+        protected ActivityService $activityService,
     )
     {
     }
@@ -27,23 +27,23 @@ class LogAction
     public function handle($event): void
     {
         if ($event instanceof LoggedIn) {
-            $this->actionService->create($event->user, ActionTypes::LOG_IN, $event->loggedInAt);
+            $this->activityService->create($event->user, ActivityTypes::LOGGED_IN, $event->loggedInAt);
         }
 
         if ($event instanceof LoggedOut) {
-            $this->actionService->create($event->user, ActionTypes::LOG_OUT, $event->loggedOutAt);
+            $this->activityService->create($event->user, ActivityTypes::LOGGED_OUT, $event->loggedOutAt);
         }
 
         if ($event instanceof TeacherCreated) {
-            $this->actionService->create($event->creator, ActionTypes::CREATE_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
+            $this->activityService->create($event->creator, ActivityTypes::CREATED_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
         }
 
         if ($event instanceof TeacherDeleted) {
-            $this->actionService->create($event->actor, ActionTypes::DELETE_TEACHER, $event->deletedAt, ['teacher' => $event->teacher]);
+            $this->activityService->create($event->actor, ActivityTypes::DELETED_TEACHER, $event->deletedAt, ['teacher' => $event->teacher]);
         }
 
         if ($event instanceof TeacherUpdated) {
-            $this->actionService->create($event->actor, ActionTypes::UPDATE_TEACHER, $event->updatedTeacher->updated_at, [
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->updatedTeacher->updated_at, [
                 'before' => $event->teacher,
                 'after' => $event->updatedTeacher,
             ]);

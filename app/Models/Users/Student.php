@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Models\Action;
+use App\Models\Activity;
 use App\Models\ClassroomGroup;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Builder;

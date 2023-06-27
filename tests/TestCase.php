@@ -3,7 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Tests\Traits\ActionHelpers;
+use Tests\Traits\ActivityHelpers;
 use Tests\Traits\ClassroomHelpers;
 use Tests\Traits\SchoolHelpers;
 use Tests\Traits\TeacherHelpers;
@@ -14,5 +14,5 @@ abstract class TestCase extends BaseTestCase
         SchoolHelpers,
         TeacherHelpers,
         ClassroomHelpers,
-        ActionHelpers;
+        ActivityHelpers;
 }

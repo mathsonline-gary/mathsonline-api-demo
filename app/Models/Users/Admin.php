@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Models\Action;
+use App\Models\Activity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 

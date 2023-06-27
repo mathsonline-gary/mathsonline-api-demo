@@ -106,7 +106,7 @@ class IndexTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search' => 'gary']));
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gary']));
 
         $response->assertSuccessful();
 
@@ -115,7 +115,7 @@ class IndexTeacherTest extends TestCase
             ->assertJsonMissing(['id' => $teacher1->id])
             ->assertJsonMissing(['id' => $teacher2->id]);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search' => 'mathsonline']));
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'mathsonline']));
 
         // Assert that the search result is correct
         $response->assertJsonMissing(['id' => $teacherAdmin->id])

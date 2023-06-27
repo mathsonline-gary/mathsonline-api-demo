@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Models\Action;
+use App\Models\Activity;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,13 +13,13 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable;
 
     /**
-     * Get all the user's actions.
+     * Get all the user's activities.
      *
      * @return MorphMany
      */
-    public function actions(): MorphMany
+    public function activities(): MorphMany
     {
-        return $this->morphMany(Action::class, 'actionable');
+        return $this->morphMany(Activity::class, 'actable');
     }
 
     /**

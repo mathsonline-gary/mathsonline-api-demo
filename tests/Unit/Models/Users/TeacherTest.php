@@ -279,9 +279,9 @@ class TeacherTest extends TestCase
 
     /**
      * @return void
-     * @see Teacher::actions()
+     * @see Teacher::activities()
      */
-    public function test_a_teacher_has_many_actions_logged()
+    public function test_a_teacher_has_many_activities_logged()
     {
         $this->seed([MarketSeeder::class]);
 
@@ -289,8 +289,8 @@ class TeacherTest extends TestCase
         $teacher = $this->createAdminTeacher($school);
         $this->createAction($teacher, 10);
 
-        $this->assertInstanceOf(MorphMany::class, $teacher->actions());
-        $this->assertCount(10, $teacher->actions);
+        $this->assertInstanceOf(MorphMany::class, $teacher->activities());
+        $this->assertCount(10, $teacher->activities());
     }
 
     /**

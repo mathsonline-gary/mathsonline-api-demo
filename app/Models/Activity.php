@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
-use App\Enums\ActionTypes;
+use App\Enums\ActivityTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class Action extends Model
+class Activity extends Model
 {
     use HasFactory;
-
+    
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
-        'type' => ActionTypes::class,
+        'type' => ActivityTypes::class,
         'data' => 'json',
         'acted_at' => 'datetime',
     ];
@@ -36,12 +36,12 @@ class Action extends Model
     public $timestamps = false;
 
     /**
-     * Get the actionable model that the action belongs to.
+     * Get the actable model that the activity belongs to.
      *
      * @return MorphTo
      */
-    public function actionable(): MorphTo
+    public function actable(): MorphTo
     {
-        return $this->morphTo('actionable');
+        return $this->morphTo('actable');
     }
 }

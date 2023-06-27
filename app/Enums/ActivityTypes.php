@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum ActionTypes: string
+enum ActivityTypes: string
 {
     /*
     |--------------------------------------------------------------------------
@@ -13,8 +13,8 @@ enum ActionTypes: string
     |
     */
 
-    case LOG_IN = 'log in';
-    case LOG_OUT = 'log out';
+    case LOGGED_IN = 'logged in';
+    case LOGGED_OUT = 'logged out';
 
     /*
     |--------------------------------------------------------------------------
@@ -24,7 +24,7 @@ enum ActionTypes: string
     | Enums relative to teacher module.
     |
     */
-    case CREATE_TEACHER = 'create teacher';
-    case DELETE_TEACHER = 'delete teacher';
-    case UPDATE_TEACHER = 'update teacher';
+    case CREATED_TEACHER = 'created teacher';
+    case DELETED_TEACHER = 'deleted teacher';
+    case UPDATED_TEACHER = 'updated teacher';
 }
