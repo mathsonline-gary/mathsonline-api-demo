@@ -2,31 +2,33 @@
 
 namespace App\Services;
 
+use App\Enums\ActivityTypes;
 use App\Models\Activity;
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class ActivityService
 {
     /**
-     * Store the activity of given actor into database.
+     * Save the activity of given actor into database.
      *
-     * @param Teacher|Student|Admin|Developer|null $actor
-     * @param string $action
-     * @param array $data
-     * @return void
+     * @param User|null $actor
+     * @param ActivityTypes $type
+     * @param Carbon|null $actedAt
+     * @param array|null $data
+     * @return Activity|null
      */
-    public function create(Teacher|Student|Admin|Developer|null $actor, string $action, array $data = []): void
+    public function create(User|null $actor, ActivityTypes $type, Carbon $actedAt = null, array $data = null): ?Activity
     {
-        if ($actor && in_array($action, Activity::getActions())) {
-            $actor->activities()->create([
-                'action' => $action,
-                'data' => $data,
-                'created_at' => Carbon::now(),
-            ]);
-        }
+        return $actor?->activities()->create([
+            'type' => $type,
+            'data' => $data,
+            'acted_at' => $actedAt ?? Carbon::now(),
+        ]);
     }
 }

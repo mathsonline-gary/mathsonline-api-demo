@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,13 @@ Route::prefix('/teachers/v1')
         Route::post('/teachers/', [TeacherController::class, 'store'])
             ->name('teachers.store');
 
+        Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])
+            ->name('teachers.update');
+
         Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])
             ->name('teachers.destroy');
+
+        // Classroom module routes.
+        Route::get('/classrooms', [ClassroomController::class, 'index'])
+            ->name('classrooms.index');
     });

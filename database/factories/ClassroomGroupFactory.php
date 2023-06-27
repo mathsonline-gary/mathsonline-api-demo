@@ -25,16 +25,44 @@ class ClassroomGroupFactory extends Factory
     }
 
     /**
-     * Indicate that whether the classroom group is the default group for the class.
+     * Indicate that the classroom group belongs to the given classroom.
      *
-     * @param bool $isDefault
+     * @param Classroom $classroom
      * @return ClassroomGroupFactory
      */
-    public function default(bool $isDefault): ClassroomGroupFactory
+    public function ofClassroom(Classroom $classroom): ClassroomGroupFactory
     {
-        return $this->state(function () use ($isDefault) {
+        return $this->state(function () use ($classroom) {
             return [
-                'is_default' => $isDefault,
+                'classroom_id' => $classroom->id,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the classroom group is the default group of the class.
+     *
+     * @return ClassroomGroupFactory
+     */
+    public function default(): ClassroomGroupFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_default' => true,
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the classroom group is a custom group of the class.
+     *
+     * @return ClassroomGroupFactory
+     */
+    public function custom(): ClassroomGroupFactory
+    {
+        return $this->state(function () {
+            return [
+                'is_default' => false,
             ];
         });
     }

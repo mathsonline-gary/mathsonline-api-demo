@@ -126,4 +126,38 @@ class TeacherService
         // Delete the teacher
         $teacher->delete();
     }
+
+    /**
+     * Update a teacher with given valid attributes.
+     *
+     * @param Teacher $teacher
+     * @param array $attributes
+     * @return Teacher
+     */
+    public function update(Teacher $teacher, array $attributes): Teacher
+    {
+        $fillableAttributes = Arr::only($attributes, [
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+        ]);
+
+        if (isset($fillableAttributes['password'])) {
+            $fillableAttributes['password'] = Hash::make($fillableAttributes['password']);
+        }
+
+        // Update massive assignable attributes.
+        $teacher->fill($fillableAttributes);
+
+        // Safely update attribute "is_admin".
+        $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
+
+        $teacher->save();
+
+        return $teacher;
+    }
 }

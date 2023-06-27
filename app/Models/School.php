@@ -14,8 +14,22 @@ class School extends Model
 {
     use HasFactory;
 
-    public const TRADITIONAL_SCHOOL = 'traditional school';
+    protected $fillable = [
+        'market_id',
+        'name',
+        'type',
+        'email',
+        'phone',
+        'fax',
+        'address_line_1',
+        'address_line_2',
+        'address_city',
+        'address_state',
+        'address_postal_code',
+        'address_country',
+    ];
 
+    public const TRADITIONAL_SCHOOL = 'traditional school';
     public const HOMESCHOOL = 'homeschool';
 
     /**

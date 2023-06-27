@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Events\Auth\LoggedIn;
+use App\Events\Auth\LoggedOut;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Models\Users\Tutor;
+use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +32,8 @@ class AuthService
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        LoggedIn::dispatch($this->user());
     }
 
     /**
@@ -39,11 +44,15 @@ class AuthService
      */
     public function logout(Request $request): void
     {
+        $user = $this->user();
+
         Auth::logout();
 
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
+
+        LoggedOut::dispatch($user);
     }
 
     /**
@@ -111,7 +120,7 @@ class AuthService
      */
     public function teacher(): ?Teacher
     {
-        return auth('teacher')->user();
+        return $this->user()?->asTeacher();
     }
 
     /**
@@ -121,7 +130,7 @@ class AuthService
      */
     public function student(): ?Student
     {
-        return auth('student')->user();
+        return $this->user()?->asStudent();
     }
 
     /**
@@ -131,7 +140,7 @@ class AuthService
      */
     public function tutor(): ?Tutor
     {
-        return auth('tutor')->user();
+        return $this->user()?->asTutor();
     }
 
     /**
@@ -141,7 +150,7 @@ class AuthService
      */
     public function admin(): ?Admin
     {
-        return auth('admin')->user();
+        return $this->user()?->asAdmin();
     }
 
     /**
@@ -151,6 +160,16 @@ class AuthService
      */
     public function developer(): ?Developer
     {
-        return auth('developer')->user();
+        return $this->user()?->asDeveloper();
+    }
+
+    /**
+     * Get current authenticated user.
+     *
+     * @return User|null
+     */
+    public function user(): ?User
+    {
+        return auth()->user();
     }
 }

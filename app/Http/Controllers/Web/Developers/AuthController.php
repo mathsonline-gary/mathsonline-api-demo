@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Web\Developers;
 
-use App\Events\Auth\LoggedIn;
-use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\Users\Developer;
@@ -21,18 +19,12 @@ class AuthController extends Controller
     {
         $this->authService->login($request);
 
-        LoggedIn::dispatch($this->authService->developer());
-
         return response()->noContent();
     }
 
     public function logout(Request $request): Response
     {
-        $developer = $this->authService->developer();
-
         $this->authService->logout($request);
-
-        LoggedOut::dispatch($developer);
 
         return response()->noContent();
     }

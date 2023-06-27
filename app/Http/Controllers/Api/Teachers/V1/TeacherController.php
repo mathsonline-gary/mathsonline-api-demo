@@ -2,29 +2,36 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Teachers\TeacherCreated;
+use App\Events\Teachers\TeacherDeleted;
+use App\Events\Teachers\TeacherUpdated;
 use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
+use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
+use App\Services\AuthService;
 use App\Services\TeacherService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class TeacherController extends Controller
 {
     public function __construct(
-        protected TeacherService $teacherService
+        protected TeacherService $teacherService,
+        protected AuthService    $authService,
     )
     {
     }
 
     public function index(IndexTeacherRequest $request)
     {
-        /* @var Teacher $teacher */
-        $teacher = $request->user();
+        $this->authorize('viewAny', Teacher::class);
+
+        $user = $this->authService->teacher();
 
         $teachers = $this->teacherService->search([
-            'school_id' => $teacher->school_id,
-            'key' => $request->input('search'),
+            'school_id' => $user->school_id,
+            'key' => $request->input('search_key'),
         ]);
 
         return TeacherResource::collection($teachers);
@@ -44,10 +51,9 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request)
     {
-        /** @var Teacher $user */
-        $user = $request->user();
+        $authenticatedTeacher = $this->authService->teacher();
 
-        $validated = $request->safe()->only([
+        $attributes = $request->safe()->only([
             'username',
             'email',
             'password',
@@ -59,11 +65,42 @@ class TeacherController extends Controller
         ]);
 
         $teacher = $this->teacherService->create([
-            ...$validated,
-            'school_id' => $user->school_id,
+            ...$attributes,
+            'school_id' => $authenticatedTeacher->school_id,
         ]);
 
+        TeacherCreated::dispatch($this->authService->teacher(), $teacher);
+
         return response()->json(new TeacherResource($teacher), 201);
+    }
+
+    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    {
+        $this->authorize('update', $teacher);
+
+        $attributes = $request->safe()->only([
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+            'is_admin',
+        ]);
+
+        $authenticatedTeacher = $this->authService->teacher();
+
+        // Prevent non-admin teachers from changing admin access.
+        if (!$authenticatedTeacher->isAdmin()) {
+            $attributes = Arr::except($attributes, 'is_admin');
+        }
+
+        $updatedTeacher = $this->teacherService->update($teacher, $attributes);
+
+        TeacherUpdated::dispatch($authenticatedTeacher, $teacher, $updatedTeacher);
+
+        return response()->json(new TeacherResource($updatedTeacher));
     }
 
     public function destroy(Teacher $teacher)
@@ -71,6 +108,8 @@ class TeacherController extends Controller
         $this->authorize('delete', $teacher);
 
         $this->teacherService->delete($teacher);
+
+        TeacherDeleted::dispatch($this->authService->teacher(), $teacher);
 
         return response()->noContent();
     }

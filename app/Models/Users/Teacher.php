@@ -94,14 +94,4 @@ class Teacher extends User
     {
         return $this->classroomsAsSecondaryTeacher()->count() > 0;
     }
-
-    /**
-     * Get all the teacher's activities.
-     *
-     * @return MorphMany
-     */
-    public function activities(): MorphMany
-    {
-        return $this->morphMany(Activity::class, 'actionable');
-    }
 }

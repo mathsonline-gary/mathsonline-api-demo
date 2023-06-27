@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Teachers\TeacherCreated;
+use App\Events\Teachers\TeacherDeleted;
+use App\Events\Teachers\TeacherUpdated;
 use App\Listeners\LogActivity;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -17,6 +20,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
+
+        // Auth events mappings
+        // --------------------------------------------------------------------------------
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
@@ -28,6 +34,22 @@ class EventServiceProvider extends ServiceProvider
         LoggedOut::class => [
             LogActivity::class,
         ],
+        // --------------------------------------------------------------------------------
+
+        // Teacher events mappings
+        // --------------------------------------------------------------------------------
+        TeacherCreated::class => [
+            LogActivity::class,
+        ],
+
+        TeacherDeleted::class => [
+            LogActivity::class,
+        ],
+
+        TeacherUpdated::class => [
+            LogActivity::class,
+        ],
+        // --------------------------------------------------------------------------------
     ];
 
     /**

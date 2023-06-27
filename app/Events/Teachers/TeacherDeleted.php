@@ -1,29 +1,25 @@
 <?php
 
-namespace App\Events\Auth;
+namespace App\Events\Teachers;
 
-use App\Models\Users\User;
+use App\Models\Users\Admin;
+use App\Models\Users\Teacher;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class LoggedOut
+class TeacherDeleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public Carbon $deletedAt;
 
-    public Carbon $loggedOutAt;
-
-    /**
-     * Create a new event instance.
-     *
-     * @param User|null $user
-     */
     public function __construct(
-        public User|null $user,
+        public Teacher|Admin|null $actor,
+        public Teacher            $teacher,
     )
     {
-        $this->loggedOutAt = Carbon::now();
+        $this->deletedAt = Carbon::now();
     }
 }

@@ -16,7 +16,7 @@ trait TeacherHelpers
      * @param array $attributes
      * @return Collection<Teacher>|Teacher
      */
-    public function createTeacherAdmin(School $school, int $count = 1, array $attributes = []): Collection|Teacher
+    public function createAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
     {
         $teachers = Teacher::factory()
             ->count($count)

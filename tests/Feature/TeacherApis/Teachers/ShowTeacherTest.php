@@ -27,7 +27,7 @@ class ShowTeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacherAdmin = $this->createAdminTeacher($school);
         $teacher = $this->createNonAdminTeacher($school);
 
         $this->actingAsTeacher($teacherAdmin);
@@ -71,7 +71,7 @@ class ShowTeacherTest extends TestCase
         $school1 = $this->createTraditionalSchool();
         $school2 = $this->createTraditionalSchool();
 
-        $teacher1 = $this->createTeacherAdmin($school1);
+        $teacher1 = $this->createAdminTeacher($school1);
         $teacher2 = $this->createNonAdminTeacher($school2);
 
         $this->actingAsTeacher($teacher1);

@@ -2,20 +2,24 @@
 
 namespace App\Models;
 
+use App\Enums\ActivityTypes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use ReflectionClass;
 
 class Activity extends Model
 {
+    use HasFactory;
+    
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
+        'type' => ActivityTypes::class,
         'data' => 'json',
-        'created_at' => 'datetime',
+        'acted_at' => 'datetime',
     ];
 
     /**
@@ -24,44 +28,20 @@ class Activity extends Model
      * @var array
      */
     protected $fillable = [
-        'action',
+        'type',
         'data',
-        'created_at',
+        'acted_at',
     ];
 
     public $timestamps = false;
 
-    // Define the available actions.
-    public const ACTION_LOGGED_IN = 'logged_in';
-    public const ACTION_LOGGED_OUT = 'logged_out';
-
     /**
-     * Get the tokenable model that the activity belongs to.
+     * Get the actable model that the activity belongs to.
      *
      * @return MorphTo
      */
-    public function actionable(): MorphTo
+    public function actable(): MorphTo
     {
-        return $this->morphTo('actionable');
-    }
-
-    /**
-     * Get all available actions.
-     *
-     * @return array
-     */
-    public static function getActions(): array
-    {
-        $reflectionClass = new ReflectionClass(self::class);
-        $constants = $reflectionClass->getConstants();
-        $actions = [];
-
-        foreach ($constants as $constantName => $constantValue) {
-            if (str_starts_with($constantName, 'ACTION_')) {
-                $actions[] = $constantValue;
-            }
-        }
-
-        return $actions;
+        return $this->morphTo('actable');
     }
 }

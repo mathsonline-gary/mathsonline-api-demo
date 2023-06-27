@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ActivityTypes;
 use App\Models\Activity;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,15 +16,15 @@ return new class extends Migration {
             $table->id();
 
             // morphs column to store the polymorphic relationship
-            $table->morphs('actionable');
+            $table->morphs('actable');
 
-            $table->enum('action', Activity::getActions());
+            $table->string('type');
 
             $table->json('data')
                 ->nullable()
-                ->comment('JSON data associate with the action.');
+                ->comment('JSON data associate with the activity.');
 
-            $table->timestamp('created_at');
+            $table->timestamp('acted_at');
         });
     }
 

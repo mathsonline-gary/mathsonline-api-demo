@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
+use App\Events\Teachers\TeacherDeleted;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -12,9 +14,16 @@ use Tests\TestCase;
  * @see /routes/api/api-teachers.php
  * @see TeacherController::destroy()
  */
-class DestroyTeacherTest extends TestCase
+class DeleteTeacherTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Event::fake();
+    }
 
     public function test_teacher_admins_can_delete_teachers_in_the_same_school(): void
     {
@@ -22,7 +31,7 @@ class DestroyTeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacherAdmin = $this->createAdminTeacher($school);
         $teacher = $this->createNonAdminTeacher($school);
 
         $classroom1 = $this->createClassroom($teacherAdmin);
@@ -65,6 +74,12 @@ class DestroyTeacherTest extends TestCase
             'classroom_id' => $classroom2->id,
             'teacher_id' => $teacher->id,
         ]);
+
+        // Assert that TeacherDeleted event was dispatched.
+        Event::assertDispatched(TeacherDeleted::class, function ($event) use ($teacherAdmin, $teacher) {
+            return $event->actor->id === $teacherAdmin->id &&
+                $event->teacher->id === $teacher->id;
+        });
     }
 
     public function test_teacher_admins_are_unauthorised_to_delete_teachers_in_another_school()
@@ -74,7 +89,7 @@ class DestroyTeacherTest extends TestCase
         $school1 = $this->createTraditionalSchool();
         $school2 = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school1);
+        $teacherAdmin = $this->createAdminTeacher($school1);
         $teacher = $this->createNonAdminTeacher($school2);
 
         // Assert that $teacher is in the database
@@ -97,7 +112,7 @@ class DestroyTeacherTest extends TestCase
 
         $school = $this->createTraditionalSchool();
 
-        $teacherAdmin = $this->createTeacherAdmin($school);
+        $teacherAdmin = $this->createAdminTeacher($school);
         $teacher = $this->createNonAdminTeacher($school);
 
         $classroom = $this->createClassroom($teacher);

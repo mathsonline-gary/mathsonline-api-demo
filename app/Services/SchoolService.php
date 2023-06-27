@@ -14,7 +14,7 @@ class SchoolService
      * @param array $attributes
      * @return School
      */
-    public function create(array $attributes)
+    public function create(array $attributes): School
     {
         $attributes = Arr::only($attributes, [
             'market_id',
