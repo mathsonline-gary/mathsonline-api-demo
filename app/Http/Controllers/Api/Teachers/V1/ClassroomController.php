@@ -37,8 +37,12 @@ class ClassroomController extends Controller
         return ClassroomResource::collection($classrooms);
     }
 
-    public function show(Request $request, Classroom $classroom)
+    public function show(Classroom $classroom)
     {
+        $this->authorize('view', $classroom);
 
+        $classroom = $this->classroomService->find($classroom->id);
+
+        return new ClassroomResource($classroom);
     }
 }

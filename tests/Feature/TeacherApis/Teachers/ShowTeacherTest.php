@@ -32,15 +32,13 @@ class ShowTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->get(route('api.teachers.v1.teachers.show', $teacher->id));
+        $response = $this->getJson(route('api.teachers.v1.teachers.show', $teacher->id));
 
         // Assert that the request is successful.
         $response->assertOk();
 
         // Assert that the teacher profile is correct.
-        $response->assertJsonFragment([
-            'id' => $teacher->id,
-        ]);
+        $response->assertJsonFragment(['id' => $teacher->id]);
     }
 
     public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_another_teacher_in_same_school(): void
@@ -56,7 +54,7 @@ class ShowTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();
@@ -76,7 +74,7 @@ class ShowTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();
@@ -96,7 +94,7 @@ class ShowTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->get(route('api.teachers.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route('api.teachers.v1.teachers.show', $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();

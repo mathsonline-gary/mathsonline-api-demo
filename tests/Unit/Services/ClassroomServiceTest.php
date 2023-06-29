@@ -2,12 +2,14 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\Classroom;
 use App\Services\ClassroomService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
+use function PHPUnit\Framework\assertTrue;
 
 /**
  * @see ClassroomService
@@ -26,7 +28,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::search().
+     * @see ClassroomService::search()
      */
     public function test_it_searches_classrooms_by_school_id(): void
     {
@@ -62,7 +64,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::search().
+     * @see ClassroomService::search()
      */
     public function test_it_fuzzy_searches_classrooms(): void
     {
@@ -96,7 +98,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::search().
+     * @see ClassroomService::search()
      */
     public function test_it_returns_search_result_without_pagination(): void
     {
@@ -113,5 +115,35 @@ class ClassroomServiceTest extends TestCase
 
         // Assert that the result contains all searched data, rather than paginating it.
         $this->assertCount($classrooms->count(), $result);
+    }
+
+    /**
+     * @see ClassroomService::find()
+     */
+    public function test_it_finds_a_classroom_with_relationships()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $adminTeacher = $this->createAdminTeacher($school);
+        $teachers = $this->createNonAdminTeacher($school, 2);
+        $classroom = $this->createClassroom($adminTeacher);
+        $this->createCustomClassroomGroup($classroom, 2);
+        $this->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+
+        // Call find() method with default options.
+        $result = $this->classroomService->find($classroom->id);
+
+        // Assert that the classroom was found.
+        $this->assertInstanceOf(Classroom::class, $result);
+
+        // Assert that the result is correct.
+        self::assertEquals($classroom->id, $result->id);
+
+        // Assert that the loaded relationships are correct.
+        assertTrue($result->relationLoaded('school'));
+        assertTrue($result->relationLoaded('owner'));
+        assertTrue($result->relationLoaded('secondaryTeachers'));
+        assertTrue($result->relationLoaded('classroomGroups'));
     }
 }

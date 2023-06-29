@@ -20,9 +20,21 @@ class ClassroomPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Classroom $classroom): bool
+    public function view(User $user, Classroom $classroom): Response
     {
-        //
+        // The user is an admin teacher, and viewing a classroom in his school.
+        $condition1 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $classroom->school_id;
+
+        // The user is a non-admin teacher, and viewing a classroom that he owns.
+        $condition2 = $user instanceof Teacher &&
+            !$user->isAdmin() &&
+            $user->id === $classroom->owner_id;
+
+        return ($condition1 || $condition2)
+            ? Response::allow()
+            : Response::denyAsNotFound();
     }
 
     /**

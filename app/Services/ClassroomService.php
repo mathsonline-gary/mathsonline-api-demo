@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Classroom;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ClassroomService
@@ -49,5 +50,45 @@ class ClassroomService
         }, function (Builder $query) {
             return $query->get();
         });
+    }
+
+    /**
+     * Find a classroom record by ID with additional options.
+     *
+     * @param int|string $id
+     * @param array{
+     *     throwable?: bool,
+     *     with_school?: bool,
+     *     with_owner?: bool,
+     *     with_secondary_teachers?: bool,
+     *     with_groups?: bool,
+     * } $options
+     * @return Classroom|null
+     */
+    public function find(int|string $id, array $options = []): ?Classroom
+    {
+        $classroom = $options['throwable'] ?? true
+            ? Classroom::findOrFail($id)
+            : Classroom::find($id);
+
+        if ($options['with_school'] ?? true) {
+            $classroom->load('school');
+        }
+
+        if ($options['with_owner'] ?? true) {
+            $classroom->load('owner');
+        }
+
+        if ($options['with_secondary_teachers'] ?? true) {
+            $classroom->load(['secondaryTeachers' => function (BelongsToMany $query) use ($classroom) {
+                $query->where('school_id', $classroom->school_id);
+            }]);
+        }
+
+        if ($options['with_groups'] ?? true) {
+            $classroom->load('classroomGroups');
+        }
+
+        return $classroom;
     }
 }

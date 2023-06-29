@@ -41,5 +41,5 @@ Route::prefix('/teachers/v1')
             ->name('classrooms.index');
 
         Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
-            ->name('classroom.show');
+            ->name('classrooms.show');
     });

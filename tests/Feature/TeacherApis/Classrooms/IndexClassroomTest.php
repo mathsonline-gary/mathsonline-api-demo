@@ -10,7 +10,7 @@ class IndexClassroomTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_teachers_can_get_all_classrooms_in_his_school()
+    public function test_admin_teachers_can_get_all_classrooms_in_the_school()
     {
         $this->seed([MarketSeeder::class]);
 
@@ -39,7 +39,7 @@ class IndexClassroomTest extends TestCase
         ]);
     }
 
-    public function test_non_admin_teachers_can_only_get_classrooms_owned_by_himself()
+    public function test_non_admin_teachers_can_only_get_classrooms_that_they_own()
     {
         $this->seed([MarketSeeder::class]);
 
