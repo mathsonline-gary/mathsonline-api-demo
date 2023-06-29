@@ -39,4 +39,7 @@ Route::prefix('/teachers/v1')
         // Classroom module routes.
         Route::get('/classrooms', [ClassroomController::class, 'index'])
             ->name('classrooms.index');
+
+        Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
+            ->name('classroom.show');
     });

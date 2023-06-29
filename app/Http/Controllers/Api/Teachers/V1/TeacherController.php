@@ -96,9 +96,11 @@ class TeacherController extends Controller
             $attributes = Arr::except($attributes, 'is_admin');
         }
 
+        $beforeAttributes = $teacher->getAttributes();
+
         $updatedTeacher = $this->teacherService->update($teacher, $attributes);
 
-        TeacherUpdated::dispatch($authenticatedTeacher, $teacher, $updatedTeacher);
+        TeacherUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedTeacher);
 
         return response()->json(new TeacherResource($updatedTeacher));
     }

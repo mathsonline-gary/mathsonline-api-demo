@@ -36,4 +36,9 @@ class ClassroomController extends Controller
 
         return ClassroomResource::collection($classrooms);
     }
+
+    public function show(Request $request, Classroom $classroom)
+    {
+
+    }
 }

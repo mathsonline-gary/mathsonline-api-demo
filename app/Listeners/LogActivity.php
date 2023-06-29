@@ -43,9 +43,9 @@ class LogActivity
         }
 
         if ($event instanceof TeacherUpdated) {
-            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->updatedTeacher->updated_at, [
-                'before' => $event->teacher,
-                'after' => $event->updatedTeacher,
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->after->updated_at, [
+                'before' => $event->before,
+                'after' => $event->after->getAttributes(),
             ]);
         }
     }

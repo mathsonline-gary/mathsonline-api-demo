@@ -12,10 +12,15 @@ class TeacherUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    /**
+     * @param Teacher|Admin|null $actor The user who updated the teacher.
+     * @param array $before Teacher's attributes before updated.
+     * @param Teacher $after The updated teacher instance.
+     */
     public function __construct(
         public Teacher|Admin|null $actor,
-        public Teacher            $teacher,
-        public Teacher            $updatedTeacher,
+        public array              $before,
+        public Teacher            $after,
     )
     {
     }
