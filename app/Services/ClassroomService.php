@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\Classroom;
+use App\Models\ClassroomGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ClassroomService
 {
@@ -90,5 +92,31 @@ class ClassroomService
         }
 
         return $classroom;
+    }
+
+    /**
+     * Delete the given classroom, its groups and its pivot data (secondary teachers, students).
+     *
+     * @param Classroom $classroom
+     * @return void
+     */
+    public function delete(Classroom $classroom): void
+    {
+        DB::transaction(function () use ($classroom) {
+            // Detach all secondary teachers
+            $classroom->secondaryTeachers()->detach();
+
+            // Detach all students
+            $classroom->classroomGroups()
+                ->each(function (ClassroomGroup $group) {
+                    $group->students()->detach();
+                });
+
+            // Delete classroom groups.
+            $classroom->classroomGroups()->delete();
+
+            // Delete classroom.
+            $classroom->delete();
+        });
     }
 }

@@ -61,4 +61,17 @@ trait ClassroomHelpers
 
         return $count === 1 ? $groups->first() : $groups;
     }
+
+    /**
+     * Add student(s) to the given classroom group.
+     *
+     * @param ClassroomGroup $classroomGroup
+     * @param array $studentIds
+     * @return void
+     */
+    public function addStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
+    {
+        $classroomGroup->students()
+            ->attach($studentIds);
+    }
 }

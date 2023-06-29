@@ -54,11 +54,21 @@ class ClassroomPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can delete the classroom.
      */
     public function delete(User $user, Classroom $classroom): bool
     {
-        //
+        // The user is an admin teacher, and deleting the classroom in his school.
+        $condition1 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $classroom->school_id;
+
+        // The user is a non-admin teacher, and deleting the classroom that he owns.
+        $condition2 = $user instanceof Teacher &&
+            !$user->isAdmin() &&
+            $classroom->owner_id === $user->id;
+
+        return $condition1 || $condition2;
     }
 
     /**
@@ -70,7 +80,7 @@ class ClassroomPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can permanently delete the classroom.
      */
     public function forceDelete(User $user, Classroom $classroom): bool
     {

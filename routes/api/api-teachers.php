@@ -42,4 +42,7 @@ Route::prefix('/teachers/v1')
 
         Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
             ->name('classrooms.show');
+
+        Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
+            ->name('classrooms.destroy');
     });

@@ -10,6 +10,7 @@ use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -94,5 +95,36 @@ class ClassroomTest extends TestCase
         $this->assertInstanceOf(HasMany::class, $classroom->classroomGroups());
         $this->assertInstanceOf(ClassroomGroup::class, $classroom->classroomGroups()->getRelated());
         $this->assertCount($customGroups->count() + 1, $classroom->classroomGroups);
+    }
+
+    public function test_it_has_one_default_classroom_group()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $owner = $this->createAdminTeacher($school);
+
+        $classroom = $this->createClassroom($owner);
+
+        $this->assertInstanceOf(HasOne::class, $classroom->defaultClassroomGroup());
+        $this->assertInstanceOf(ClassroomGroup::class, $classroom->defaultClassroomGroup()->getRelated());
+        $this->assertEquals(1, $classroom->defaultClassroomGroup->id);
+    }
+
+    public function test_it_has_many_custom_classroom_groups()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $owner = $this->createAdminTeacher($school);
+
+        $classroom = $this->createClassroom($owner);
+        $customClassroomGroups = $this->createCustomClassroomGroup($classroom, 5);
+
+        $this->assertInstanceOf(HasMany::class, $classroom->customClassroomGroups());
+        $this->assertInstanceOf(ClassroomGroup::class, $classroom->customClassroomGroups()->getRelated());
+        $this->assertCount($customClassroomGroups->count(), $classroom->customClassroomGroups);
     }
 }

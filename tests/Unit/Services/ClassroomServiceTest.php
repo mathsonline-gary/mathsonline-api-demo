@@ -146,4 +146,45 @@ class ClassroomServiceTest extends TestCase
         assertTrue($result->relationLoaded('secondaryTeachers'));
         assertTrue($result->relationLoaded('classroomGroups'));
     }
+
+    /**
+     * @see ClassroomService::delete()
+     */
+    public function test_it_deletes_a_classroom(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $adminTeacher = $this->createAdminTeacher($school);
+        $teachers = $this->createNonAdminTeacher($school, 2);
+
+        $students = $this->createStudent($school, 5);
+
+        $classroom = $this->createClassroom($adminTeacher);
+
+        $this->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+
+        $defaultClassroomGroup = $classroom->defaultClassroomGroup;
+        $customClassroomGroup = $this->createCustomClassroomGroup($classroom);
+
+        $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
+        $this->addStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
+
+        $this->classroomService->delete($classroom);
+
+        // Assert that the classroom was deleted.
+        $this->assertDatabaseMissing('classrooms', ['id' => $classroom->id]);
+
+        // Assert that there is no teacher related to the classroom
+        $this->assertDatabaseMissing('classroom_secondary_teacher', ['classroom_id' => $classroom->id]);
+
+        // Assert that the classroom groups was deleted.
+        $this->assertDatabaseMissing('classrooms', ['id' => $defaultClassroomGroup->id]);
+        $this->assertDatabaseMissing('classrooms', ['id' => $customClassroomGroup->id]);
+
+        // Assert that there is no student associate with the classroom groups.
+        $this->assertDatabaseMissing('classroom_group_student', ['id' => $defaultClassroomGroup->id]);
+        $this->assertDatabaseMissing('classroom_group_student', ['id' => $customClassroomGroup->id]);
+    }
 }

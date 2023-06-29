@@ -45,4 +45,13 @@ class ClassroomController extends Controller
 
         return new ClassroomResource($classroom);
     }
+
+    public function destroy(Classroom $classroom)
+    {
+        $this->authorize('delete', $classroom);
+
+        $this->classroomService->delete($classroom);
+
+        return response()->noContent();
+    }
 }
