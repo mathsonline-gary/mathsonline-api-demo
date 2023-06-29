@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Classrooms\ClassroomDeleted;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
@@ -51,6 +52,8 @@ class ClassroomController extends Controller
         $this->authorize('delete', $classroom);
 
         $this->classroomService->delete($classroom);
+
+        ClassroomDeleted::dispatch($this->authService->teacher(), $classroom);
 
         return response()->noContent();
     }

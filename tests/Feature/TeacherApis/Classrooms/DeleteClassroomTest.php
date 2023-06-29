@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Classrooms;
 
+use App\Events\Classrooms\ClassroomDeleted;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,7 +40,10 @@ class DeleteClassroomTest extends TestCase
         $response->assertNoContent();
 
         // Assert that ClassroomDeleted event was dispatched.
-        // TODO
+        Event::assertDispatched(ClassroomDeleted::class, function (ClassroomDeleted $event) use ($adminTeacher, $classroom) {
+            return $event->actor->id === $adminTeacher->id &&
+                $event->classroom->id === $classroom->id;
+        });
     }
 
     public function test_admin_teachers_are_unauthorised_to_delete_classrooms_in_another_school(): void
@@ -78,7 +82,10 @@ class DeleteClassroomTest extends TestCase
         $response->assertNoContent();
 
         // Assert that ClassroomDeleted event was dispatched.
-        // TODO
+        Event::assertDispatched(ClassroomDeleted::class, function (ClassroomDeleted $event) use ($nonAdminTeacher, $classroom) {
+            return $event->actor->id === $nonAdminTeacher->id &&
+                $event->classroom->id === $classroom->id;
+        });
     }
 
     public function test_non_admin_teachers_are_unauthorised_to_delete_classrooms_that_are_not_owned_by_them(): void

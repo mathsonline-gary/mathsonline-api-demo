@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
@@ -50,6 +51,14 @@ class EventServiceProvider extends ServiceProvider
             LogActivity::class,
         ],
         // --------------------------------------------------------------------------------
+
+        // Classroom events mappings
+        // --------------------------------------------------------------------------------
+        ClassroomDeleted::class => [
+            LogActivity::class,
+        ],
+        // --------------------------------------------------------------------------------
+
     ];
 
     /**

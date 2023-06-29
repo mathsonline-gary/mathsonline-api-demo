@@ -103,10 +103,10 @@ class ClassroomService
     public function delete(Classroom $classroom): void
     {
         DB::transaction(function () use ($classroom) {
-            // Detach all secondary teachers
+            // Detach all secondary teachers.
             $classroom->secondaryTeachers()->detach();
 
-            // Detach all students
+            // Detach all students.
             $classroom->classroomGroups()
                 ->each(function (ClassroomGroup $group) {
                     $group->students()->detach();

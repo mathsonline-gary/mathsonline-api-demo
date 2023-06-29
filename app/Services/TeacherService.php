@@ -120,10 +120,10 @@ class TeacherService
      */
     public function delete(Teacher $teacher): void
     {
-        // Remove the teacher from secondary teacher list
+        // Detach the teacher from secondary teacher list.
         $teacher->classroomsAsSecondaryTeacher()->detach();
 
-        // Delete the teacher
+        // Delete the teacher.
         $teacher->delete();
     }
 
