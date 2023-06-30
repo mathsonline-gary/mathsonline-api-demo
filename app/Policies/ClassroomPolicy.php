@@ -38,11 +38,21 @@ class ClassroomPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine whether the user can create classrooms.
      */
-    public function create(User $user): bool
+    public function create(User $user, Teacher $owner): bool
     {
-        //
+        // The user is an admin teacher, and belongs to the same school as the classroom owner.
+        $condition1 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $owner->school_id;
+
+        // The user is a non-admin teacher, and is the owner of the classroom.
+        $condition2 = $user instanceof Teacher &&
+            !$user->isAdmin() &&
+            $user->id === $owner->id;
+
+        return $condition1 || $condition2;
     }
 
     /**

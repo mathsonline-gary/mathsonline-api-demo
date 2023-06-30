@@ -13,7 +13,14 @@ class ClassroomGroup extends Model
     use HasFactory;
 
     protected $casts = [
-        'is_default' => 'boolean',
+        'is_default' => 'bool',
+    ];
+
+    protected $fillable = [
+        'classroom_id',
+        'name',
+        'pass_grade',
+        'is_default',
     ];
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class ClassroomService
@@ -92,6 +93,61 @@ class ClassroomService
         }
 
         return $classroom;
+    }
+
+    /**
+     * Create a classroom by given attributes.
+     *
+     * @param array{
+     *     school_id: string|int,
+     *     owner_id: string|int,
+     *     type: string,
+     *     name: string,
+     *     pass_grade: int,
+     *     attempts: int,
+     * } $attributes
+     * @return Classroom
+     */
+    public function create(array $attributes): Classroom
+    {
+        $attributes = Arr::only($attributes, [
+            'school_id',
+            'owner_id',
+            'type',
+            'name',
+            'pass_grade',
+            'attempts',
+        ]);
+
+        return DB::transaction(function () use ($attributes) {
+            // Create the classroom.
+            $classroom = Classroom::create($attributes);
+
+            // Create the default classroom group.
+            $this->addDefaultGroup($classroom);
+
+            return $classroom;
+        });
+    }
+
+    /**
+     * Add the default group for the given classroom, if there is no default group of this classroom.
+     *
+     * @param Classroom $classroom
+     * @return ClassroomGroup|null
+     */
+    public function addDefaultGroup(Classroom $classroom): ?ClassroomGroup
+    {
+        if ($classroom->defaultClassroomGroup()->exists()) {
+            return null;
+        }
+
+        return ClassroomGroup::create([
+            'classroom_id' => $classroom->id,
+            'name' => $classroom->name . ' default group',
+            'pass_grade' => $classroom->pass_grade,
+            'is_default' => true,
+        ]);
     }
 
     /**

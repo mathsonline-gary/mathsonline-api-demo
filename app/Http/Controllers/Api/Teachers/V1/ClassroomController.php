@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Events\Classrooms\ClassroomDeleted;
+use App\Http\Requests\Classrooms\StoreClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
 use App\Services\ClassroomService;
+use App\Services\TeacherService;
 use Illuminate\Http\Request;
 
 class ClassroomController extends Controller
@@ -14,6 +16,7 @@ class ClassroomController extends Controller
     public function __construct(
         protected ClassroomService $classroomService,
         protected AuthService      $authService,
+        protected TeacherService   $teacherService,
     )
     {
     }
@@ -45,6 +48,29 @@ class ClassroomController extends Controller
         $classroom = $this->classroomService->find($classroom->id);
 
         return new ClassroomResource($classroom);
+    }
+
+    public function store(StoreClassroomRequest $request)
+    {
+        $attributes = $request->safe()->only([
+            'name',
+            'owner_id',
+            'pass_grade',
+            'attempts',
+        ]);
+
+        // Authorize.
+        $owner = $this->teacherService->find($attributes['owner_id']);
+        $this->authorize('create', [Classroom::class, $owner]);
+
+        $authenticatedTeacher = $this->authService->teacher();
+
+        $attributes['school_id'] = $authenticatedTeacher->school_id;
+        $attributes['type'] = Classroom::TRADITIONAL_CLASSROOM;
+        
+        $classroom = $this->classroomService->create($attributes);
+
+        return response()->json(new ClassroomResource($classroom), 201);
     }
 
     public function destroy(Classroom $classroom)

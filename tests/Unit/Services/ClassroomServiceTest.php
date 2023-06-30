@@ -3,13 +3,13 @@
 namespace Tests\Unit\Services;
 
 use App\Models\Classroom;
+use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
-use function PHPUnit\Framework\assertTrue;
 
 /**
  * @see ClassroomService
@@ -138,13 +138,99 @@ class ClassroomServiceTest extends TestCase
         $this->assertInstanceOf(Classroom::class, $result);
 
         // Assert that the result is correct.
-        self::assertEquals($classroom->id, $result->id);
+        $this->assertEquals($classroom->id, $result->id);
 
         // Assert that the loaded relationships are correct.
-        assertTrue($result->relationLoaded('school'));
-        assertTrue($result->relationLoaded('owner'));
-        assertTrue($result->relationLoaded('secondaryTeachers'));
-        assertTrue($result->relationLoaded('classroomGroups'));
+        $this->assertTrue($result->relationLoaded('school'));
+        $this->assertTrue($result->relationLoaded('owner'));
+        $this->assertTrue($result->relationLoaded('secondaryTeachers'));
+        $this->assertTrue($result->relationLoaded('classroomGroups'));
+    }
+
+    /**
+     * @see ClassroomService::create()
+     */
+    public function test_it_creates_a_classroom()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createAdminTeacher($school);
+
+        $attributes = [
+            'school_id' => $school->id,
+            'owner_id' => $teacher->id,
+            'type' => Classroom::TRADITIONAL_CLASSROOM,
+            'name' => 'Test Class',
+            'pass_grade' => 80,
+            'attempts' => 1,
+        ];
+
+        $classroom = $this->classroomService->create($attributes);
+
+        // Assert that the classroom was created correctly.
+        $this->assertInstanceOf(Classroom::class, $classroom);
+        $this->assertEquals($attributes['school_id'], $classroom->school_id);
+        $this->assertEquals($attributes['owner_id'], $classroom->owner_id);
+        $this->assertEquals($attributes['type'], $classroom->type);
+        $this->assertEquals($attributes['name'], $classroom->name);
+        $this->assertEquals($attributes['pass_grade'], $classroom->pass_grade);
+        $this->assertEquals($attributes['attempts'], $classroom->attempts);
+
+        // Assert that the default classroom group was created correctly.
+        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+    }
+
+    /**
+     * @see ClassroomService::addDefaultGroup()
+     */
+    public function test_it_adds_default_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createAdminTeacher($school);
+        $classroom = $this->createClassroom($teacher);
+
+        // Remove existing default classroom group.
+        $classroom->defaultClassroomGroup()->delete();
+
+        // Assert that there is not default group of the classroom.
+        $this->assertFalse($classroom->defaultClassroomGroup()->exists());
+
+        // Add the default group for the classroom.
+        $group = $this->classroomService->addDefaultGroup($classroom);
+
+        // Assert that the default group was added correctly.
+        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+        $this->assertEquals($classroom->defaultClassroomGroup->id, $group->id);
+        $this->assertInstanceOf(ClassroomGroup::class, $group);
+        $this->assertStringContainsString($classroom->name, $group->name);
+        $this->assertEquals($classroom->pass_grade, $group->pass_grade);
+    }
+
+    /**
+     * @see ClassroomService::addDefaultGroup()
+     */
+    public function test_it_does_not_add_default_classroom_group_if_it_exists(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createAdminTeacher($school);
+        $classroom = $this->createClassroom($teacher);
+
+        // Assert that there is already a default group of the classroom.
+        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+
+        $defaultGroup = $classroom->defaultClassroomGroup;
+
+        $group = $this->classroomService->addDefaultGroup($classroom);
+
+        // Assert that no default classroom group added.
+        $this->assertNull($group);
+        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+        $this->assertEquals($defaultGroup->id, $classroom->defaultClassroomGroup->id);
     }
 
     /**

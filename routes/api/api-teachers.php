@@ -27,7 +27,7 @@ Route::prefix('/teachers/v1')
         Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])
             ->name('teachers.show');
 
-        Route::post('/teachers/', [TeacherController::class, 'store'])
+        Route::post('/teachers', [TeacherController::class, 'store'])
             ->name('teachers.store');
 
         Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])
@@ -42,6 +42,9 @@ Route::prefix('/teachers/v1')
 
         Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
             ->name('classrooms.show');
+
+        Route::post('/classrooms', [ClassroomController::class, 'store'])
+            ->name('classrooms.store');
 
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
             ->name('classrooms.destroy');
