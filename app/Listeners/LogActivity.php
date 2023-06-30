@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Enums\ActivityTypes;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
@@ -55,6 +56,10 @@ class LogActivity
 
         // Handle classroom events
         // ----------------------------------------------------------------------------------------------------
+        if ($event instanceof ClassroomCreated) {
+            $this->activityService->create($event->creator, ActivityTypes::CREATED_CLASSROOM, $event->createdAt, ['classroom' => $event->classroom]);
+        }
+
         if ($event instanceof ClassroomDeleted) {
             $this->activityService->create($event->actor, ActivityTypes::DELETED_CLASSROOM, $event->deletedAt, ['classroom' => $event->classroom]);
         }

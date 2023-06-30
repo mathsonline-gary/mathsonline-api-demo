@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Services;
 
+use App\Exceptions\DefaultClassroomGroupExistsException;
+use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
@@ -198,21 +200,25 @@ class ClassroomServiceTest extends TestCase
         // Assert that there is not default group of the classroom.
         $this->assertFalse($classroom->defaultClassroomGroup()->exists());
 
-        // Add the default group for the classroom.
-        $group = $this->classroomService->addDefaultGroup($classroom);
+        try {
+            // Add the default group for the classroom.
+            $group = $this->classroomService->addDefaultGroup($classroom);
 
-        // Assert that the default group was added correctly.
-        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
-        $this->assertEquals($classroom->defaultClassroomGroup->id, $group->id);
-        $this->assertInstanceOf(ClassroomGroup::class, $group);
-        $this->assertStringContainsString($classroom->name, $group->name);
-        $this->assertEquals($classroom->pass_grade, $group->pass_grade);
+            // Assert that the default group was added correctly.
+            $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+            $this->assertEquals($classroom->defaultClassroomGroup->id, $group->id);
+            $this->assertInstanceOf(ClassroomGroup::class, $group);
+            $this->assertStringContainsString($classroom->name, $group->name);
+            $this->assertEquals($classroom->pass_grade, $group->pass_grade);
+        } catch (DefaultClassroomGroupExistsException) {
+            $this->fail();
+        }
     }
 
     /**
      * @see ClassroomService::addDefaultGroup()
      */
-    public function test_it_does_not_add_default_classroom_group_if_it_exists(): void
+    public function test_it_throws_exception_when_adding_the_default_classroom_group_if_it_exists(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -223,14 +229,74 @@ class ClassroomServiceTest extends TestCase
         // Assert that there is already a default group of the classroom.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
 
-        $defaultGroup = $classroom->defaultClassroomGroup;
+        // Expect that DefaultClassroomGroupExistsException to be thrown.
+        $this->expectException(DefaultClassroomGroupExistsException::class);
 
-        $group = $this->classroomService->addDefaultGroup($classroom);
+        $this->classroomService->addDefaultGroup($classroom);
 
-        // Assert that no default classroom group added.
-        $this->assertNull($group);
-        $this->assertTrue($classroom->defaultClassroomGroup()->exists());
-        $this->assertEquals($defaultGroup->id, $classroom->defaultClassroomGroup->id);
+    }
+
+    /**
+     * @see ClassroomService::addCustomGroup()
+     */
+    public function test_it_adds_a_custom_classroom_group()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createAdminTeacher($school);
+        $classroom = $this->createClassroom($teacher);
+
+        // Assert that there is no custom group of the classroom.
+        $this->assertEquals(0, $classroom->customClassroomGroups()->count());
+
+        // Assert that it not hit the max limit of classroom groups.
+        $this->assertLessThan(Classroom::MAX_GROUP_COUNT, $classroom->classroomGroups()->count());
+
+        $attributes = [
+            'name' => 'Custom Group 1',
+            'pass_grade' => 40,
+        ];
+
+        // Add a custom classroom group.
+        try {
+            $customGroup = $this->classroomService->addCustomGroup($classroom, $attributes);
+
+            // Assert that the custom group was created.
+            $this->assertInstanceOf(ClassroomGroup::class, $customGroup);
+            $this->assertEquals(1, $classroom->customClassroomGroups()->count());
+            $this->assertEquals($customGroup->id, $classroom->customClassroomGroups()->first()->id);
+            $this->assertEquals($classroom->id, $classroom->customClassroomGroups()->first()->classroom_id);
+            $this->assertEquals($attributes['name'], $classroom->customClassroomGroups()->first()->name);
+            $this->assertEquals($attributes['pass_grade'], $classroom->customClassroomGroups()->first()->pass_grade);
+        } catch (MaxClassroomGroupCountReachedException) {
+            $this->fail();
+        }
+    }
+
+    /**
+     * @see ClassroomService::addCustomGroup()
+     */
+    public function test_it_throw_an_exception_when_hits_the_max_limit_of_classroom_groups()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher = $this->createAdminTeacher($school);
+        $classroom = $this->createClassroom($teacher);
+        $this->createCustomClassroomGroup($classroom, Classroom::MAX_GROUP_COUNT - 1);
+
+        // Assert that the count of groups hit the max limit.
+        $this->assertEquals(Classroom::MAX_GROUP_COUNT, $classroom->classroomGroups()->count());
+
+        // Expect that MaxClassroomGroupCountReachedException to be thrown.
+        $this->expectException(MaxClassroomGroupCountReachedException::class);
+
+        // Add a custom classroom group.
+        $this->classroomService->addCustomGroup($classroom, [
+            'name' => 'Custom Group 1',
+            'pass_grade' => 40,
+        ]);
     }
 
     /**

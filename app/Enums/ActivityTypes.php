@@ -36,5 +36,6 @@ enum ActivityTypes: string
     | Enums relative to classroom module.
     |
     */
+    case CREATED_CLASSROOM = 'created classroom';
     case DELETED_CLASSROOM = 'deleted classroom';
 }

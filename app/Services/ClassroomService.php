@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions\DefaultClassroomGroupExistsException;
+use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use Illuminate\Database\Eloquent\Builder;
@@ -105,6 +107,7 @@ class ClassroomService
      *     name: string,
      *     pass_grade: int,
      *     attempts: int,
+     *     gorups: array,
      * } $attributes
      * @return Classroom
      */
@@ -117,6 +120,7 @@ class ClassroomService
             'name',
             'pass_grade',
             'attempts',
+            'groups'
         ]);
 
         return DB::transaction(function () use ($attributes) {
@@ -125,6 +129,13 @@ class ClassroomService
 
             // Create the default classroom group.
             $this->addDefaultGroup($classroom);
+
+            // Create custom groups if existed.
+            if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
+                foreach ($attributes['groups'] as $group) {
+                    $this->addCustomGroup($classroom, $group);
+                }
+            }
 
             return $classroom;
         });
@@ -135,18 +146,45 @@ class ClassroomService
      *
      * @param Classroom $classroom
      * @return ClassroomGroup|null
+     * @throws DefaultClassroomGroupExistsException
      */
     public function addDefaultGroup(Classroom $classroom): ?ClassroomGroup
     {
         if ($classroom->defaultClassroomGroup()->exists()) {
-            return null;
+            throw new DefaultClassroomGroupExistsException();
         }
 
-        return ClassroomGroup::create([
-            'classroom_id' => $classroom->id,
+        return $classroom->defaultClassroomGroup()->create([
             'name' => $classroom->name . ' default group',
             'pass_grade' => $classroom->pass_grade,
             'is_default' => true,
+        ]);
+    }
+
+    /**
+     * Add a custom group for the given classroom, if it has not hit the max count.
+     *
+     * @param Classroom $classroom
+     * @param array $attributes
+     * @return ClassroomGroup|null
+     * @throws MaxClassroomGroupCountReachedException
+     */
+    public function addCustomGroup(Classroom $classroom, array $attributes): ?ClassroomGroup
+    {
+        if ($classroom->classroomGroups()->count() >= Classroom::MAX_GROUP_COUNT) {
+
+            throw new MaxClassroomGroupCountReachedException();
+        }
+
+        $attributes = Arr::only($attributes, [
+            'name',
+            'pass_grade',
+        ]);
+
+        return $classroom->customClassroomGroups()->create([
+            'name' => $attributes['name'],
+            'pass_grade' => $attributes['pass_grade'],
+            'is_default' => false,
         ]);
     }
 

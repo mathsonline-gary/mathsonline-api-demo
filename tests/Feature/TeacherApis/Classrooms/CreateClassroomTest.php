@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Classrooms;
 
+use App\Events\Classrooms\ClassroomCreated;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,7 +49,9 @@ class CreateClassroomTest extends TestCase
         $response->assertJsonFragment($payload);
 
         // Assert that event ClassroomCreated was dispatched.
-        // TODO
+        Event::assertDispatched(ClassroomCreated::class, function (ClassroomCreated $event) use ($adminTeacher) {
+            return $event->creator->id === $adminTeacher->id;
+        });
     }
 
     public function test_admin_teachers_are_unauthorised_to_create_classrooms_for_teachers_in_another_school(): void
@@ -101,7 +104,9 @@ class CreateClassroomTest extends TestCase
         $response->assertJsonFragment($payload);
 
         // Assert that event ClassroomCreated was dispatched.
-        // TODO
+        Event::assertDispatched(ClassroomCreated::class, function (ClassroomCreated $event) use ($nonAdminTeacher) {
+            return $event->creator->id === $nonAdminTeacher->id;
+        });
     }
 
     public function test_non_admin_teachers_are_unauthorised_to_create_classrooms_for_other_teachers_in_the_same_school(): void

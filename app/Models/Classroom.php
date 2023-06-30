@@ -34,6 +34,9 @@ class Classroom extends Model
 
     public const HOMESCHOOL_CLASSROOM = 'homeschool classroom';
 
+    // The max limit of the number of classroom groups.
+    public const MAX_GROUP_COUNT = 8;
+
     /**
      * Get the school associated with the classroom.
      *

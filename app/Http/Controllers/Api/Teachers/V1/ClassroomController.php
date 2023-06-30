@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Http\Requests\Classrooms\StoreClassroomRequest;
 use App\Http\Resources\ClassroomResource;
@@ -57,6 +58,8 @@ class ClassroomController extends Controller
             'owner_id',
             'pass_grade',
             'attempts',
+            'secondary_teacher_ids',
+            'groups',
         ]);
 
         // Authorize.
@@ -67,8 +70,10 @@ class ClassroomController extends Controller
 
         $attributes['school_id'] = $authenticatedTeacher->school_id;
         $attributes['type'] = Classroom::TRADITIONAL_CLASSROOM;
-        
+
         $classroom = $this->classroomService->create($attributes);
+
+        ClassroomCreated::dispatch($authenticatedTeacher, $classroom);
 
         return response()->json(new ClassroomResource($classroom), 201);
     }
