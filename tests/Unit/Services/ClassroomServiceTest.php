@@ -251,7 +251,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals(0, $classroom->customClassroomGroups()->count());
 
         // Assert that it not hit the max limit of classroom groups.
-        $this->assertLessThan(Classroom::MAX_GROUP_COUNT, $classroom->classroomGroups()->count());
+        $this->assertLessThan(Classroom::MAX_CUSTOM_GROUP_COUNT, $classroom->classroomGroups()->count());
 
         $attributes = [
             'name' => 'Custom Group 1',
@@ -284,10 +284,10 @@ class ClassroomServiceTest extends TestCase
         $school = $this->createTraditionalSchool();
         $teacher = $this->createAdminTeacher($school);
         $classroom = $this->createClassroom($teacher);
-        $this->createCustomClassroomGroup($classroom, Classroom::MAX_GROUP_COUNT - 1);
+        $this->createCustomClassroomGroup($classroom, Classroom::MAX_CUSTOM_GROUP_COUNT);
 
         // Assert that the count of groups hit the max limit.
-        $this->assertEquals(Classroom::MAX_GROUP_COUNT, $classroom->classroomGroups()->count());
+        $this->assertEquals(Classroom::MAX_CUSTOM_GROUP_COUNT, $classroom->customClassroomGroups()->count());
 
         // Expect that MaxClassroomGroupCountReachedException to be thrown.
         $this->expectException(MaxClassroomGroupCountReachedException::class);

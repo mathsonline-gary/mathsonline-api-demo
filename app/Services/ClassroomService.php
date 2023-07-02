@@ -171,7 +171,7 @@ class ClassroomService
      */
     public function addCustomGroup(Classroom $classroom, array $attributes): ?ClassroomGroup
     {
-        if ($classroom->classroomGroups()->count() >= Classroom::MAX_GROUP_COUNT) {
+        if ($classroom->customClassroomGroups()->count() >= Classroom::MAX_CUSTOM_GROUP_COUNT) {
 
             throw new MaxClassroomGroupCountReachedException();
         }
