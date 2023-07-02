@@ -239,7 +239,7 @@ class ClassroomServiceTest extends TestCase
     /**
      * @see ClassroomService::addCustomGroup()
      */
-    public function test_it_adds_a_custom_classroom_group()
+    public function test_it_adds_a_custom_classroom_group(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -277,7 +277,7 @@ class ClassroomServiceTest extends TestCase
     /**
      * @see ClassroomService::addCustomGroup()
      */
-    public function test_it_throw_an_exception_when_hits_the_max_limit_of_classroom_groups()
+    public function test_it_throw_an_exception_when_hits_the_max_limit_of_classroom_groups(): void
     {
         $this->seed([MarketSeeder::class]);
 
