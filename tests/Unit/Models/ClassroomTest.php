@@ -25,11 +25,11 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
+        $classroom = $this->fakeClassroom($owner);
 
         $this->assertInstanceOf(BelongsTo::class, $classroom->school());
         $this->assertInstanceOf(School::class, $classroom->school);
@@ -43,11 +43,11 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
+        $classroom = $this->fakeClassroom($owner);
 
         $this->assertInstanceOf(BelongsTo::class, $classroom->owner());
         $this->assertInstanceOf(Teacher::class, $classroom->owner);
@@ -61,13 +61,13 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
+        $classroom = $this->fakeClassroom($owner);
 
-        $teachers = $this->createNonAdminTeacher($school, 5);
+        $teachers = $this->fakeNonAdminTeacher($school, 5);
 
         $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
@@ -84,13 +84,13 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
+        $classroom = $this->fakeClassroom($owner);
 
-        $customGroups = $this->createCustomClassroomGroup($classroom, 3);
+        $customGroups = $this->fakeCustomClassroomGroup($classroom, 3);
 
         $this->assertInstanceOf(HasMany::class, $classroom->classroomGroups());
         $this->assertInstanceOf(ClassroomGroup::class, $classroom->classroomGroups()->getRelated());
@@ -101,11 +101,11 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
+        $classroom = $this->fakeClassroom($owner);
 
         $this->assertInstanceOf(HasOne::class, $classroom->defaultClassroomGroup());
         $this->assertInstanceOf(ClassroomGroup::class, $classroom->defaultClassroomGroup()->getRelated());
@@ -116,12 +116,12 @@ class ClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $owner = $this->createAdminTeacher($school);
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom = $this->createClassroom($owner);
-        $customClassroomGroups = $this->createCustomClassroomGroup($classroom, 5);
+        $classroom = $this->fakeClassroom($owner);
+        $customClassroomGroups = $this->fakeCustomClassroomGroup($classroom, 5);
 
         $this->assertInstanceOf(HasMany::class, $classroom->customClassroomGroups());
         $this->assertInstanceOf(ClassroomGroup::class, $classroom->customClassroomGroups()->getRelated());

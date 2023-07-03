@@ -31,8 +31,8 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
 
         $this->actingAsTeacher($teacher);
 
@@ -65,8 +65,8 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createNonAdminTeacher($school);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeNonAdminTeacher($school);
 
         $this->actingAsTeacher($teacher);
 
@@ -94,8 +94,8 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createNonAdminTeacher($school);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeNonAdminTeacher($school);
 
         $this->actingAsTeacher($teacher);
 
@@ -116,10 +116,10 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -151,10 +151,10 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -172,11 +172,11 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $school2 = $this->createTraditionalSchool();
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school1);
-        $teacher = $this->createNonAdminTeacher($school2);
+        $adminTeacher = $this->fakeAdminTeacher($school1);
+        $teacher = $this->fakeNonAdminTeacher($school2);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -194,11 +194,11 @@ class UpdateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $school2 = $this->createTraditionalSchool();
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school1);
-        $teacher = $this->createNonAdminTeacher($school2);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
+        $teacher = $this->fakeNonAdminTeacher($school2);
 
         $this->actingAsTeacher($nonAdminTeacher);
 

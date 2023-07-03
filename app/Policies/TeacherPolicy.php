@@ -27,13 +27,12 @@ class TeacherPolicy
     }
 
     /**
-     * Determine whether the user can create teachers in the same school.
+     * Determine whether the user can create teachers.
      */
-    public function create(User $user, int $schoolId): bool
+    public function create(User $user): bool
     {
         return $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $schoolId;
+            $user->isAdmin();
     }
 
     /**

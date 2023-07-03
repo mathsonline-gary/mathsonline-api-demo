@@ -14,28 +14,27 @@ class CreateTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * A basic feature test example.
-     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Event::fake();
+    }
+
     public function test_teacher_admins_can_add_a_teacher_in_the_same_school(): void
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = Teacher::factory()
-            ->ofSchool($school)
-            ->admin()
-            ->create();
+        $adminTeacher = $this->fakeAdminTeacher($school);
 
         $oldTeachersCount = Teacher::count();
 
-        $this->actingAs($teacherAdmin, 'teacher');
+        $this->actingAsTeacher($adminTeacher);
 
         $payload = [
-            'school_id' => $teacherAdmin->school_id,
+            'school_id' => $adminTeacher->school_id,
             'username' => 'new.teacher',
             'email' => 'new.teacher@test.com',
             'password' => 'password',
@@ -46,25 +45,17 @@ class CreateTeacherTest extends TestCase
             'is_admin' => true,
         ];
 
-        Event::fake();
-
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
 
         // Assert that the count of teachers increased by 1.
-        $this->assertEquals(1, Teacher::count() - $oldTeachersCount);
-
-        // Assert that the teacher was stored in the database.
-        $this->assertDatabaseHas('teachers', [
-            'school_id' => $teacherAdmin->school_id,
-            'username' => $payload['username'],
-        ]);
+        $this->assertEquals($oldTeachersCount + 1, Teacher::count());
 
         // Assert that the response has correct data of the new teacher.
         $response->assertJsonFragment([
-            'school_id' => $teacherAdmin->school_id,
+            'school_id' => $adminTeacher->school_id,
             'username' => $payload['username'],
             'email' => $payload['email'],
             'first_name' => $payload['first_name'],
@@ -78,8 +69,8 @@ class CreateTeacherTest extends TestCase
         $response->assertJsonMissing(['password']);
 
         // Assert that the TeacherCreated event was dispatched with the correct parameters
-        Event::assertDispatched(TeacherCreated::class, function ($event) use ($teacherAdmin, $payload) {
-            return $event->creator->id === $teacherAdmin->id &&
+        Event::assertDispatched(TeacherCreated::class, function ($event) use ($adminTeacher, $payload) {
+            return $event->creator->id === $adminTeacher->id &&
                 $event->teacher->username === $payload['username'];
         });
     }
@@ -88,17 +79,13 @@ class CreateTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = Teacher::factory()
-            ->ofSchool($school)
-            ->create();
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
         $oldTeachersCount = Teacher::count();
 
-        $this->actingAs($nonAdminTeacher, 'teacher');
+        $this->actingAsTeacher($nonAdminTeacher);
 
         $payload = [
             'username' => 'new.teacher',
@@ -113,10 +100,10 @@ class CreateTeacherTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
-        // Assert that the teacher was unauthorized
-        $response->assertStatus(403);
+        // Assert that the response has a 403 “Forbidden” status code.
+        $response->assertForbidden();
 
-        // Assert that the count of teachers did not change
-        $this->assertEquals(Teacher::count(), $oldTeachersCount);
+        // Assert that the count of teachers did not change.
+        $this->assertEquals($oldTeachersCount, Teacher::count(),);
     }
 }

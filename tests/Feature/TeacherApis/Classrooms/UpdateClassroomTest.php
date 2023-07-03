@@ -27,12 +27,12 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school);
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($adminTeacher, 1, [
+        $classroom = $this->fakeClassroom($adminTeacher, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,
@@ -71,12 +71,12 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $adminTeacher = $this->createAdminTeacher($school1);
-        $classroom = $this->createClassroom($adminTeacher);
+        $school1 = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school1);
+        $classroom = $this->fakeClassroom($adminTeacher);
 
-        $school2 = $this->createTraditionalSchool();
-        $teacher = $this->createNonAdminTeacher($school2);
+        $school2 = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeNonAdminTeacher($school2);
 
         $payload = ['owner_id' => $teacher->id];
 
@@ -92,12 +92,12 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $adminTeacher = $this->createAdminTeacher($school1);
+        $school1 = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school1);
 
-        $school2 = $this->createTraditionalSchool();
-        $teacher = $this->createNonAdminTeacher($school2);
-        $classroom = $this->createClassroom($teacher, 1, [
+        $school2 = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeNonAdminTeacher($school2);
+        $classroom = $this->fakeClassroom($teacher, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,
@@ -121,11 +121,11 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($nonAdminTeacher, 1, [
+        $classroom = $this->fakeClassroom($nonAdminTeacher, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,
@@ -163,12 +163,12 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($nonAdminTeacher, 1, [
+        $classroom = $this->fakeClassroom($nonAdminTeacher, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,
@@ -188,12 +188,12 @@ class UpdateClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher1 = $this->createNonAdminTeacher($school);
-        $nonAdminTeacher2 = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($nonAdminTeacher2, 1, [
+        $classroom = $this->fakeClassroom($nonAdminTeacher2, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,

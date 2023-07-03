@@ -29,13 +29,13 @@ class DeleteTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->createAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom1 = $this->createClassroom($teacherAdmin);
-        $classroom2 = $this->createClassroom($teacherAdmin);
+        $classroom1 = $this->fakeClassroom($teacherAdmin);
+        $classroom2 = $this->fakeClassroom($teacherAdmin);
 
         $this->attachSecondaryTeachers($classroom1, [$teacher->id]);
         $this->attachSecondaryTeachers($classroom2, [$teacher->id]);
@@ -86,11 +86,11 @@ class DeleteTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $school2 = $this->createTraditionalSchool();
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->createAdminTeacher($school1);
-        $teacher = $this->createNonAdminTeacher($school2);
+        $teacherAdmin = $this->fakeAdminTeacher($school1);
+        $teacher = $this->fakeNonAdminTeacher($school2);
 
         // Assert that $teacher is in the database
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
@@ -110,12 +110,12 @@ class DeleteTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->createAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($teacher);
+        $classroom = $this->fakeClassroom($teacher);
 
         // Assert that $teacher is in the database
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
@@ -141,10 +141,10 @@ class DeleteTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $teacher = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
 
         // Assert that $teacher is in the database
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);

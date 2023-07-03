@@ -6,7 +6,7 @@ use App\Models\School;
 use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Collection;
 
-trait StudentHelpers
+trait TestStudentHelpers
 {
     /**
      * Create student(s) in the given school.
@@ -16,7 +16,7 @@ trait StudentHelpers
      * @param array $attributes
      * @return Collection|Student
      */
-    public function createStudent(School $school, int $count = 1, array $attributes = []): Collection|Student
+    public function fakeStudent(School $school, int $count = 1, array $attributes = []): Collection|Student
     {
         $students = Student::factory()
             ->count($count)

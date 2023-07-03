@@ -37,14 +37,14 @@ class ClassroomServiceTest extends TestCase
         $this->seed([MarketSeeder::class]);
 
         // Create classrooms in school 1.
-        $school1 = $this->createTraditionalSchool();
-        $teacher1 = $this->createAdminTeacher($school1);
-        $this->createClassroom($teacher1, 5);
+        $school1 = $this->fakeTraditionalSchool();
+        $teacher1 = $this->fakeAdminTeacher($school1);
+        $this->fakeClassroom($teacher1, 5);
 
         // Create classrooms in school 2.
-        $school2 = $this->createTraditionalSchool();
-        $teacher2 = $this->createAdminTeacher($school2);
-        $this->createClassroom($teacher2, 5);
+        $school2 = $this->fakeTraditionalSchool();
+        $teacher2 = $this->fakeAdminTeacher($school2);
+        $this->fakeClassroom($teacher2, 5);
 
         $result = $this->classroomService->search(['school_id' => $school1->id]);
 
@@ -72,12 +72,12 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $owner = $this->createAdminTeacher($school);
+        $school = $this->fakeTraditionalSchool();
+        $owner = $this->fakeAdminTeacher($school);
 
-        $classroom1 = $this->createClassroom($owner, 1, ['name' => 'Class 1']);
-        $classroom2 = $this->createClassroom($owner, 1, ['name' => 'Classroom 2']);
-        $classroom3 = $this->createClassroom($owner, 1, ['name' => 'Class 3']);
+        $classroom1 = $this->fakeClassroom($owner, 1, ['name' => 'Class 1']);
+        $classroom2 = $this->fakeClassroom($owner, 1, ['name' => 'Classroom 2']);
+        $classroom3 = $this->fakeClassroom($owner, 1, ['name' => 'Class 3']);
 
         $result1 = $this->classroomService->search(['key' => '1']);
         $result2 = $this->classroomService->search(['key' => 'room']);
@@ -106,9 +106,9 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $owner = $this->createAdminTeacher($school);
-        $classrooms = $this->createClassroom($owner, 30);
+        $school = $this->fakeTraditionalSchool();
+        $owner = $this->fakeAdminTeacher($school);
+        $classrooms = $this->fakeClassroom($owner, 30);
 
         $result = $this->classroomService->search(['pagination' => false]);
 
@@ -126,11 +126,11 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $adminTeacher = $this->createAdminTeacher($school);
-        $teachers = $this->createNonAdminTeacher($school, 2);
-        $classroom = $this->createClassroom($adminTeacher);
-        $this->createCustomClassroomGroup($classroom, 2);
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teachers = $this->fakeNonAdminTeacher($school, 2);
+        $classroom = $this->fakeClassroom($adminTeacher);
+        $this->fakeCustomClassroomGroup($classroom, 2);
         $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         // Call find() method with default options.
@@ -156,9 +156,9 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $secondaryTeachers = $this->createNonAdminTeacher($school, 2);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $secondaryTeachers = $this->fakeNonAdminTeacher($school, 2);
 
         $attributes = [
             'school_id' => $school->id,
@@ -209,9 +209,9 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $classroom = $this->createClassroom($teacher);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher);
 
         // Remove existing default classroom group.
         $classroom->defaultClassroomGroup()->delete();
@@ -241,9 +241,9 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $classroom = $this->createClassroom($teacher);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher);
 
         // Assert that there is already a default group of the classroom.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
@@ -262,9 +262,9 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $classroom = $this->createClassroom($teacher);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher);
 
         // Assert that there is no custom group of the classroom.
         $this->assertEquals(0, $classroom->customClassroomGroups()->count());
@@ -300,10 +300,10 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $classroom = $this->createClassroom($teacher);
-        $this->createCustomClassroomGroup($classroom, Classroom::MAX_CUSTOM_GROUP_COUNT);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher);
+        $this->fakeCustomClassroomGroup($classroom, Classroom::MAX_CUSTOM_GROUP_COUNT);
 
         // Assert that the count of groups hit the max limit.
         $this->assertEquals(Classroom::MAX_CUSTOM_GROUP_COUNT, $classroom->customClassroomGroups()->count());
@@ -325,10 +325,10 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher1 = $this->createAdminTeacher($school);
-        $teacher2 = $this->createAdminTeacher($school);
-        $classroom = $this->createClassroom($teacher1, 1, [
+        $school = $this->fakeTraditionalSchool();
+        $teacher1 = $this->fakeAdminTeacher($school);
+        $teacher2 = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher1, 1, [
             'name' => 'Old class name',
             'pass_grade' => 80,
             'attempts' => 2,
@@ -367,14 +367,14 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school);
-        $teacher1 = $this->createNonAdminTeacher($school);
-        $teacher2 = $this->createNonAdminTeacher($school);
-        $teacher3 = $this->createNonAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher1 = $this->fakeNonAdminTeacher($school);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+        $teacher3 = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($adminTeacher);
+        $classroom = $this->fakeClassroom($adminTeacher);
 
         // Assert that there is no secondary teacher associate with the classroom.
         $this->assertEquals(0, $classroom->secondaryTeachers()->count());
@@ -405,14 +405,14 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school);
-        $teacher1 = $this->createNonAdminTeacher($school);
-        $teacher2 = $this->createNonAdminTeacher($school);
-        $teacher3 = $this->createNonAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher1 = $this->fakeNonAdminTeacher($school);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+        $teacher3 = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($adminTeacher);
+        $classroom = $this->fakeClassroom($adminTeacher);
 
         // Assert that there is no secondary teacher associate with the classroom.
         $this->assertEquals(0, $classroom->secondaryTeachers()->count());
@@ -443,19 +443,19 @@ class ClassroomServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->createAdminTeacher($school);
-        $teachers = $this->createNonAdminTeacher($school, 2);
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teachers = $this->fakeNonAdminTeacher($school, 2);
 
-        $students = $this->createStudent($school, 5);
+        $students = $this->fakeStudent($school, 5);
 
-        $classroom = $this->createClassroom($adminTeacher);
+        $classroom = $this->fakeClassroom($adminTeacher);
 
         $this->classroomService->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
-        $customClassroomGroup = $this->createCustomClassroomGroup($classroom);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
         $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
         $this->addStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
