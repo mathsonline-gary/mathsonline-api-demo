@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * This testing class is used to test methods in TeacherService.
- *
  * @see TeacherService
  */
 class TeacherServiceTest extends TestCase
@@ -30,10 +28,6 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can find a teacher by teacher ID with specified options.
-     *
-     * @return void
-     *
      * @see TeacherService::find()
      */
     public function test_it_finds_a_teacher(): void
@@ -65,10 +59,6 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can find a collection of teachers by school ID.
-     *
-     * @return void
-     *
      * @see TeacherService::search()
      */
     public function test_it_searches_teachers_by_school_id()
@@ -103,10 +93,6 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can fuzzy search teachers by username, first name, last name and email.
-     *
-     * @return void
-     *
      * @see TeacherService::search()
      */
     public function test_it_fuzzy_search_teachers()
@@ -203,8 +189,6 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can update a teacher.
-     *
      * @see TeacherService::update()
      */
     public function test_it_updates_a_teacher()

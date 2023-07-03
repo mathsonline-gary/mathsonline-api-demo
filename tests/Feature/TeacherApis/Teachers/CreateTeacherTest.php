@@ -14,9 +14,13 @@ class CreateTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * A basic feature test example.
-     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Event::fake();
+    }
+
     public function test_teacher_admins_can_add_a_teacher_in_the_same_school(): void
     {
         $this->seed([MarketSeeder::class]);
@@ -45,8 +49,6 @@ class CreateTeacherTest extends TestCase
             'title' => 'Mr',
             'is_admin' => true,
         ];
-
-        Event::fake();
 
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
@@ -113,10 +115,10 @@ class CreateTeacherTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
-        // Assert that the teacher was unauthorized
-        $response->assertStatus(403);
+        // Assert that the response has a 403 “Forbidden” status code.
+        $response->assertForbidden();
 
-        // Assert that the count of teachers did not change
+        // Assert that the count of teachers did not change.
         $this->assertEquals(Teacher::count(), $oldTeachersCount);
     }
 }
