@@ -1,26 +1,27 @@
 <?php
 
-namespace App\Events\Teachers;
+namespace App\Events\Classrooms;
 
+use App\Models\Classroom;
 use App\Models\Users\Admin;
 use App\Models\Users\Teacher;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TeacherUpdated
+class ClassroomUpdated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param Teacher|Admin|null $actor The user who updated the teacher.
-     * @param array $before Teacher's attributes before updated.
-     * @param Teacher $after The updated teacher instance.
+     * @param Teacher|Admin|null $actor The user who update the classroom.
+     * @param array $before Classroom attributes before updated.
+     * @param Classroom $after Updated classroom attributes.
      */
     public function __construct(
         public Teacher|Admin|null $actor,
         public array              $before,
-        public Teacher            $after,
+        public Classroom          $after,
     )
     {
     }

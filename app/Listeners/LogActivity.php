@@ -5,6 +5,9 @@ namespace App\Listeners;
 use App\Enums\ActivityTypes;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Classrooms\ClassroomCreated;
+use App\Events\Classrooms\ClassroomDeleted;
+use App\Events\Classrooms\ClassroomUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
@@ -34,8 +37,10 @@ class LogActivity
             $this->activityService->create($event->user, ActivityTypes::LOGGED_OUT, $event->loggedOutAt);
         }
 
+        // Handle teacher events
+        // ----------------------------------------------------------------------------------------------------
         if ($event instanceof TeacherCreated) {
-            $this->activityService->create($event->creator, ActivityTypes::CREATED_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
+            $this->activityService->create($event->creator, ActivityTypes::CREATED_TEACHER, $event->createdAt, ['teacher' => $event->teacher]);
         }
 
         if ($event instanceof TeacherDeleted) {
@@ -43,10 +48,30 @@ class LogActivity
         }
 
         if ($event instanceof TeacherUpdated) {
-            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->updatedTeacher->updated_at, [
-                'before' => $event->teacher,
-                'after' => $event->updatedTeacher,
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->after->updated_at, [
+                'before' => $event->before,
+                'after' => $event->after->getAttributes(),
             ]);
         }
+        // ----------------------------------------------------------------------------------------------------
+
+        // Handle classroom events
+        // ----------------------------------------------------------------------------------------------------
+        if ($event instanceof ClassroomCreated) {
+            $this->activityService->create($event->creator, ActivityTypes::CREATED_CLASSROOM, $event->createdAt, ['classroom' => $event->classroom]);
+        }
+
+        if ($event instanceof ClassroomUpdated) {
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_CLASSROOM, $event->after->updated_at, [
+                'before' => $event->before,
+                'after' => $event->after->getAttributes(),
+            ]);
+        }
+
+        if ($event instanceof ClassroomDeleted) {
+            $this->activityService->create($event->actor, ActivityTypes::DELETED_CLASSROOM, $event->deletedAt, ['classroom' => $event->classroom]);
+        }
+        // ----------------------------------------------------------------------------------------------------
+
     }
 }

@@ -51,8 +51,6 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request)
     {
-        $authenticatedTeacher = $this->authService->teacher();
-
         $attributes = $request->safe()->only([
             'username',
             'email',
@@ -64,12 +62,14 @@ class TeacherController extends Controller
             'is_admin',
         ]);
 
+        $authenticatedTeacher = $this->authService->teacher();
+
         $teacher = $this->teacherService->create([
             ...$attributes,
             'school_id' => $authenticatedTeacher->school_id,
         ]);
 
-        TeacherCreated::dispatch($this->authService->teacher(), $teacher);
+        TeacherCreated::dispatch($authenticatedTeacher, $teacher);
 
         return response()->json(new TeacherResource($teacher), 201);
     }
@@ -96,9 +96,11 @@ class TeacherController extends Controller
             $attributes = Arr::except($attributes, 'is_admin');
         }
 
+        $beforeAttributes = $teacher->getAttributes();
+
         $updatedTeacher = $this->teacherService->update($teacher, $attributes);
 
-        TeacherUpdated::dispatch($authenticatedTeacher, $teacher, $updatedTeacher);
+        TeacherUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedTeacher);
 
         return response()->json(new TeacherResource($updatedTeacher));
     }

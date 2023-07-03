@@ -50,19 +50,19 @@ class CreateTeacherTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
 
-        // Assert that the response has a successful status code
-        $response->assertStatus(201);
+        // Assert that the response has a 201 “Created” status code.
+        $response->assertCreated();
 
-        // Assert that the count of teachers increased by 1
+        // Assert that the count of teachers increased by 1.
         $this->assertEquals(1, Teacher::count() - $oldTeachersCount);
 
-        // Assert that the teacher was stored in the database
+        // Assert that the teacher was stored in the database.
         $this->assertDatabaseHas('teachers', [
             'school_id' => $teacherAdmin->school_id,
             'username' => $payload['username'],
         ]);
 
-        // Assert that the response has correct data of the new teacher
+        // Assert that the response has correct data of the new teacher.
         $response->assertJsonFragment([
             'school_id' => $teacherAdmin->school_id,
             'username' => $payload['username'],

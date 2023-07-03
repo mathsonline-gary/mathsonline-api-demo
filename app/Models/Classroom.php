@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Classroom extends Model
 {
@@ -22,9 +23,19 @@ class Classroom extends Model
         'attempts',
     ];
 
+    protected $casts = [
+        'school_id' => 'int',
+        'owner_id' => 'int',
+        'pass_grade' => 'int',
+        'attempts' => 'int',
+    ];
+
     public const TRADITIONAL_CLASSROOM = 'traditional classroom';
 
     public const HOMESCHOOL_CLASSROOM = 'homeschool classroom';
+
+    // The max limit of the number of classroom groups.
+    public const MAX_CUSTOM_GROUP_COUNT = 8;
 
     /**
      * Get the school associated with the classroom.
@@ -58,12 +69,34 @@ class Classroom extends Model
     }
 
     /**
-     * Get the classroom groups for the class.
+     * Get the classroom groups of the classroom.
      *
      * @return HasMany
      */
     public function classroomGroups(): HasMany
     {
         return $this->hasMany(ClassroomGroup::class);
+    }
+
+    /**
+     * Get the default classroom group of the classroom.
+     *
+     * @return HasOne
+     */
+    public function defaultClassroomGroup(): HasOne
+    {
+        return $this->hasOne(ClassroomGroup::class)
+            ->where('is_default', true);
+    }
+
+    /**
+     * Get the custom classroom groups of the classroom.
+     *
+     * @return HasMany
+     */
+    public function customClassroomGroups(): HasMany
+    {
+        return $this->hasMany(ClassroomGroup::class)
+            ->where('is_default', false);
     }
 }

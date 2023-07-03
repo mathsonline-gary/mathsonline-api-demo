@@ -27,7 +27,7 @@ Route::prefix('/teachers/v1')
         Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])
             ->name('teachers.show');
 
-        Route::post('/teachers/', [TeacherController::class, 'store'])
+        Route::post('/teachers', [TeacherController::class, 'store'])
             ->name('teachers.store');
 
         Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])
@@ -39,4 +39,16 @@ Route::prefix('/teachers/v1')
         // Classroom module routes.
         Route::get('/classrooms', [ClassroomController::class, 'index'])
             ->name('classrooms.index');
+
+        Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
+            ->name('classrooms.show');
+
+        Route::post('/classrooms', [ClassroomController::class, 'store'])
+            ->name('classrooms.store');
+
+        Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update'])
+            ->name('classrooms.update');
+
+        Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
+            ->name('classrooms.destroy');
     });

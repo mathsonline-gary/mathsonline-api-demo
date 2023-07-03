@@ -10,7 +10,7 @@ class IndexClassroomTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_teachers_can_get_the_list_of_classrooms_of_his_school()
+    public function test_admin_teachers_can_get_all_classrooms_in_the_school()
     {
         $this->seed([MarketSeeder::class]);
 
@@ -39,23 +39,39 @@ class IndexClassroomTest extends TestCase
         ]);
     }
 
-    public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_classrooms()
+    public function test_non_admin_teachers_can_only_get_classrooms_that_they_own()
     {
         $this->seed([MarketSeeder::class]);
 
         $school = $this->createTraditionalSchool();
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $classrooms = $this->createClassroom($nonAdminTeacher, 10);
+        $teacher1 = $this->createNonAdminTeacher($school);
+        $classroom1 = $this->createClassroom($teacher1);
 
-        $this->actingAsTeacher($nonAdminTeacher);
+        $teacher2 = $this->createNonAdminTeacher($school);
+        $classroom2 = $this->createClassroom($teacher2);
+
+        $this->actingAsTeacher($teacher1);
 
         $response = $this->getJson(route('api.teachers.v1.classrooms.index'));
 
-        // Assertions
-        $response->assertForbidden();
-    }
+        // Assert a successful response.
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'school_id',
+                    'owner_id',
+                    'type',
+                    'name',
+                    'pass_grade',
+                ],
+            ]
+        ]);
 
-    public function test_admin_teachers_can_fuzzy_search_classrooms_of_his_school()
-    {
+        // Assert that it only contains the classroom owned by the non-admin teacher.
+        $response->assertJsonCount(1, 'data')
+            ->assertJsonFragment(['id' => $classroom1->id])
+            ->assertJsonMissing(['id' => $classroom2->id]);
     }
 }

@@ -77,7 +77,7 @@ class IndexTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_teacher_admins_can_wild_search_teachers(): void
+    public function test_teacher_admins_can_fuzzy_search_teachers(): void
     {
         $this->seed([MarketSeeder::class]);
 

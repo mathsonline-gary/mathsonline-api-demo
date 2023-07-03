@@ -146,13 +146,9 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can return search result as a Collection instead of pagination.
-     *
-     * @return void
-     *
      * @see TeacherService::search()
      */
-    public function test_it_returns_search_result_without_pagination()
+    public function test_it_returns_search_result_without_pagination(): void
     {
         $this->seed([
             MarketSeeder::class
@@ -171,13 +167,9 @@ class TeacherServiceTest extends TestCase
     }
 
     /**
-     * Test the TeacherService can create a teacher.
-     *
-     * @return void
-     *
      * @see TeacherService::create()
      */
-    public function test_it_creates_a_teacher()
+    public function test_it_creates_a_teacher(): void
     {
         $this->seed([MarketSeeder::class]);
 

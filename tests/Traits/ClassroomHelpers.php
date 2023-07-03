@@ -31,13 +31,13 @@ trait ClassroomHelpers
 
 
     /**
-     * Add secondary teacher(s) for the given classroom.
+     * Add secondary teacher(s) for the given classroom, with detaching all existing secondary teachers.
      *
      * @param Classroom $classroom
      * @param array<int> $teacherIds
      * @return void
      */
-    public function addSecondaryTeachers(Classroom $classroom, array $teacherIds): void
+    public function attachSecondaryTeachers(Classroom $classroom, array $teacherIds): void
     {
         $classroom->secondaryTeachers()
             ->attach($teacherIds);
@@ -60,5 +60,18 @@ trait ClassroomHelpers
             ->create($attributes);
 
         return $count === 1 ? $groups->first() : $groups;
+    }
+
+    /**
+     * Add student(s) to the given classroom group.
+     *
+     * @param ClassroomGroup $classroomGroup
+     * @param array $studentIds
+     * @return void
+     */
+    public function addStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
+    {
+        $classroomGroup->students()
+            ->attach($studentIds);
     }
 }

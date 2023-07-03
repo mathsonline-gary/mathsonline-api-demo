@@ -1,27 +1,26 @@
 <?php
 
-namespace App\Events\Teachers;
+namespace App\Events\Classrooms;
 
+use App\Models\Classroom;
 use App\Models\Users\Admin;
 use App\Models\Users\Teacher;
+use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TeacherUpdated
+class ClassroomDeleted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @param Teacher|Admin|null $actor The user who updated the teacher.
-     * @param array $before Teacher's attributes before updated.
-     * @param Teacher $after The updated teacher instance.
-     */
+    public Carbon $deletedAt;
+
     public function __construct(
         public Teacher|Admin|null $actor,
-        public array              $before,
-        public Teacher            $after,
+        public Classroom          $classroom,
     )
     {
+        $this->deletedAt = Carbon::now();
     }
 }
