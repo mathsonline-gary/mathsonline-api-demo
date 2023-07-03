@@ -54,7 +54,7 @@ class CreateClassroomTest extends TestCase
         });
     }
 
-    public function test_admin_teachers_are_unauthorised_to_create_classrooms_for_teachers_in_another_school(): void
+    public function test_admin_teachers_cannot_create_classrooms_for_teachers_in_another_school(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -75,8 +75,8 @@ class CreateClassroomTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
 
-        // Assert that the response has a 403 “Forbidden” status code.
-        $response->assertForbidden();
+        // Assert that the response has a 422 status code.
+        $response->assertStatus(422);
     }
 
     public function test_non_admin_teachers_can_create_classrooms_for_themselves(): void
@@ -109,7 +109,7 @@ class CreateClassroomTest extends TestCase
         });
     }
 
-    public function test_non_admin_teachers_are_unauthorised_to_create_classrooms_for_other_teachers_in_the_same_school(): void
+    public function test_non_admin_teachers_cannot_create_classrooms_for_other_teachers_in_the_same_school(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -128,11 +128,11 @@ class CreateClassroomTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
 
-        // Assert that the response has a 403 “Forbidden” status code.
-        $response->assertForbidden();
+        // Assert that the response has a 422 status code.
+        $response->assertStatus(422);
     }
 
-    public function test_non_admin_teachers_are_unauthorised_to_create_classrooms_for_other_teachers_in_another_school(): void
+    public function test_non_admin_teachers_cannot_create_classrooms_for_other_teachers_in_another_school(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -153,7 +153,7 @@ class CreateClassroomTest extends TestCase
 
         $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
 
-        // Assert that the response has a 403 “Forbidden” status code.
-        $response->assertForbidden();
+        // Assert that the response has a 422 status code.
+        $response->assertStatus(422);
     }
 }
