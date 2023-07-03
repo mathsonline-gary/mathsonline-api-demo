@@ -37,5 +37,6 @@ enum ActivityTypes: string
     |
     */
     case CREATED_CLASSROOM = 'created classroom';
+    case UPDATED_CLASSROOM = 'updated classroom';
     case DELETED_CLASSROOM = 'deleted classroom';
 }

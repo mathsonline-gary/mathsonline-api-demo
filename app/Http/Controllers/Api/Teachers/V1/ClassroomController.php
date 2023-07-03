@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
+use App\Events\Classrooms\ClassroomUpdated;
 use App\Http\Requests\Classrooms\StoreClassroomRequest;
+use App\Http\Requests\Classrooms\UpdateClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
 use App\Services\ClassroomService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class ClassroomController extends Controller
 {
@@ -76,6 +79,33 @@ class ClassroomController extends Controller
         ClassroomCreated::dispatch($authenticatedTeacher, $classroom);
 
         return response()->json(new ClassroomResource($classroom), 201);
+    }
+
+    public function update(UpdateClassroomRequest $request, Classroom $classroom)
+    {
+        $this->authorize('update', $classroom);
+
+        $attributes = $request->safe()->only([
+            'name',
+            'owner_id',
+            'pass_grade',
+            'attempts',
+        ]);
+
+        $authenticatedTeacher = $this->authService->teacher();
+
+        // Prevent non-admin teachers from changing the classroom owner.
+        if (!$authenticatedTeacher->isAdmin()) {
+            $attributes = Arr::except($attributes, 'owner_id');
+        }
+
+        $beforeAttributes = $classroom->getAttributes();
+
+        $updatedClassroom = $this->classroomService->update($classroom, $attributes);
+
+        ClassroomUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedClassroom);
+
+        return response()->json(new ClassroomResource($updatedClassroom));
     }
 
     public function destroy(Classroom $classroom)

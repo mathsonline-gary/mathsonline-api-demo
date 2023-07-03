@@ -189,6 +189,29 @@ class ClassroomService
     }
 
     /**
+     * Update a classroom with given valid attributes.
+     *
+     * @param Classroom $classroom
+     * @param array $attributes
+     * @return Classroom
+     */
+    public function update(Classroom $classroom, array $attributes): Classroom
+    {
+        $attributes = Arr::only($attributes, [
+            'name',
+            'owner_id',
+            'pass_grade',
+            'attempts',
+        ]);
+
+        $classroom->fill($attributes);
+
+        $classroom->save();
+
+        return $classroom;
+    }
+
+    /**
      * Delete the given classroom, its groups and its pivot data (secondary teachers, students).
      *
      * @param Classroom $classroom

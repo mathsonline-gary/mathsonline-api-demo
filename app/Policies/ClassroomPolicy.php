@@ -60,7 +60,17 @@ class ClassroomPolicy
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        //
+        // The user is an admin teacher, and is updating a classroom in the same school.
+        $condition1 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $classroom->school_id;
+
+        // The user is a non-admin teacher, and is updating a classroom owned by him.
+        $condition2 = $user instanceof Teacher &&
+            !$user->isAdmin() &&
+            $user->id === $classroom->owner_id;
+
+        return $condition1 || $condition2;
     }
 
     /**
@@ -79,21 +89,5 @@ class ClassroomPolicy
             $classroom->owner_id === $user->id;
 
         return $condition1 || $condition2;
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Classroom $classroom): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the classroom.
-     */
-    public function forceDelete(User $user, Classroom $classroom): bool
-    {
-        //
     }
 }

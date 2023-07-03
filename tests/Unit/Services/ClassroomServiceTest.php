@@ -300,6 +300,47 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
+     * @see ClassroomService::update()
+     */
+    public function test_it_updates_a_classroom(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+        $teacher1 = $this->createAdminTeacher($school);
+        $teacher2 = $this->createAdminTeacher($school);
+        $classroom = $this->createClassroom($teacher1, 1, [
+            'name' => 'Old class name',
+            'pass_grade' => 80,
+            'attempts' => 2,
+        ]);
+
+        $attributes = [
+            'name' => 'Updated class name',
+            'owner_id' => $teacher2->id,
+            'pass_grade' => 10,
+            'attempts' => 1
+        ];
+
+        $result = $this->classroomService->update($classroom, $attributes);
+
+        // Assert that it returns the updated classroom.
+        $this->assertInstanceOf(Classroom::class, $result);
+        $this->assertEquals($classroom->id, $result->id);
+        $this->assertEquals($attributes['name'], $result->name);
+        $this->assertEquals($attributes['owner_id'], $result->owner_id);
+        $this->assertEquals($attributes['pass_grade'], $result->pass_grade);
+        $this->assertEquals($attributes['attempts'], $result->attempts);
+
+        // Assert that the classroom was updated correctly.
+        $updatedClassroom = Classroom::find($classroom->id);
+        $this->assertEquals($attributes['name'], $updatedClassroom->name);
+        $this->assertEquals($attributes['owner_id'], $updatedClassroom->owner_id);
+        $this->assertEquals($attributes['pass_grade'], $updatedClassroom->pass_grade);
+        $this->assertEquals($attributes['attempts'], $updatedClassroom->attempts);
+    }
+
+    /**
      * @see ClassroomService::delete()
      */
     public function test_it_deletes_a_classroom(): void

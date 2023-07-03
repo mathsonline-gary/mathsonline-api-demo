@@ -10,6 +10,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
+/**
+ * @see TeacherController::update()
+ */
 class UpdateTeacherTest extends TestCase
 {
     use RefreshDatabase;
@@ -51,7 +54,7 @@ class UpdateTeacherTest extends TestCase
             ->assertJsonFragment(Arr::except($payload, 'password'))
             ->assertJsonMissingPath('password');
 
-        // Assert that the TeacherUpdated event was dispatched with correct
+        // Assert that the TeacherUpdated event was dispatched.
         Event::assertDispatched(TeacherUpdated::class);
     }
 
@@ -136,6 +139,9 @@ class UpdateTeacherTest extends TestCase
         $response->assertSuccessful();
         $response->assertJsonFragment(Arr::except($payload, 'password'));
         $response->assertJsonMissingPath('password');
+
+        // Assert that the TeacherUpdated event was dispatched.
+        Event::assertDispatched(TeacherUpdated::class);
     }
 
     /**
