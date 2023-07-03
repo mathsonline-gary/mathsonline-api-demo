@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
-use App\Http\Requests\Classrooms\UpdateClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
@@ -139,23 +138,45 @@ class ClassroomController extends Controller
         return response()->json(new ClassroomResource($classroom), 201);
     }
 
-    public function update(UpdateClassroomRequest $request, Classroom $classroom)
+    public function update(Request $request, Classroom $classroom)
     {
+        // Authorize request.
         $this->authorize('update', $classroom);
 
-        $attributes = $request->safe()->only([
+        $authenticatedTeacher = $this->authService->teacher();
+
+        // Validate request.
+        $validated = $request->validate([
+            'name' => [
+                'string',
+                'max:32',
+            ],
+            'owner_id' => [
+                'int',
+                $authenticatedTeacher->isAdmin()
+                    ? Rule::exists('teachers', 'id')
+                    ->where('school_id', $classroom->school_id) // Admin teacher can update owner to a teacher in the same school.
+                    : Rule::exists('teachers', 'id')
+                    ->where('id', $authenticatedTeacher->id),   // Non-admin teacher can only arrange the owner to himself.
+            ],
+            'pass_grade' => [
+                'int',
+                'min:0',
+                'max:100',
+            ],
+            'attempts' => [
+                'int',
+                'min:1',
+            ],
+        ]);
+
+        // Get valid request data.
+        $attributes = Arr::only($validated, [
             'name',
             'owner_id',
             'pass_grade',
             'attempts',
         ]);
-
-        $authenticatedTeacher = $this->authService->teacher();
-
-        // Prevent non-admin teachers from changing the classroom owner.
-        if (!$authenticatedTeacher->isAdmin()) {
-            $attributes = Arr::except($attributes, 'owner_id');
-        }
 
         $beforeAttributes = $classroom->getAttributes();
 

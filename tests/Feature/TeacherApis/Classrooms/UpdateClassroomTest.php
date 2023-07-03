@@ -180,13 +180,8 @@ class UpdateClassroomTest extends TestCase
 
         $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
 
-        // Assert that the response has a 200 “OK” status code.
-        $response->assertOk();
-
-        // Assert that the response returns the updated classroom details.
-        $response->assertJsonFragment([
-            'owner_id' => $nonAdminTeacher->id,
-        ]);
+        // Assert that the response has a 422 status code.
+        $response->assertStatus(422);
     }
 
     public function test_non_admin_teachers_are_unauthorized_to_update_classroom_that_they_do_not_own(): void
