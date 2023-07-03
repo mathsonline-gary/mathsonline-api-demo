@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
-use App\Http\Requests\Teachers\IndexTeacherRequest;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\TeacherService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
 class TeacherController extends Controller
@@ -23,7 +23,7 @@ class TeacherController extends Controller
     {
     }
 
-    public function index(IndexTeacherRequest $request)
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Teacher::class);
 
