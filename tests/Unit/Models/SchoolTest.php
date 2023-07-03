@@ -25,14 +25,9 @@ class SchoolTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = School::factory()
-            ->traditionalSchool()
-            ->create();
+        $school = $this->fakeTraditionalSchool();
 
-        Teacher::factory()
-            ->count(10)
-            ->ofSchool($school)
-            ->create();
+        $this->fakeNonAdminTeacher($school, 10);
 
         // Assert that the school has a relationship with the instructors
         $this->assertInstanceOf(HasMany::class, $school->teachers());
@@ -61,9 +56,7 @@ class SchoolTest extends TestCase
             TutorTypeSeeder::class,
         ]);
 
-        $school = School::factory()
-            ->homeschool()
-            ->create();
+        $school = $this->fakeHomeSchool();
 
         Tutor::factory()
             ->count(10)
@@ -90,16 +83,13 @@ class SchoolTest extends TestCase
      *
      * @see School::students()
      */
-    public function test_a_school_has_many_students(): void
+    public function test_a_traditional_school_has_many_students(): void
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = School::factory()->create();
+        $school = $this->fakeTraditionalSchool();
 
-        Student::factory()
-            ->count(10)
-            ->ofSchool($school)
-            ->create();
+        $this->fakeStudent($school, 10);
 
         // Assert that the school has a relationship with the instructors
         $this->assertInstanceOf(HasMany::class, $school->students());
@@ -127,15 +117,9 @@ class SchoolTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $traditionalSchools = School::factory()
-            ->count(10)
-            ->traditionalSchool()
-            ->create();
+        $traditionalSchools = $this->fakeTraditionalSchool(10);
 
-        $homeschools = School::factory()
-            ->count(10)
-            ->homeschool()
-            ->create();
+        $homeschools = $this->fakeHomeSchool(10);
 
         $result = School::traditionalSchools()->get();
 
@@ -164,15 +148,9 @@ class SchoolTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $traditionalSchools = School::factory()
-            ->count(10)
-            ->traditionalSchool()
-            ->create();
+        $traditionalSchools = $this->fakeTraditionalSchool(10);
 
-        $homeschools = School::factory()
-            ->count(10)
-            ->homeschool()
-            ->create();
+        $homeschools = $this->fakeHomeSchool(10);
 
         $result = School::homeschools()->get();
 

@@ -20,7 +20,7 @@ trait TestActivityHelpers
     {
         $activities = Activity::factory()
             ->count($count)
-            ->for($actor, 'le')
+            ->for($actor, 'actable')
             ->create($attributes);
 
         return $count === 1 ? $activities->first() : $activities;
