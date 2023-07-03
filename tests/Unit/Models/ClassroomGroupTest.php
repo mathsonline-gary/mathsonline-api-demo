@@ -20,10 +20,10 @@ class ClassroomGroupTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
-        $students = $this->createStudent($school, 5);
-        $classroom = $this->createClassroom($teacher);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $students = $this->fakeStudent($school, 5);
+        $classroom = $this->fakeClassroom($teacher);
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
 

@@ -14,9 +14,9 @@ class IndexClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $adminTeacher = $this->createAdminTeacher($school);
-        $classrooms = $this->createClassroom($adminTeacher, 10);
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $classrooms = $this->fakeClassroom($adminTeacher, 10);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -43,12 +43,12 @@ class IndexClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher1 = $this->createNonAdminTeacher($school);
-        $classroom1 = $this->createClassroom($teacher1);
+        $school = $this->fakeTraditionalSchool();
+        $teacher1 = $this->fakeNonAdminTeacher($school);
+        $classroom1 = $this->fakeClassroom($teacher1);
 
-        $teacher2 = $this->createNonAdminTeacher($school);
-        $classroom2 = $this->createClassroom($teacher2);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+        $classroom2 = $this->fakeClassroom($teacher2);
 
         $this->actingAsTeacher($teacher1);
 

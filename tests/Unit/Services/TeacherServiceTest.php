@@ -34,7 +34,7 @@ class TeacherServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
         $teacher = Teacher::factory()
             ->ofSchool($school)
@@ -65,11 +65,11 @@ class TeacherServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $school2 = $this->createTraditionalSchool();
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
 
-        $this->createAdminTeacher($school1, 5);
-        $this->createAdminTeacher($school2, 5);
+        $this->fakeAdminTeacher($school1, 5);
+        $this->fakeAdminTeacher($school2, 5);
 
         $result = $this->teacherService->search([
             'school_id' => $school1->id,
@@ -99,19 +99,19 @@ class TeacherServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacher1 = $this->createAdminTeacher($school, 1, ['username' => 'john']);
-        $teacher2 = $this->createAdminTeacher($school, 1, ['username' => 'gary']);
+        $teacher1 = $this->fakeAdminTeacher($school, 1, ['username' => 'john']);
+        $teacher2 = $this->fakeAdminTeacher($school, 1, ['username' => 'gary']);
 
-        $teacher3 = $this->createNonAdminTeacher($school, 1, ['first_name' => 'John']);
-        $teacher4 = $this->createNonAdminTeacher($school, 1, ['first_name' => 'Gary']);
+        $teacher3 = $this->fakeNonAdminTeacher($school, 1, ['first_name' => 'John']);
+        $teacher4 = $this->fakeNonAdminTeacher($school, 1, ['first_name' => 'Gary']);
 
-        $teacher5 = $this->createNonAdminTeacher($school, 1, ['last_name' => 'John']);
-        $teacher6 = $this->createNonAdminTeacher($school, 1, ['last_name' => 'Gary']);
+        $teacher5 = $this->fakeNonAdminTeacher($school, 1, ['last_name' => 'John']);
+        $teacher6 = $this->fakeNonAdminTeacher($school, 1, ['last_name' => 'Gary']);
 
-        $teacher7 = $this->createNonAdminTeacher($school, 1, ['email' => 'john@test.com']);
-        $teacher8 = $this->createNonAdminTeacher($school, 1, ['email' => 'gary@test.com']);
+        $teacher7 = $this->fakeNonAdminTeacher($school, 1, ['email' => 'john@test.com']);
+        $teacher8 = $this->fakeNonAdminTeacher($school, 1, ['email' => 'gary@test.com']);
 
         $result = $this->teacherService->search([
             'key' => 'joh',
@@ -140,9 +140,9 @@ class TeacherServiceTest extends TestCase
             MarketSeeder::class
         ]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $this->createAdminTeacher($school, 10);
+        $this->fakeAdminTeacher($school, 10);
 
         $result = $this->teacherService->search([
             'pagination' => false,
@@ -159,7 +159,7 @@ class TeacherServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
         $attributes = [
             'school_id' => $school->id,
@@ -195,9 +195,9 @@ class TeacherServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacher = $this->createAdminTeacher($school);
+        $teacher = $this->fakeAdminTeacher($school);
 
         $attributes = [
             'username' => 'john_doe',

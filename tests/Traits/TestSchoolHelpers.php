@@ -5,16 +5,16 @@ namespace Tests\Traits;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
 
-trait SchoolHelpers
+trait TestSchoolHelpers
 {
     /**
-     * Create traditional school(s).
+     * Create fake traditional school(s).
      *
      * @param int $count
      * @param array $attributes
      * @return Collection<School>|School
      */
-    public function createTraditionalSchool(int $count = 1, array $attributes = []): Collection|School
+    public function fakeTraditionalSchool(int $count = 1, array $attributes = []): Collection|School
     {
         $schools = School::factory()
             ->count($count)
@@ -25,13 +25,13 @@ trait SchoolHelpers
     }
 
     /**
-     * Create homeschool(s).
+     * Create fake homeschool(s).
      *
      * @param int $count
      * @param array $attributes
      * @return Collection<School>|School
      */
-    public function createHomeSchool(int $count = 1, array $attributes = []): Collection|School
+    public function fakeHomeSchool(int $count = 1, array $attributes = []): Collection|School
     {
         $schools = School::factory()
             ->count($count)

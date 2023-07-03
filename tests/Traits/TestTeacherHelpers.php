@@ -6,17 +6,17 @@ use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 
-trait TeacherHelpers
+trait TestTeacherHelpers
 {
     /**
-     * Create teacher(s) with admin access.
+     * Create fake teacher(s) with admin access.
      *
      * @param School $school
      * @param int $count
      * @param array $attributes
      * @return Collection<Teacher>|Teacher
      */
-    public function createAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
+    public function fakeAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
     {
         $teachers = Teacher::factory()
             ->count($count)
@@ -37,7 +37,7 @@ trait TeacherHelpers
      * @param array $attributes
      * @return Collection<Teacher>|Teacher
      */
-    public function createNonAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
+    public function fakeNonAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
     {
         $teachers = Teacher::factory()
             ->count($count)

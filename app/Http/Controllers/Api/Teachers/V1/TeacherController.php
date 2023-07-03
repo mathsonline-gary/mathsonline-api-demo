@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
-use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class TeacherController extends Controller
@@ -89,11 +89,25 @@ class TeacherController extends Controller
         return response()->json(new TeacherResource($teacher), 201);
     }
 
-    public function update(UpdateTeacherRequest $request, Teacher $teacher)
+    public function update(Request $request, Teacher $teacher)
     {
+        // Authorize the request.
         $this->authorize('update', $teacher);
 
-        $attributes = $request->safe()->only([
+        // Validate the request.
+        $validated = $request->validate([
+            'username' => ['string', Rule::unique('teachers')->ignore($teacher->id)],
+            'email' => ['nullable', 'email'],
+            'first_name' => ['string', 'max:255'],
+            'last_name' => ['string', 'max:255'],
+            'password' => ['string', Password::defaults()],
+            'title' => ['nullable', 'string', 'max:255'],
+            'position' => ['nullable', 'string', 'max:255'],
+            'is_admin' => ['boolean'],
+        ]);
+
+        // Get the attributes to update.
+        $attributes = Arr::only($validated, [
             'username',
             'email',
             'password',

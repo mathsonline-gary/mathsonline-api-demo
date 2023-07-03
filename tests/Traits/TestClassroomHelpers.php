@@ -7,17 +7,17 @@ use App\Models\ClassroomGroup;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 
-trait ClassroomHelpers
+trait TestClassroomHelpers
 {
     /**
-     * Create classroom(s) for the given teacher, and add default classroom group(s) of each.
+     * Create fake classroom(s) for the given teacher, and add default classroom group(s) of each.
      *
      * @param Teacher $owner
      * @param int $count
      * @param array $attributes
      * @return Classroom|Collection<Classroom>
      */
-    public function createClassroom(Teacher $owner, int $count = 1, array $attributes = []): Collection|Classroom
+    public function fakeClassroom(Teacher $owner, int $count = 1, array $attributes = []): Collection|Classroom
     {
         $classrooms = Classroom::factory()
             ->count($count)
@@ -51,7 +51,7 @@ trait ClassroomHelpers
      * @param array $attributes
      * @return Collection|ClassroomGroup
      */
-    public function createCustomClassroomGroup(Classroom $classroom, int $count = 1, array $attributes = []): Collection|ClassroomGroup
+    public function fakeCustomClassroomGroup(Classroom $classroom, int $count = 1, array $attributes = []): Collection|ClassroomGroup
     {
         $groups = ClassroomGroup::factory()
             ->count($count)

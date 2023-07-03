@@ -22,12 +22,12 @@ class IndexTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $school2 = $this->createTraditionalSchool();
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->createAdminTeacher($school1);
-        $teachers1 = $this->createNonAdminTeacher($school1, 10);
-        $this->createNonAdminTeacher($school2, 10);
+        $teacherAdmin = $this->fakeAdminTeacher($school1);
+        $teachers1 = $this->fakeNonAdminTeacher($school1, 10);
+        $this->fakeNonAdminTeacher($school2, 10);
 
         $this->actingAsTeacher($teacherAdmin);
 
@@ -64,10 +64,10 @@ class IndexTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $this->createNonAdminTeacher($school, 10);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $this->fakeNonAdminTeacher($school, 10);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -81,23 +81,23 @@ class IndexTeacherTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->createAdminTeacher($school, 1, [
+        $teacherAdmin = $this->fakeAdminTeacher($school, 1, [
             'username' => 'gary',
             'first_name' => 'Gary',
             'last_name' => 'Zhang',
             'email' => 'gary@test.com'
         ]);
 
-        $teacher1 = $this->createNonAdminTeacher($school, 1, [
+        $teacher1 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'tom',
             'first_name' => 'Tom',
             'last_name' => 'Porter',
             'email' => 'tom.porter@mathsonline.com.au'
         ]);
 
-        $teacher2 = $this->createNonAdminTeacher($school, 1, [
+        $teacher2 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'mike',
             'first_name' => 'Mike',
             'last_name' => 'Smith',

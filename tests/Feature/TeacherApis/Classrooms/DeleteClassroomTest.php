@@ -27,10 +27,10 @@ class DeleteClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $adminTeacher = $this->createAdminTeacher($school);
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $classroom = $this->createClassroom($nonAdminTeacher);
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $classroom = $this->fakeClassroom($nonAdminTeacher);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -50,12 +50,12 @@ class DeleteClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school1 = $this->createTraditionalSchool();
-        $adminTeacher1 = $this->createAdminTeacher($school1);
+        $school1 = $this->fakeTraditionalSchool();
+        $adminTeacher1 = $this->fakeAdminTeacher($school1);
 
-        $school2 = $this->createTraditionalSchool();
-        $adminTeacher2 = $this->createAdminTeacher($school2);
-        $classroom = $this->createClassroom($adminTeacher2);
+        $school2 = $this->fakeTraditionalSchool();
+        $adminTeacher2 = $this->fakeAdminTeacher($school2);
+        $classroom = $this->fakeClassroom($adminTeacher2);
 
         $this->actingAsTeacher($adminTeacher1);
 
@@ -70,9 +70,9 @@ class DeleteClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $nonAdminTeacher = $this->createNonAdminTeacher($school);
-        $classroom = $this->createClassroom($nonAdminTeacher);
+        $school = $this->fakeTraditionalSchool();
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $classroom = $this->fakeClassroom($nonAdminTeacher);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -92,12 +92,12 @@ class DeleteClassroomTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
+        $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher1 = $this->createNonAdminTeacher($school);
-        $nonAdminTeacher2 = $this->createNonAdminTeacher($school);
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->createClassroom($nonAdminTeacher2);
+        $classroom = $this->fakeClassroom($nonAdminTeacher2);
 
         $this->actingAsTeacher($nonAdminTeacher1);
 

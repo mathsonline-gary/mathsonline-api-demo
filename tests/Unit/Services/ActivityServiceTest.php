@@ -36,8 +36,8 @@ class ActivityServiceTest extends TestCase
     {
         $this->seed([MarketSeeder::class]);
 
-        $school = $this->createTraditionalSchool();
-        $teacher = $this->createAdminTeacher($school);
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
 
         $type = ActivityTypes::LOGGED_IN;
         $actedAt = Carbon::now();
