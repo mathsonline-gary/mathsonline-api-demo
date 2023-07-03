@@ -237,7 +237,7 @@ class TeacherTest extends TestCase
         // Assert that $teacher is not a secondary teacher
         $this->assertFalse($teacher->isSecondaryTeacher());
 
-        $this->addSecondaryTeachers($classroom, [$teacher->id]);
+        $this->attachSecondaryTeachers($classroom, [$teacher->id]);
 
         // Assert that $teacher is a secondary teacher
         $this->assertTrue($teacher->isSecondaryTeacher());

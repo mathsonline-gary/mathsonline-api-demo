@@ -131,7 +131,7 @@ class ClassroomServiceTest extends TestCase
         $teachers = $this->createNonAdminTeacher($school, 2);
         $classroom = $this->createClassroom($adminTeacher);
         $this->createCustomClassroomGroup($classroom, 2);
-        $this->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         // Call find() method with default options.
         $result = $this->classroomService->find($classroom->id);
@@ -158,6 +158,7 @@ class ClassroomServiceTest extends TestCase
 
         $school = $this->createTraditionalSchool();
         $teacher = $this->createAdminTeacher($school);
+        $secondaryTeachers = $this->createNonAdminTeacher($school, 2);
 
         $attributes = [
             'school_id' => $school->id,
@@ -166,6 +167,19 @@ class ClassroomServiceTest extends TestCase
             'name' => 'Test Class',
             'pass_grade' => 80,
             'attempts' => 1,
+            'secondary_teacher_ids' => $secondaryTeachers->pluck('id')->toArray(),
+            "groups" => [
+                [
+                    "name" => "Test Class Group 1",
+                    "pass_grade" => 90,
+                    "attempts" => 1
+                ],
+                [
+                    "name" => "Test Class Group 2",
+                    "pass_grade" => 60,
+                    "attempts" => 3
+                ],
+            ],
         ];
 
         $classroom = $this->classroomService->create($attributes);
@@ -179,8 +193,13 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($attributes['pass_grade'], $classroom->pass_grade);
         $this->assertEquals($attributes['attempts'], $classroom->attempts);
 
-        // Assert that the default classroom group was created correctly.
+        // Assert that secondary teachers were attached correctly.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+        $this->assertEquals($secondaryTeachers->pluck('id')->toArray(), $classroom->secondaryTeachers->pluck('id')->toArray());
+
+        // Assert that classroom groups were created correctly.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+        $this->assertEquals(2, $classroom->customClassroomGroups()->count());
     }
 
     /**
@@ -340,6 +359,83 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($attributes['attempts'], $updatedClassroom->attempts);
     }
 
+
+    /**
+     * @see ClassroomService::addSecondaryTeachers()
+     */
+    public function test_it_adds_secondary_teachers_with_detaching_by_default()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $adminTeacher = $this->createAdminTeacher($school);
+        $teacher1 = $this->createNonAdminTeacher($school);
+        $teacher2 = $this->createNonAdminTeacher($school);
+        $teacher3 = $this->createNonAdminTeacher($school);
+
+        $classroom = $this->createClassroom($adminTeacher);
+
+        // Assert that there is no secondary teacher associate with the classroom.
+        $this->assertEquals(0, $classroom->secondaryTeachers()->count());
+
+        // Add $teacher1 and $teacher 2 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+
+        // Assert that there are 2 secondary teachers associate with the classroom.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+
+        // Assert that $teacher1 and $teacher2 are the secondary teachers.
+        $this->assertEquals([$teacher1->id, $teacher2->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
+
+        // Add $teacher2 and $teacher3 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id]);
+
+        // Assert that there are 2 secondary teachers associate with the classroom.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+
+        // Assert that $teacher2 and $teacher3 are the secondary teachers.
+        $this->assertEquals([$teacher2->id, $teacher3->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
+    }
+
+    /**
+     * @see ClassroomService::addSecondaryTeachers()
+     */
+    public function test_it_adds_secondary_teachers_without_detaching()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->createTraditionalSchool();
+
+        $adminTeacher = $this->createAdminTeacher($school);
+        $teacher1 = $this->createNonAdminTeacher($school);
+        $teacher2 = $this->createNonAdminTeacher($school);
+        $teacher3 = $this->createNonAdminTeacher($school);
+
+        $classroom = $this->createClassroom($adminTeacher);
+
+        // Assert that there is no secondary teacher associate with the classroom.
+        $this->assertEquals(0, $classroom->secondaryTeachers()->count());
+
+        // Add $teacher1 and $teacher 2 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+
+        // Assert that there are 2 secondary teachers associate with the classroom.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+
+        // Assert that $teacher1 and $teacher2 are the secondary teachers.
+        $this->assertEquals([$teacher1->id, $teacher2->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
+
+        // Add $teacher2 and $teacher3 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id], false);
+
+        // Assert that there are 3 secondary teachers associate with the classroom.
+        $this->assertEquals(3, $classroom->secondaryTeachers()->count());
+
+        // Assert that $teacher2 and $teacher3 are the secondary teachers.
+        $this->assertEquals([$teacher1->id, $teacher2->id, $teacher3->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
+    }
+
     /**
      * @see ClassroomService::delete()
      */
@@ -356,7 +452,7 @@ class ClassroomServiceTest extends TestCase
 
         $classroom = $this->createClassroom($adminTeacher);
 
-        $this->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->classroomService->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $customClassroomGroup = $this->createCustomClassroomGroup($classroom);

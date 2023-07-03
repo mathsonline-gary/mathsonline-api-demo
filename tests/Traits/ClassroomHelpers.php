@@ -31,13 +31,13 @@ trait ClassroomHelpers
 
 
     /**
-     * Add secondary teacher(s) for the given classroom.
+     * Add secondary teacher(s) for the given classroom, with detaching all existing secondary teachers.
      *
      * @param Classroom $classroom
      * @param array<int> $teacherIds
      * @return void
      */
-    public function addSecondaryTeachers(Classroom $classroom, array $teacherIds): void
+    public function attachSecondaryTeachers(Classroom $classroom, array $teacherIds): void
     {
         $classroom->secondaryTeachers()
             ->attach($teacherIds);

@@ -120,6 +120,7 @@ class ClassroomService
             'name',
             'pass_grade',
             'attempts',
+            'secondary_teacher_ids',
             'groups'
         ]);
 
@@ -130,11 +131,16 @@ class ClassroomService
             // Create the default classroom group.
             $this->addDefaultGroup($classroom);
 
-            // Create custom groups if existed.
+            // Create custom groups if it is passed.
             if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
                 foreach ($attributes['groups'] as $group) {
                     $this->addCustomGroup($classroom, $group);
                 }
+            }
+
+            // Add secondary teachers if it is passed.
+            if (isset($attributes['secondary_teacher_ids']) && count($attributes['secondary_teacher_ids']) > 0) {
+                $this->addSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
             }
 
             return $classroom;
@@ -186,6 +192,21 @@ class ClassroomService
             'pass_grade' => $attributes['pass_grade'],
             'is_default' => false,
         ]);
+    }
+
+    /**
+     * Add secondary teachers to the given classroom.
+     *
+     * @param Classroom $classroom The classroom to add secondary teachers to.
+     * @param array $teacherIds The IDs of the teachers to add.
+     * @param bool $detaching Whether to detach the existing secondary teachers or not.
+     * @return void
+     */
+    public function addSecondaryTeachers(Classroom $classroom, array $teacherIds, bool $detaching = true): void
+    {
+        $detaching
+            ? $classroom->secondaryTeachers()->sync($teacherIds)
+            : $classroom->secondaryTeachers()->syncWithoutDetaching($teacherIds);
     }
 
     /**

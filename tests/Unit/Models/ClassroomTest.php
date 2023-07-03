@@ -69,7 +69,7 @@ class ClassroomTest extends TestCase
 
         $teachers = $this->createNonAdminTeacher($school, 5);
 
-        $this->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         $this->assertInstanceOf(BelongsToMany::class, $classroom->secondaryTeachers());
         $this->assertInstanceOf(Teacher::class, $classroom->secondaryTeachers()->getRelated());
