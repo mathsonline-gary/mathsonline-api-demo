@@ -24,6 +24,7 @@ class ClassroomGroupController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'pass_grade' => ['required', 'integer', 'min:0', 'max:100'],
+            'attempts' => ['required', 'integer', 'min:1'],
         ]);
 
         // Create the classroom group in the classroom.
@@ -47,6 +48,7 @@ class ClassroomGroupController extends Controller
         $validated = $request->validate([
             'name' => ['string', 'max:255'],
             'pass_grade' => ['integer', 'min:0', 'max:100'],
+            'attempts' => ['integer', 'min:1'],
         ]);
 
         // Update the classroom group.

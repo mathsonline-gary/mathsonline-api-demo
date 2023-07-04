@@ -6,6 +6,7 @@ use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 
 trait TestClassroomHelpers
 {
@@ -23,8 +24,13 @@ trait TestClassroomHelpers
             ->count($count)
             ->ofSchool($owner->school)
             ->ownedBy($owner)
-            ->has(ClassroomGroup::factory()->default())
-            ->create($attributes);
+            ->has(ClassroomGroup::factory()
+                ->default()
+                ->state(function () use ($attributes) {
+                    return Arr::only($attributes, ['pass_grade', 'attempts']);
+                })
+            )
+            ->create(Arr::only($attributes, ['type', 'name']));
 
         return $count === 1 ? $classrooms->first() : $classrooms;
     }

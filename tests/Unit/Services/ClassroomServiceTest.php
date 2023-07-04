@@ -146,7 +146,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertTrue($result->relationLoaded('school'));
         $this->assertTrue($result->relationLoaded('owner'));
         $this->assertTrue($result->relationLoaded('secondaryTeachers'));
-        $this->assertTrue($result->relationLoaded('classroomGroups'));
+        $this->assertTrue($result->relationLoaded('customClassroomGroups'));
     }
 
     /**
@@ -190,15 +190,17 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($attributes['owner_id'], $classroom->owner_id);
         $this->assertEquals($attributes['type'], $classroom->type);
         $this->assertEquals($attributes['name'], $classroom->name);
-        $this->assertEquals($attributes['pass_grade'], $classroom->pass_grade);
-        $this->assertEquals($attributes['attempts'], $classroom->attempts);
 
         // Assert that secondary teachers were attached correctly.
         $this->assertEquals(2, $classroom->secondaryTeachers()->count());
         $this->assertEquals($secondaryTeachers->pluck('id')->toArray(), $classroom->secondaryTeachers->pluck('id')->toArray());
 
-        // Assert that classroom groups were created correctly.
+        // Assert that the default classroom groups were created correctly.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+        $this->assertEquals($attributes['pass_grade'], $classroom->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $classroom->defaultClassroomGroup->attempts);
+
+        // Assert that custom classroom groups were created correctly.
         $this->assertEquals(2, $classroom->customClassroomGroups()->count());
     }
 
@@ -220,15 +222,21 @@ class ClassroomServiceTest extends TestCase
         $this->assertFalse($classroom->defaultClassroomGroup()->exists());
 
         try {
+            $attributes = [
+                'pass_grade' => 80,
+                'attempts' => 1,
+            ];
+
             // Add the default group for the classroom.
-            $group = $this->classroomService->addDefaultGroup($classroom);
+            $group = $this->classroomService->addDefaultGroup($classroom, $attributes);
 
             // Assert that the default group was added correctly.
             $this->assertTrue($classroom->defaultClassroomGroup()->exists());
             $this->assertEquals($classroom->defaultClassroomGroup->id, $group->id);
             $this->assertInstanceOf(ClassroomGroup::class, $group);
             $this->assertStringContainsString($classroom->name, $group->name);
-            $this->assertEquals($classroom->pass_grade, $group->pass_grade);
+            $this->assertEquals($attributes['pass_grade'], $group->pass_grade);
+            $this->assertEquals($attributes['attempts'], $group->attempts);
         } catch (DefaultClassroomGroupExistsException) {
             $this->fail();
         }
@@ -251,8 +259,10 @@ class ClassroomServiceTest extends TestCase
         // Expect that DefaultClassroomGroupExistsException to be thrown.
         $this->expectException(DefaultClassroomGroupExistsException::class);
 
-        $this->classroomService->addDefaultGroup($classroom);
-
+        $this->classroomService->addDefaultGroup($classroom, [
+            'pass_grade' => 80,
+            'attempts' => 1,
+        ]);
     }
 
     /**
@@ -275,6 +285,7 @@ class ClassroomServiceTest extends TestCase
         $attributes = [
             'name' => 'Custom Group 1',
             'pass_grade' => 40,
+            'attempts' => 4,
         ];
 
         // Add a custom classroom group.
@@ -288,6 +299,7 @@ class ClassroomServiceTest extends TestCase
             $this->assertEquals($classroom->id, $classroom->customClassroomGroups()->first()->classroom_id);
             $this->assertEquals($attributes['name'], $classroom->customClassroomGroups()->first()->name);
             $this->assertEquals($attributes['pass_grade'], $classroom->customClassroomGroups()->first()->pass_grade);
+            $this->assertEquals($attributes['attempts'], $classroom->customClassroomGroups()->first()->attempts);
         } catch (MaxClassroomGroupCountReachedException) {
             $this->fail();
         }
@@ -315,6 +327,7 @@ class ClassroomServiceTest extends TestCase
         $this->classroomService->addCustomGroup($classroom, [
             'name' => 'Custom Group 1',
             'pass_grade' => 40,
+            'attempts' => 4,
         ]);
     }
 
@@ -348,15 +361,15 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($classroom->id, $result->id);
         $this->assertEquals($attributes['name'], $result->name);
         $this->assertEquals($attributes['owner_id'], $result->owner_id);
-        $this->assertEquals($attributes['pass_grade'], $result->pass_grade);
-        $this->assertEquals($attributes['attempts'], $result->attempts);
+        $this->assertEquals($attributes['pass_grade'], $result->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $result->defaultClassroomGroup->attempts);
 
         // Assert that the classroom was updated correctly.
         $updatedClassroom = Classroom::find($classroom->id);
         $this->assertEquals($attributes['name'], $updatedClassroom->name);
         $this->assertEquals($attributes['owner_id'], $updatedClassroom->owner_id);
-        $this->assertEquals($attributes['pass_grade'], $updatedClassroom->pass_grade);
-        $this->assertEquals($attributes['attempts'], $updatedClassroom->attempts);
+        $this->assertEquals($attributes['pass_grade'], $updatedClassroom->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $updatedClassroom->defaultClassroomGroup->attempts);
     }
 
 
