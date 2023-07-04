@@ -17,11 +17,28 @@ class UpdateTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The payload to use for updating the teacher.
+     *
+     * @var array
+     */
+    protected array $payload;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         Event::fake();
+
+        $this->payload = [
+            'username' => fake()->userName,
+            'email' => fake()->safeEmail,
+            'password' => 'password',
+            'first_name' => fake()->firstName,
+            'last_name' => fake()->lastName,
+            'position' => fake()->jobTitle,
+            'title' => 'Mr',
+        ];
     }
 
     /**
@@ -36,22 +53,11 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher);
 
-        $payload = [
-            'username' => 'john_doe',
-            'email' => 'john@test.com',
-            'password' => 'password123',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'title' => 'Mr',
-            'position' => 'Maths Teacher',
-            'is_admin' => false,
-        ];
-
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         // Assert that the response is successful with updated teacher profile.
-        $response->assertSuccessful()
-            ->assertJsonFragment(Arr::except($payload, 'password'))
+        $response->assertOk()
+            ->assertJsonFragment(Arr::except($this->payload, 'password'))
             ->assertJsonMissingPath('password');
 
         // Assert that the TeacherUpdated event was dispatched.
@@ -70,21 +76,15 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher);
 
-        $payload = [
-            'username' => 'john_doe',
-            'email' => 'john@test.com',
-            'password' => 'password123',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'title' => 'Mr',
-            'position' => 'Maths Teacher',
-        ];
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        // Assert that the response is successful with updated teacher profile.
+        $response->assertOk()
+            ->assertJsonFragment(Arr::except($this->payload, 'password'))
+            ->assertJsonMissingPath('password');
 
-        $response->assertSuccessful();
-        $response->assertJsonFragment(Arr::except($payload, 'password'));
-        $response->assertJsonMissingPath('password');
+        // Assert that the TeacherUpdated event was dispatched.
+        Event::assertDispatched(TeacherUpdated::class);
     }
 
     /**
@@ -99,13 +99,13 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher);
 
-        $payload = [
-            'is_admin' => true,
-        ];
+        $this->payload['is_admin'] = true;
 
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
-        $response->assertSuccessful();
+        $response->assertOk();
+
+        // Assert that the "is_admin" attribute was not updated.
         $response->assertJsonFragment(['is_admin' => false]);
     }
 
@@ -123,22 +123,12 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'username' => 'john_doe',
-            'email' => 'john@test.com',
-            'password' => 'password123',
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'title' => 'Mr',
-            'position' => 'Maths Teacher',
-            'is_admin' => false,
-        ];
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
-
-        $response->assertSuccessful();
-        $response->assertJsonFragment(Arr::except($payload, 'password'));
-        $response->assertJsonMissingPath('password');
+        // Assert that the response is successful with updated teacher profile.
+        $response->assertOk()
+            ->assertJsonFragment(Arr::except($this->payload, 'password'))
+            ->assertJsonMissingPath('password');
 
         // Assert that the TeacherUpdated event was dispatched.
         Event::assertDispatched(TeacherUpdated::class);
@@ -158,9 +148,7 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [];
-
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         $response->assertForbidden();
     }
@@ -180,9 +168,7 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [];
-
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         $response->assertForbidden();
     }
@@ -202,9 +188,7 @@ class UpdateTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [];
-
-        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         $response->assertForbidden();
     }
