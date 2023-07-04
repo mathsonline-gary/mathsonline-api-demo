@@ -13,6 +13,8 @@ class ClassroomGroup extends Model
     use HasFactory;
 
     protected $casts = [
+        'pass_grade' => 'int',
+        'attempts' => 'int',
         'is_default' => 'bool',
     ];
 
@@ -20,6 +22,7 @@ class ClassroomGroup extends Model
         'classroom_id',
         'name',
         'pass_grade',
+        'attempts',
         'is_default',
     ];
 

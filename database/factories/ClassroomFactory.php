@@ -21,8 +21,6 @@ class ClassroomFactory extends Factory
     {
         return [
             'name' => 'Class ' . fake()->randomNumber(2),
-            'pass_grade' => fake()->numberBetween(0, 100),
-            'attempts' => fake()->numberBetween(1, 5),
         ];
     }
 

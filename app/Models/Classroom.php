@@ -19,15 +19,11 @@ class Classroom extends Model
         'owner_id',
         'type',
         'name',
-        'pass_grade',
-        'attempts',
     ];
 
     protected $casts = [
         'school_id' => 'int',
         'owner_id' => 'int',
-        'pass_grade' => 'int',
-        'attempts' => 'int',
     ];
 
     public const TRADITIONAL_CLASSROOM = 'traditional classroom';

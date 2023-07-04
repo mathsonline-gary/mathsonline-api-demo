@@ -22,6 +22,10 @@ return new class extends Migration {
                 ->default(0)
                 ->comment('The minimum grade that students in this class group should score to pass tasks.');
 
+            $table->unsignedInteger('attempts')
+                ->default(1)
+                ->comment('The maximum number of attempts that the student in this classroom to pass tasks.');
+            
             $table->boolean('is_default')
                 ->comment('Indicates whether this classroom group is the default group for the class, including all students in the class.');
 
