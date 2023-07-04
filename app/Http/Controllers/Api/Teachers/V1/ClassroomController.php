@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
+use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
+use App\Http\Controllers\Api\Teachers\V1\ClassroomGroupController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -51,4 +52,8 @@ Route::prefix('/teachers/v1')
 
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
             ->name('classrooms.destroy');
+
+        // Classroom group module routes.
+        Route::post('/classrooms/{classroom}/groups', [ClassroomGroupController::class, 'store'])
+            ->name('classrooms.groups.store');
     });
