@@ -4,11 +4,31 @@ namespace Tests\Feature\TeacherApis\Classrooms;
 
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class UpdateClassroomGroupTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase,
+        withFaker;
+
+    /**
+     * The payload to use for the request.
+     *
+     * @var array
+     */
+    protected array $payload;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->payload = [
+            'name' => fake()->name(),
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(0, 10),
+        ];
+    }
 
     public function test_admin_teachers_can_update_groups_of_classrooms_in_the_same_school(): void
     {
@@ -21,30 +41,24 @@ class UpdateClassroomGroupTest extends TestCase
 
         $classroom = $this->fakeClassroom($teacher);
 
-        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom, 1, [
-            'name' => 'Old Group Name',
-            'pass_grade' => 60,
-        ]);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
         $this->actingAsTeacher($adminTeacher);
-
-        $payload = [
-            'name' => 'New Group Name',
-            'pass_grade' => 80,
-        ];
 
         $response = $this->putJson(
             route('api.teachers.v1.classrooms.groups.update', [
                 'classroom' => $classroom->id,
                 'classroomGroup' => $customClassroomGroup->id,
-            ]), $payload);
+            ]), $this->payload);
 
-        $response->assertSuccessful();
+        $response->assertOk();
+
         $response->assertJsonFragment([
             'id' => $customClassroomGroup->id,
             'classroom_id' => $classroom->id,
-            'name' => $payload['name'],
-            'pass_grade' => $payload['pass_grade'],
+            'name' => $this->payload['name'],
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
             'is_default' => false,
         ]);
     }
@@ -61,23 +75,15 @@ class UpdateClassroomGroupTest extends TestCase
 
         $classroom = $this->fakeClassroom($teacher);
 
-        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom, 1, [
-            'name' => 'Old Group Name',
-            'pass_grade' => 60,
-        ]);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
         $this->actingAsTeacher($adminTeacher);
-
-        $payload = [
-            'name' => 'New Group Name',
-            'pass_grade' => 80,
-        ];
 
         $response = $this->putJson(
             route('api.teachers.v1.classrooms.groups.update', [
                 'classroom' => $classroom->id,
                 'classroomGroup' => $customClassroomGroup->id,
-            ]), $payload);
+            ]), $this->payload);
 
         $response->assertForbidden();
     }
@@ -92,30 +98,24 @@ class UpdateClassroomGroupTest extends TestCase
 
         $classroom = $this->fakeClassroom($nonAdminTeacher);
 
-        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom, 1, [
-            'name' => 'Old Group Name',
-            'pass_grade' => 60,
-        ]);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
         $this->actingAsTeacher($nonAdminTeacher);
-
-        $payload = [
-            'name' => 'New Group Name',
-            'pass_grade' => 80,
-        ];
 
         $response = $this->putJson(
             route('api.teachers.v1.classrooms.groups.update', [
                 'classroom' => $classroom->id,
                 'classroomGroup' => $customClassroomGroup->id,
-            ]), $payload);
+            ]), $this->payload);
 
-        $response->assertSuccessful();
+        $response->assertOk();
+
         $response->assertJsonFragment([
             'id' => $customClassroomGroup->id,
             'classroom_id' => $classroom->id,
-            'name' => $payload['name'],
-            'pass_grade' => $payload['pass_grade'],
+            'name' => $this->payload['name'],
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
             'is_default' => false,
         ]);
     }
@@ -131,24 +131,40 @@ class UpdateClassroomGroupTest extends TestCase
 
         $classroom = $this->fakeClassroom($teacher);
 
-        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom, 1, [
-            'name' => 'Old Group Name',
-            'pass_grade' => 60,
-        ]);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
         $this->actingAsTeacher($nonAdminTeacher);
-
-        $payload = [
-            'name' => 'New Group Name',
-            'pass_grade' => 80,
-        ];
 
         $response = $this->putJson(
             route('api.teachers.v1.classrooms.groups.update', [
                 'classroom' => $classroom->id,
                 'classroomGroup' => $customClassroomGroup->id,
-            ]), $payload);
+            ]), $this->payload);
 
         $response->assertForbidden();
+    }
+
+    public function test_it_responses_not_found_when_the_classroom_group_does_not_belong_to_the_classroom(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom2);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->putJson(
+            route('api.teachers.v1.classrooms.groups.update', [
+                'classroom' => $classroom1->id,
+                'classroomGroup' => $customClassroomGroup->id,
+            ]), $this->payload);
+
+        $response->assertNotFound();
     }
 }

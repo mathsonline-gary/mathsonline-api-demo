@@ -260,6 +260,26 @@ class ClassroomService
     }
 
     /**
+     * Update the given classroom group with given valid attributes.
+     *
+     * @param ClassroomGroup $group
+     * @param array $attributes
+     * @return ClassroomGroup
+     */
+    public function updateGroup(ClassroomGroup $group, array $attributes): ClassroomGroup
+    {
+        DB::transaction(function () use ($group, $attributes) {
+            $group->update(Arr::only($attributes, [
+                'name',
+                'pass_grade',
+                'attempts',
+            ]));
+        });
+
+        return $group;
+    }
+
+    /**
      * Delete the given classroom, its groups and its pivot data (secondary teachers, students).
      *
      * @param Classroom $classroom

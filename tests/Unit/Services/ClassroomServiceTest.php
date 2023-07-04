@@ -10,6 +10,7 @@ use App\Services\ClassroomService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
 
@@ -18,7 +19,8 @@ use Tests\TestCase;
  */
 class ClassroomServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase,
+        WithFaker;
 
     protected ClassroomService $classroomService;
 
@@ -488,5 +490,55 @@ class ClassroomServiceTest extends TestCase
         // Assert that there is no student associate with the classroom groups.
         $this->assertDatabaseMissing('classroom_group_student', ['id' => $defaultClassroomGroup->id]);
         $this->assertDatabaseMissing('classroom_group_student', ['id' => $customClassroomGroup->id]);
+    }
+
+    /**
+     * @see ClassroomService::updateGroup()
+     */
+    public function test_it_updates_a_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+
+        $defaultClassroomGroup = $classroom->defaultClassroomGroup;
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        $attributes = [
+            'name' => fake()->name,
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(0, 10),
+            'is_default' => fake()->boolean,    // This should be ignored.
+        ];
+
+        // Update the custom classroom group.
+        $this->classroomService->updateGroup($customClassroomGroup, $attributes);
+
+        // Assert that the custom classroom group was updated correctly.
+        $this->assertDatabaseHas('classroom_groups', [
+            'id' => $customClassroomGroup->id,
+            'classroom_id' => $classroom->id,
+            'name' => $attributes['name'],
+            'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
+            'is_default' => false,
+        ]);
+
+        // Update the default classroom group.
+        $this->classroomService->updateGroup($defaultClassroomGroup, $attributes);
+
+        // Assert that the default classroom group was updated correctly.
+        $this->assertDatabaseHas('classroom_groups', [
+            'id' => $defaultClassroomGroup->id,
+            'classroom_id' => $classroom->id,
+            'name' => $attributes['name'],
+            'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
+            'is_default' => true,
+        ]);
     }
 }

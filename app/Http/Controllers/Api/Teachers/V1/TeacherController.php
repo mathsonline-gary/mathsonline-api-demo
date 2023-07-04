@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
+use App\Http\Controllers\Api\Controller;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;

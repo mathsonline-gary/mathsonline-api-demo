@@ -5,6 +5,7 @@ namespace Tests\Feature\TeacherApis\Classrooms;
 use App\Models\Classroom;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 /**
@@ -12,7 +13,26 @@ use Tests\TestCase;
  */
 class CreateClassroomGroupTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase,
+        WithFaker;
+
+    /**
+     * The payload to use for the request.
+     *
+     * @var array
+     */
+    protected array $payload;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->payload = [
+            'name' => fake()->name,
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(1, 10),
+        ];
+    }
 
     public function test_admin_teachers_can_add_custom_classroom_groups_to_classrooms_in_the_same_school(): void
     {
@@ -29,12 +49,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 2',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is created.
         $response->assertCreated();
@@ -42,8 +57,8 @@ class CreateClassroomGroupTest extends TestCase
         // Assert that the response contains the new custom classroom group.
         $response->assertJsonFragment([
             'classroom_id' => $classroom->id,
-            'name' => $payload['name'],
-            'pass_grade' => $payload['pass_grade'],
+            'name' => $this->payload['name'],
+            'pass_grade' => $this->payload['pass_grade'],
             'is_default' => false,
         ]);
     }
@@ -65,12 +80,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher1);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 2',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is forbidden.
         $response->assertForbidden();
@@ -91,12 +101,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 11',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is conflict.
         $response->assertConflict();
@@ -117,12 +122,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 2',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is created.
         $response->assertCreated();
@@ -130,8 +130,9 @@ class CreateClassroomGroupTest extends TestCase
         // Assert that the response contains the new custom classroom group.
         $response->assertJsonFragment([
             'classroom_id' => $classroom->id,
-            'name' => $payload['name'],
-            'pass_grade' => $payload['pass_grade'],
+            'name' => $this->payload['name'],
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
             'is_default' => false,
         ]);
     }
@@ -152,12 +153,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 2',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is forbidden.
         $response->assertForbidden();
@@ -178,12 +174,7 @@ class CreateClassroomGroupTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [
-            'name' => 'Custom Classroom Group 2',
-            'pass_grade' => 60,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $payload);
+        $response = $this->postJson(route('api.teachers.v1.classrooms.groups.store', $classroom), $this->payload);
 
         // Assert that the response is conflict.
         $response->assertConflict();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Exceptions\MaxClassroomGroupCountReachedException;
+use App\Http\Controllers\Api\Controller;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
@@ -52,7 +53,7 @@ class ClassroomGroupController extends Controller
         ]);
 
         // Update the classroom group.
-        $classroomGroup->update($validated);
+        $this->classroomService->updateGroup($classroomGroup, $validated);
 
         return response()->json([
             'message' => 'The classroom group was updated successfully.',
