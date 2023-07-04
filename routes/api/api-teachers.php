@@ -56,4 +56,7 @@ Route::prefix('/teachers/v1')
         // Classroom group module routes.
         Route::post('/classrooms/{classroom}/groups', [ClassroomGroupController::class, 'store'])
             ->name('classrooms.groups.store');
+
+        Route::put('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
+            ->name('classrooms.groups.update');
     });

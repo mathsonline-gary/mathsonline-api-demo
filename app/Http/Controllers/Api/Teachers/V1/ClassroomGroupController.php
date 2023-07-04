@@ -38,4 +38,23 @@ class ClassroomGroupController extends Controller
             return response()->json(['message' => $e->getMessage()], $e->getCode());
         }
     }
+
+    public function update(Request $request, Classroom $classroom, ClassroomGroup $classroomGroup)
+    {
+        $this->authorize('update', [$classroomGroup, $classroom]);
+
+        // Validate the request data.
+        $validated = $request->validate([
+            'name' => ['string', 'max:255'],
+            'pass_grade' => ['integer', 'min:0', 'max:100'],
+        ]);
+
+        // Update the classroom group.
+        $classroomGroup->update($validated);
+
+        return response()->json([
+            'message' => 'The classroom group was updated successfully.',
+            'data' => $classroomGroup,
+        ]);
+    }
 }

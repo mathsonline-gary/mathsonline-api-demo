@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Classroom;
+use App\Models\ClassroomGroup;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
 
@@ -21,5 +22,10 @@ class ClassroomGroupPolicy
             $user->id === $classroom->owner_id;
 
         return $condition1 || $condition2;
+    }
+
+    public function update(User $user, ClassroomGroup $classroomGroup, Classroom $classroom)
+    {
+
     }
 }
