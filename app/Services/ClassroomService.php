@@ -304,4 +304,21 @@ class ClassroomService
             $classroom->delete();
         });
     }
+
+    /**
+     * Delete the given classroom group, detach its students.
+     *
+     * @param ClassroomGroup $group
+     * @return void
+     */
+    public function deleteGroup(ClassroomGroup $group): void
+    {
+        DB::transaction(function () use ($group) {
+            // Detach all students.
+            $group->students()->detach();
+
+            // Delete classroom group.
+            $group->delete();
+        });
+    }
 }

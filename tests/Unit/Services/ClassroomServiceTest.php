@@ -541,4 +541,31 @@ class ClassroomServiceTest extends TestCase
             'is_default' => true,
         ]);
     }
+
+    /**
+     * @see ClassroomService::deleteGroup()
+     */
+    public function test_it_deletes_a_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        // Attach students to the custom classroom group.
+        $students = $this->fakeStudent($school, 5);
+        $this->addStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
+
+        $this->classroomService->deleteGroup($customClassroomGroup);
+
+        // Assert that the custom classroom group was deleted.
+        $this->assertDatabaseMissing('classroom_groups', ['id' => $customClassroomGroup->id]);
+
+        // Assert that there is no student associate with the classroom group.
+        $this->assertDatabaseMissing('classroom_group_student', ['classroom_group_id' => $customClassroomGroup->id]);
+    }
 }

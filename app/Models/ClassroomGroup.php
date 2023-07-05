@@ -27,6 +27,16 @@ class ClassroomGroup extends Model
     ];
 
     /**
+     * Determine if the classroom group is the default group of the classroom.
+     *
+     * @return bool
+     */
+    public function isDefault(): bool
+    {
+        return $this->is_default;
+    }
+
+    /**
      * Get the classroom associated with the classroom group.
      *
      * @return BelongsTo

@@ -59,4 +59,7 @@ Route::prefix('/teachers/v1')
 
         Route::put('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
             ->name('classrooms.groups.update');
+
+        Route::delete('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
+            ->name('classrooms.groups.destroy');
     });

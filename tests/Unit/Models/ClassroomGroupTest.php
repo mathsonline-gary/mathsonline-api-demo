@@ -31,4 +31,21 @@ class ClassroomGroupTest extends TestCase
         $this->assertInstanceOf(Student::class, $defaultClassroomGroup->students()->getRelated());
         $this->assertCount($students->count(), $defaultClassroomGroup->students);
     }
+
+    /**
+     * @see ClassroomGroup::isDefault()
+     */
+    public function test_it_can_determine_if_it_is_the_default_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+        $classroom = $this->fakeClassroom($teacher);
+        $defaultClassroomGroup = $classroom->defaultClassroomGroup;
+        $nonDefaultClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        $this->assertTrue($defaultClassroomGroup->isDefault());
+        $this->assertFalse($nonDefaultClassroomGroup->isDefault());
+    }
 }

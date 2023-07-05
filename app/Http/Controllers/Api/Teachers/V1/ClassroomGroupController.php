@@ -60,4 +60,14 @@ class ClassroomGroupController extends Controller
             'data' => $classroomGroup,
         ]);
     }
+
+    public function destroy(Classroom $classroom, ClassroomGroup $classroomGroup)
+    {
+        $this->authorize('delete', [$classroomGroup, $classroom]);
+
+        // Delete the classroom group.
+        $this->classroomService->deleteGroup($classroomGroup);
+
+        return response()->noContent();
+    }
 }
