@@ -17,7 +17,6 @@ class TeacherTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @return void
      * @see Teacher::school()
      */
     public function test_a_teacher_belongs_to_a_school(): void
@@ -39,10 +38,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
-     * @see Teacher::classroomsAsOwner()
+     * @see Teacher::ownedClassrooms()
      */
-    public function test_a_teacher_may_own_classrooms()
+    public function test_a_teacher_may_own_classrooms(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -64,10 +62,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
-     * @see Teacher::classroomsAsOwner()
+     * @see Teacher::ownedClassrooms()
      */
-    public function test_a_teacher_may_not_own_classroom()
+    public function test_a_teacher_may_not_own_classroom(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -82,10 +79,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::isClassroomOwner()
      */
-    public function test_it_knows_if_a_teacher_is_classroom_owner()
+    public function test_it_knows_if_a_teacher_is_classroom_owner(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -103,10 +99,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::classroomsAsSecondaryTeacher()
      */
-    public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms()
+    public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -134,10 +129,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::classroomsAsSecondaryTeacher()
      */
-    public function test_a_teacher_may_not_be_the_secondary_teacher_of_classroom()
+    public function test_a_teacher_may_not_be_the_secondary_teacher_of_classroom(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -163,7 +157,6 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::isSecondaryTeacher()
      */
     public function test_if_a_teacher_is_secondary_teacher(): void
@@ -189,10 +182,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::isAdmin()
      */
-    public function test_it_knows_whether_a_teacher_is_admin()
+    public function test_it_knows_whether_a_teacher_is_admin(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -212,10 +204,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::activities()
      */
-    public function test_a_teacher_has_many_activities_logged()
+    public function test_a_teacher_has_many_activities_logged(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -228,10 +219,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::asTeacher()
      */
-    public function test_a_teacher_is_a_teacher()
+    public function test_a_teacher_is_a_teacher(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -243,10 +233,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::asStudent()
      */
-    public function test_a_teacher_is_not_a_student()
+    public function test_a_teacher_is_not_a_student(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -257,10 +246,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::asTutor()
      */
-    public function test_a_teacher_is_not_a_tutor()
+    public function test_a_teacher_is_not_a_tutor(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -271,10 +259,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::asAdmin()
      */
-    public function test_a_teacher_is_not_an_admin()
+    public function test_a_teacher_is_not_an_admin(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -285,10 +272,9 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @return void
      * @see Teacher::asDeveloper()
      */
-    public function test_a_teacher_is_not_a_developer()
+    public function test_a_teacher_is_not_a_developer(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -296,5 +282,49 @@ class TeacherTest extends TestCase
         $teacher = $this->fakeAdminTeacher($school);
 
         $this->assertNull($teacher->asDeveloper());
+    }
+
+    /**
+     * @see Teacher::isSecondaryTeacherOfClassroom()
+     */
+    public function test_a_teacher_may_be_the_secondary_teacher_of_a_classroom(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $owner = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($owner);
+
+        // Assert that the teacher is not the secondary teacher of the classroom
+        $this->assertFalse($teacher->isSecondaryTeacherOfClassroom($classroom));
+
+        $teacher->classroomsAsSecondaryTeacher()->attach($classroom->id);
+
+        // Assert that the teacher is the secondary teacher of the classroom
+        $this->assertTrue($teacher->isSecondaryTeacherOfClassroom($classroom));
+    }
+
+    /**
+     * @see Teacher::isOwnerOfClassroom()
+     */
+    public function test_a_teacher_may_be_the_owner_of_a_classroom(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $owner = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($owner);
+
+        // Assert that $teacher is not the owner of the classroom
+        $this->assertFalse($teacher->isOwnerOfClassroom($classroom));
+
+        // Assert that $owner is the owner of the classroom
+        $this->assertTrue($owner->isOwnerOfClassroom($classroom));
     }
 }

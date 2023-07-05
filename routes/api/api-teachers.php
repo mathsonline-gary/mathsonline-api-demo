@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomGroupController;
+use App\Http\Controllers\Api\Teachers\V1\ClassroomSecondaryTeacherController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -53,7 +54,7 @@ Route::prefix('/teachers/v1')
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
             ->name('classrooms.destroy');
 
-        // Classroom group module routes.
+        // Classroom group routes.
         Route::post('/classrooms/{classroom}/groups', [ClassroomGroupController::class, 'store'])
             ->name('classrooms.groups.store');
 
@@ -62,4 +63,8 @@ Route::prefix('/teachers/v1')
 
         Route::delete('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
             ->name('classrooms.groups.destroy');
+
+        // Classroom secondary teacher routes.
+        Route::post('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'store'])
+            ->name('classrooms.secondary-teachers.store');
     });

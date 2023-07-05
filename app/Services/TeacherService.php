@@ -34,7 +34,7 @@ class TeacherService
         }
 
         if ($options['with_classrooms'] ?? false) {
-            $teacher->load(['classroomsAsOwner' => function (HasMany $query) use ($teacher) {
+            $teacher->load(['ownedClassrooms' => function (HasMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
             }])->load(['classroomsAsSecondaryTeacher' => function (BelongsToMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
@@ -59,7 +59,7 @@ class TeacherService
         $searchKey = $options['key'] ?? null;
 
         $query = Teacher::with([
-            'classroomsAsOwner',
+            'ownedClassrooms',
             'classroomsAsSecondaryTeacher',
         ]);
 

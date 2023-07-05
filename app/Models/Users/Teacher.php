@@ -59,7 +59,7 @@ class Teacher extends User
      *
      * @return HasMany
      */
-    public function classroomsAsOwner(): HasMany
+    public function ownedClassrooms(): HasMany
     {
         return $this->hasMany(Classroom::class, 'owner_id');
     }
@@ -71,7 +71,18 @@ class Teacher extends User
      */
     public function isClassroomOwner(): bool
     {
-        return $this->classroomsAsOwner()->count() > 0;
+        return $this->ownedClassrooms()->count() > 0;
+    }
+
+    /**
+     * Indicate that if the teacher owns the given classroom.
+     *
+     * @param Classroom $classroom
+     * @return bool
+     */
+    public function isOwnerOfClassroom(Classroom $classroom): bool
+    {
+        return $this->ownedClassrooms()->where('id', $classroom->id)->exists();
     }
 
     /**
@@ -93,5 +104,15 @@ class Teacher extends User
     public function isSecondaryTeacher(): bool
     {
         return $this->classroomsAsSecondaryTeacher()->count() > 0;
+    }
+
+    /**
+     * Indicate that if the teacher is a secondary teacher of the given classroom.
+     * @param Classroom $classroom
+     * @return bool
+     */
+    public function isSecondaryTeacherOfClassroom(Classroom $classroom): bool
+    {
+        return $this->classroomsAsSecondaryTeacher()->where('classroom_id', $classroom->id)->exists();
     }
 }

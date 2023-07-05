@@ -18,7 +18,7 @@ class IndexTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_administrators_can_only_get_the_list_of_teachers_in_same_school(): void
+    public function test_admin_teachers_can_only_get_the_list_of_teachers_in_same_school(): void
     {
         $this->seed([MarketSeeder::class]);
 
@@ -77,7 +77,7 @@ class IndexTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_teacher_admins_can_fuzzy_search_teachers(): void
+    public function test_admin_teachers_can_fuzzy_search_teachers(): void
     {
         $this->seed([MarketSeeder::class]);
 
