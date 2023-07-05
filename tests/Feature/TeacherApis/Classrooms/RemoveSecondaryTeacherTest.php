@@ -24,7 +24,7 @@ class RemoveSecondaryTeacherTest extends TestCase
         $teacher = $this->fakeNonAdminTeacher($school);
 
         $classroom = $this->fakeClassroom($adminTeacher);
-        $this->attachSecondaryTeachers($classroom, [$teacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$teacher->id]);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -46,7 +46,7 @@ class RemoveSecondaryTeacherTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $teacher2 = $this->fakeNonAdminTeacher($school2);
         $classroom = $this->fakeClassroom($teacher2);
-        $this->attachSecondaryTeachers($classroom, [$teacher2->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$teacher2->id]);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -69,7 +69,7 @@ class RemoveSecondaryTeacherTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $teacher2 = $this->fakeNonAdminTeacher($school2);
 
-        $this->attachSecondaryTeachers($classroom, [$teacher2->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$teacher2->id]);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -110,7 +110,7 @@ class RemoveSecondaryTeacherTest extends TestCase
         $teacher = $this->fakeNonAdminTeacher($school);
 
         $classroom = $this->fakeClassroom($nonAdminTeacher);
-        $this->attachSecondaryTeachers($classroom, [$teacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$teacher->id]);
 
         $this->actingAsTeacher($nonAdminTeacher);
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomGroupController;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomSecondaryTeacherController;
+use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -70,4 +71,8 @@ Route::prefix('/teachers/v1')
 
         Route::delete('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])
             ->name('classrooms.secondary-teachers.destroy');
+
+        // Student routes.
+        Route::get('/students', [StudentController::class, 'index'])
+            ->name('students.index');
     });

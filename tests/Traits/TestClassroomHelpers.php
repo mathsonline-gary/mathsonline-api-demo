@@ -43,7 +43,7 @@ trait TestClassroomHelpers
      * @param array<int> $teacherIds
      * @return void
      */
-    public function attachSecondaryTeachers(Classroom $classroom, array $teacherIds): void
+    public function attachSecondaryTeachersToClassroom(Classroom $classroom, array $teacherIds): void
     {
         $classroom->secondaryTeachers()
             ->attach($teacherIds);
@@ -75,7 +75,7 @@ trait TestClassroomHelpers
      * @param array $studentIds
      * @return void
      */
-    public function addStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
+    public function attachStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
     {
         $classroomGroup->students()
             ->attach($studentIds);

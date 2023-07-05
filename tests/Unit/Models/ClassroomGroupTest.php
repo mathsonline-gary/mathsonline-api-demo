@@ -25,7 +25,7 @@ class ClassroomGroupTest extends TestCase
         $students = $this->fakeStudent($school, 5);
         $classroom = $this->fakeClassroom($teacher);
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
-        $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
 
         $this->assertInstanceOf(BelongsToMany::class, $defaultClassroomGroup->students());
         $this->assertInstanceOf(Student::class, $defaultClassroomGroup->students()->getRelated());

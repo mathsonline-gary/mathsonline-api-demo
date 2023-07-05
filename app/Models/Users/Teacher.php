@@ -90,7 +90,7 @@ class Teacher extends User
      *
      * @return BelongsToMany
      */
-    public function classroomsAsSecondaryTeacher(): BelongsToMany
+    public function secondaryClassrooms(): BelongsToMany
     {
         return $this->belongsToMany(Classroom::class, 'classroom_secondary_teacher', 'teacher_id', 'classroom_id')
             ->withTimestamps();
@@ -103,7 +103,7 @@ class Teacher extends User
      */
     public function isSecondaryTeacher(): bool
     {
-        return $this->classroomsAsSecondaryTeacher()->count() > 0;
+        return $this->secondaryClassrooms()->count() > 0;
     }
 
     /**
@@ -113,6 +113,6 @@ class Teacher extends User
      */
     public function isSecondaryTeacherOfClassroom(Classroom $classroom): bool
     {
-        return $this->classroomsAsSecondaryTeacher()->where('classroom_id', $classroom->id)->exists();
+        return $this->secondaryClassrooms()->where('classroom_id', $classroom->id)->exists();
     }
 }

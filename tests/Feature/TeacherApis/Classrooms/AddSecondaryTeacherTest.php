@@ -88,7 +88,7 @@ class AddSecondaryTeacherTest extends TestCase
         $classroom = $this->fakeClassroom($adminTeacher);
 
         // Add the teacher as the secondary teacher of the classroom.
-        $this->attachSecondaryTeachers($classroom, [$nonAdminTeacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$nonAdminTeacher->id]);
 
         $this->actingAsTeacher($adminTeacher);
 

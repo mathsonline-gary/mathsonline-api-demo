@@ -133,7 +133,7 @@ class ClassroomServiceTest extends TestCase
         $teachers = $this->fakeNonAdminTeacher($school, 2);
         $classroom = $this->fakeClassroom($adminTeacher);
         $this->fakeCustomClassroomGroup($classroom, 2);
-        $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->attachSecondaryTeachersToClassroom($classroom, $teachers->pluck('id')->toArray());
 
         // Call find() method with default options.
         $result = $this->classroomService->find($classroom->id);
@@ -535,8 +535,8 @@ class ClassroomServiceTest extends TestCase
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
-        $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
-        $this->addStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
+        $this->attachStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
 
         $this->classroomService->delete($classroom);
 
@@ -621,7 +621,7 @@ class ClassroomServiceTest extends TestCase
 
         // Attach students to the custom classroom group.
         $students = $this->fakeStudent($school, 5);
-        $this->addStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
 
         $this->classroomService->deleteGroup($customClassroomGroup);
 

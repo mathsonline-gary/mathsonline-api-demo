@@ -36,7 +36,7 @@ class TeacherService
         if ($options['with_classrooms'] ?? false) {
             $teacher->load(['ownedClassrooms' => function (HasMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
-            }])->load(['classroomsAsSecondaryTeacher' => function (BelongsToMany $query) use ($teacher) {
+            }])->load(['secondaryClassrooms' => function (BelongsToMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
             }]);
         }
@@ -60,7 +60,7 @@ class TeacherService
 
         $query = Teacher::with([
             'ownedClassrooms',
-            'classroomsAsSecondaryTeacher',
+            'secondaryClassrooms',
         ]);
 
         if (isset($options['school_id'])) {
@@ -121,7 +121,7 @@ class TeacherService
     public function delete(Teacher $teacher): void
     {
         // Detach the teacher from secondary teacher list.
-        $teacher->classroomsAsSecondaryTeacher()->detach();
+        $teacher->secondaryClassrooms()->detach();
 
         // Delete the teacher.
         $teacher->delete();

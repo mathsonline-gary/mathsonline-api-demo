@@ -99,7 +99,7 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @see Teacher::classroomsAsSecondaryTeacher()
+     * @see Teacher::secondaryClassrooms()
      */
     public function test_a_teacher_may_be_the_secondary_teacher_of_classrooms(): void
     {
@@ -115,7 +115,7 @@ class TeacherTest extends TestCase
 
         $classroom2 = $this->fakeClassroom($owner);
 
-        $secondaryTeacher->classroomsAsSecondaryTeacher()->attach([$classroom1->id, $classroom2->id]);
+        $secondaryTeacher->secondaryClassrooms()->attach([$classroom1->id, $classroom2->id]);
 
         // Get secondary classrooms of $secondaryTeacher
         $classrooms1 = $secondaryTeacher->classroomsAsSecondaryTeacher;
@@ -129,7 +129,7 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @see Teacher::classroomsAsSecondaryTeacher()
+     * @see Teacher::secondaryClassrooms()
      */
     public function test_a_teacher_may_not_be_the_secondary_teacher_of_classroom(): void
     {
@@ -175,7 +175,7 @@ class TeacherTest extends TestCase
         // Assert that $teacher is not a secondary teacher
         $this->assertFalse($teacher->isSecondaryTeacher());
 
-        $this->attachSecondaryTeachers($classroom, [$teacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom, [$teacher->id]);
 
         // Assert that $teacher is a secondary teacher
         $this->assertTrue($teacher->isSecondaryTeacher());
@@ -301,7 +301,7 @@ class TeacherTest extends TestCase
         // Assert that the teacher is not the secondary teacher of the classroom
         $this->assertFalse($teacher->isSecondaryTeacherOfClassroom($classroom));
 
-        $teacher->classroomsAsSecondaryTeacher()->attach($classroom->id);
+        $teacher->secondaryClassrooms()->attach($classroom->id);
 
         // Assert that the teacher is the secondary teacher of the classroom
         $this->assertTrue($teacher->isSecondaryTeacherOfClassroom($classroom));
