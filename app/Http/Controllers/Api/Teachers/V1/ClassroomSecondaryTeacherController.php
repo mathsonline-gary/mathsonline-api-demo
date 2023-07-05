@@ -39,4 +39,20 @@ class ClassroomSecondaryTeacherController extends Controller
             'message' => 'Secondary teacher added successfully.',
         ], 201);
     }
+
+    public function destroy(Classroom $classroom, Teacher $teacher)
+    {
+        $this->authorize('removeSecondaryTeacher', [$classroom, $teacher]);
+
+        // Validate whether the teacher is the secondary teacher of the classroom.
+        if (!$teacher->isSecondaryTeacherOfClassroom($classroom)) {
+            return response()->json([
+                'message' => 'The teacher is not the secondary teacher of the classroom.',
+            ], 422);
+        }
+
+        $this->classroomService->removeSecondaryTeachers($classroom, [$teacher->id]);
+
+        return response()->noContent();
+    }
 }

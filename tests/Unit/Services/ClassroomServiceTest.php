@@ -451,6 +451,69 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals([$teacher1->id, $teacher2->id, $teacher3->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
     }
 
+
+    /**
+     * @see ClassroomService::removeSecondaryTeachers()
+     */
+    public function test_it_removes_secondary_teachers()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher1 = $this->fakeNonAdminTeacher($school);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+        $teacher3 = $this->fakeNonAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+
+        // Assert that there is no secondary teacher associate with the classroom.
+        $this->assertEquals(0, $classroom->secondaryTeachers()->count());
+
+        // Add $teacher1, $teacher2 and $teacher3 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id, $teacher3->id]);
+
+        // Assert that there are 3 secondary teachers associate with the classroom.
+        $this->assertEquals(3, $classroom->secondaryTeachers()->count());
+
+        // Remove $teacher1 as secondary teachers.
+        $this->classroomService->removeSecondaryTeachers($classroom, [$teacher1->id]);
+
+        // Assert that there are 2 secondary teacher associate with the classroom.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+
+        // Assert that the secondary teachers are $teacher2 and $teacher3.
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher1->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher2->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher3->id,
+        ]);
+
+        // Remove $teacher1 and $teacher2 as secondary teachers.
+        $this->classroomService->removeSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+
+        // Assert that there is 1 secondary teacher associate with the classroom.
+        $this->assertEquals(1, $classroom->secondaryTeachers()->count());
+
+        // Assert that the secondary teacher is $teacher3.
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher1->id,
+        ])->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher2->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher3->id,
+        ]);
+    }
+
     /**
      * @see ClassroomService::delete()
      */

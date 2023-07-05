@@ -106,4 +106,29 @@ class ClassroomPolicy
 
         return $condition1;
     }
+
+    public function removeSecondaryTeacher(User $user, Classroom $classroom, Teacher $teacher): Response|bool
+    {
+        // The user is an admin teacher, and is removing a secondary teacher in another school.
+        if ($user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id !== $teacher->school_id) {
+            return Response::denyAsNotFound('The teacher is not found.');
+        }
+
+        // The user is an admin teacher, and is removing a secondary teacher to a classroom in another school.
+        if ($user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id !== $classroom->school_id) {
+            return Response::denyAsNotFound('The classroom is not found.');
+        }
+
+        // The user is an admin teacher, and is removing a secondary teacher to a classroom in his school.
+        $condition1 = $user instanceof Teacher &&
+            $user->isAdmin() &&
+            $user->school_id === $classroom->school_id &&
+            $user->school_id === $teacher->school_id;
+
+        return $condition1;
+    }
 }

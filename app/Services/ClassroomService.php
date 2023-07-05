@@ -234,6 +234,18 @@ class ClassroomService
     }
 
     /**
+     * Remove secondary teachers from the given classroom.
+     *
+     * @param Classroom $classroom The classroom to remove secondary teachers from.
+     * @param array $teacherIds The IDs of the teachers to remove.
+     * @return void
+     */
+    public function removeSecondaryTeachers(Classroom $classroom, array $teacherIds): void
+    {
+        $classroom->secondaryTeachers()->detach($teacherIds);
+    }
+
+    /**
      * Update a classroom with given valid attributes.
      *
      * @param Classroom $classroom
