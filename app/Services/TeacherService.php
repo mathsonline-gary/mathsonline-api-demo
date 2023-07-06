@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Users\Teacher;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -61,18 +62,18 @@ class TeacherService
         $query = Teacher::with([
             'ownedClassrooms',
             'secondaryClassrooms',
-        ]);
-
-        if (isset($options['school_id'])) {
-            $query = $query->where(['school_id' => $options['school_id']]);
-        }
-
-        if ($searchKey && $searchKey !== '') {
-            $query = $query->where('username', 'like', "%$searchKey%")
-                ->orWhere('first_name', 'like', "%$searchKey%")
-                ->orWhere('last_name', 'like', "%$searchKey%")
-                ->orWhere('email', 'like', "%$searchKey%");
-        }
+        ])
+            ->when($options['school_id'] ?? false, function (Builder $query) use ($options) {
+                $query->where(['school_id' => $options['school_id']]);
+            })
+            ->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
+                $query->where(function (Builder $query) use ($searchKey) {
+                    $query->where('username', 'like', "%$searchKey%")
+                        ->orWhere('first_name', 'like', "%$searchKey%")
+                        ->orWhere('last_name', 'like', "%$searchKey%")
+                        ->orWhere('email', 'like', "%$searchKey%");
+                });
+            });
 
         return $options['pagination'] ?? true
             ? $query->paginate()

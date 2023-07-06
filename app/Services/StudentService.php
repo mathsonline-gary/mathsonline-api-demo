@@ -33,12 +33,14 @@ class StudentService
             ->when(isset($options['classroom_ids']), function (Builder $query) use ($options) {
                 $query->whereHas('classroomGroups', function (Builder $query) use ($options) {
                     $query->whereIn('classroom_id', $options['classroom_ids']);
-                })->distinct();
+                });
             })
             ->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
-                $query->where('username', 'like', "%$searchKey%")
-                    ->orWhere('first_name', 'like', "%$searchKey%")
-                    ->orWhere('last_name', 'like', "%$searchKey%");
+                $query->where(function (Builder $query) use ($searchKey) {
+                    $query->where('username', 'like', "%$searchKey%")
+                        ->orWhere('first_name', 'like', "%$searchKey%")
+                        ->orWhere('last_name', 'like', "%$searchKey%");
+                });
             })
             ->when($options['pagination'] ?? true, function (Builder $query) {
                 return $query->paginate();
