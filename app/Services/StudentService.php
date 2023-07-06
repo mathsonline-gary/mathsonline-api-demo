@@ -6,6 +6,8 @@ use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Log;
 
 class StudentService
 {
@@ -77,5 +79,26 @@ class StudentService
         }
 
         return $student;
+    }
+
+    /**
+     * Soft delete a student.
+     *
+     * @param mixed $student
+     * @return void
+     */
+    public function softDelete(mixed $student): void
+    {
+        DB::transaction(function () use ($student) {
+            $student = $student instanceof Student
+                ? $student
+                : Student::findOrFail($student);
+
+            // Detach the student from all classroom groups.
+            $student->classroomGroups()->detach();
+
+            // Soft delete the student.
+            $student->delete();
+        });
     }
 }

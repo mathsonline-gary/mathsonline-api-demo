@@ -212,4 +212,30 @@ class StudentServiceTest extends TestCase
         $this->assertNotNull($result->classroomGroups);
         $this->assertCount(2, $result->classroomGroups);
     }
+
+    /**
+     * @see StudentService::softDelete()
+     */
+    public function test_it_soft_deletes_student(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $teacher = $this->fakeAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($teacher);
+        $classroom2 = $this->fakeClassroom($teacher);
+
+        $student = $this->fakeStudent($school);
+
+        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, [$student->id]);
+        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, [$student->id]);
+
+        $this->studentService->softDelete($student);
+
+        // Assert that the student was softly deleted.
+        $this->assertSoftDeleted('students', ['id' => $student->id]);
+
+        // Assert that the student was removed from the classroom groups.
+        $this->assertDatabaseMissing('classroom_group_student', ['student_id' => $student->id]);
+    }
 }

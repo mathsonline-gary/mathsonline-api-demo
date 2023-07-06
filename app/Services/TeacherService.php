@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class TeacherService
@@ -121,11 +122,13 @@ class TeacherService
      */
     public function delete(Teacher $teacher): void
     {
-        // Detach the teacher from secondary teacher list.
-        $teacher->secondaryClassrooms()->detach();
+        DB::transaction(function () use ($teacher) {
+            // Detach the teacher from secondary teacher list.
+            $teacher->secondaryClassrooms()->detach();
 
-        // Delete the teacher.
-        $teacher->delete();
+            // Delete the teacher.
+            $teacher->delete();
+        });
     }
 
     /**

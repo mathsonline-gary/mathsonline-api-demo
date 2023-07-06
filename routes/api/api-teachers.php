@@ -78,4 +78,7 @@ Route::prefix('/teachers/v1')
 
         Route::get('/students/{student}', [StudentController::class, 'show'])
             ->name('students.show');
+
+        Route::delete('/students/{student}', [StudentController::class, 'destroy'])
+            ->name('students.destroy');
     });

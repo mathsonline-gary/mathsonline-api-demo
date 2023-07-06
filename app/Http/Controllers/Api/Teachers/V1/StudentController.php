@@ -53,4 +53,13 @@ class StudentController extends Controller
 
         return new StudentResource($student);
     }
+
+    public function destroy(Student $student)
+    {
+        $this->authorize('delete', $student);
+
+        $this->studentService->softDelete($student);
+
+        return response()->noContent();
+    }
 }
