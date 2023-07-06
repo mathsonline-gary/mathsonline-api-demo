@@ -5,6 +5,7 @@ namespace App\Models\Users;
 use App\Models\Activity;
 use App\Models\Classroom;
 use App\Models\School;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -114,5 +115,18 @@ class Teacher extends User
     public function isSecondaryTeacherOfClassroom(Classroom $classroom): bool
     {
         return $this->secondaryClassrooms()->where('classroom_id', $classroom->id)->exists();
+    }
+
+    /**
+     * Get distinct classrooms of which the teacher is either the owner or a secondary teacher.
+     *
+     * @return Collection<Classroom>
+     */
+    public function getOwnedAndSecondaryClassrooms(): Collection
+    {
+        $ownedClassrooms = $this->ownedClassrooms()->get();
+        $secondaryClassrooms = $this->secondaryClassrooms()->get();
+
+        return $ownedClassrooms->merge($secondaryClassrooms)->unique('id');
     }
 }

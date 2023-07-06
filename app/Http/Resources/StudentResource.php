@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Users\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Student
+ */
 class StudentResource extends JsonResource
 {
     /**
@@ -24,6 +28,10 @@ class StudentResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'school' => $this->whenLoaded('school'),
+            'classroom_groups' => $this->whenLoaded('classroomGroups'),
+            'classrooms' => $this->whenLoaded('classroomGroups', function () {
+                return $this->classroomGroups->pluck('classroom')->unique('id')->values();
+            }),
         ];
     }
 }

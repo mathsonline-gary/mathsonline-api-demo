@@ -33,22 +33,24 @@ class StudentController extends Controller
 
         // Get IDs of classrooms managed by the authenticated teacher.
         if (!$authenticatedTeacher->isAdmin() || !$options['all']) {
-            // Get IDs of classrooms owned by the authenticated teacher.
-            $primaryClassroomIds = $authenticatedTeacher->ownedClassrooms()
-                ->pluck('id')
-                ->toArray();
-
-            // Get IDs of classrooms where the authenticated teacher is a secondary teacher.
-            $secondaryClassroomIds = $authenticatedTeacher->secondaryClassrooms()
-                ->pluck('classrooms.id')
-                ->toArray();
-
             // Merge the two arrays of classroom IDs.
-            $options['classroom_ids'] = array_unique([...$primaryClassroomIds, ...$secondaryClassroomIds]);
+            $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()->pluck('id')->toArray();
         }
 
         $students = $this->studentService->search($options);
 
         return StudentResource::collection($students);
+    }
+
+    public function show(Student $student)
+    {
+        $this->authorize('view', $student);
+
+        $student = $this->studentService->find($student->id, [
+            'with_school' => true,
+            'with_classroom_groups' => true,
+        ]);
+
+        return new StudentResource($student);
     }
 }

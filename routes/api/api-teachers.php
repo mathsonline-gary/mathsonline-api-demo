@@ -75,4 +75,7 @@ Route::prefix('/teachers/v1')
         // Student routes.
         Route::get('/students', [StudentController::class, 'index'])
             ->name('students.index');
+
+        Route::get('/students/{student}', [StudentController::class, 'show'])
+            ->name('students.show');
     });

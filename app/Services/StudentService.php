@@ -46,4 +46,34 @@ class StudentService
                 return $query->get();
             });
     }
+
+    /**
+     * @param int $id
+     * @param array{
+     *     throwable?: bool,
+     *     with_school?: bool,
+     *     with_classroom_groups?: bool
+     *     } $options
+     * @return Student|null
+     */
+    public function find(int $id, array $options = []): ?Student
+    {
+        $student = $options['throwable'] ?? true
+            ? Student::findOrFail($id)
+            : Student::find($id);
+
+
+        if ($options['with_school'] ?? false) {
+            $student->load('school');
+        }
+
+        if ($options['with_classroom_groups'] ?? false) {
+            $student->load('classroomGroups', 'classroomGroups.classroom')
+                ->whereHas('classroomGroups.classroom', function ($query) use ($student) {
+                    $query->where('school_id', $student->school_id);
+                });
+        }
+
+        return $student;
+    }
 }

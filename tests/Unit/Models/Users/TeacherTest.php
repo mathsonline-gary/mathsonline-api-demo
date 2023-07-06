@@ -6,6 +6,7 @@ use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use Database\Seeders\MarketSeeder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -326,5 +327,42 @@ class TeacherTest extends TestCase
 
         // Assert that $owner is the owner of the classroom
         $this->assertTrue($owner->isOwnerOfClassroom($classroom));
+    }
+
+    /**
+     * @see Teacher::getOwnedAndSecondaryClassrooms()
+     */
+    public function test_a_teacher_can_get_owned_and_secondary_classrooms(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $teacher1 = $this->fakeAdminTeacher($school);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($teacher1);
+        $classroom2 = $this->fakeClassroom($teacher1);
+        $classroom3 = $this->fakeClassroom($teacher1);
+
+        $classroom4 = $this->fakeClassroom($teacher2);
+        $classroom5 = $this->fakeClassroom($teacher2);
+
+        $classroom6 = $this->fakeClassroom($teacher1);
+
+        $this->attachSecondaryTeachersToClassroom($classroom1, [$teacher2->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom2, [$teacher2->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom3, [$teacher2->id]);
+
+        $classrooms = $teacher2->getOwnedAndSecondaryClassrooms();
+
+        $this->assertInstanceOf(Collection::class, $classrooms);
+        $this->assertEquals(5, $classrooms->count());
+        $this->assertTrue($classrooms->contains($classroom1));
+        $this->assertTrue($classrooms->contains($classroom2));
+        $this->assertTrue($classrooms->contains($classroom3));
+        $this->assertTrue($classrooms->contains($classroom4));
+        $this->assertTrue($classrooms->contains($classroom5));
+        $this->assertFalse($classrooms->contains($classroom6));
     }
 }

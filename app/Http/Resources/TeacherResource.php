@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Users\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Teacher
+ */
 class TeacherResource extends JsonResource
 {
     /**
@@ -25,9 +29,8 @@ class TeacherResource extends JsonResource
             'is_admin' => $this->is_admin,
             'school_id' => $this->school_id,
             'school' => $this->whenLoaded('school'),
-            'classrooms_count' => $this->whenCounted('classrooms'),
-            'classrooms_as_owner' => $this->whenLoaded('classroomsAsOwner'),
-            'classrooms_as_secondary_teacher' => $this->whenLoaded('classroomsAsSecondaryTeacher'),
+            'owned_classrooms' => $this->whenLoaded('ownedClassrooms'),
+            'secondary_classrooms' => $this->whenLoaded('secondaryClassrooms'),
         ];
     }
 }
