@@ -28,9 +28,11 @@ class StudentController extends Controller
             'school_id' => $authenticatedTeacher->school_id,
             'key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
+            'all' => $request->boolean('all', true),    // Whether to show all students or only those managed by the authenticated teacher.
         ];
 
-        if (!$authenticatedTeacher->isAdmin()) {
+        // Get IDs of classrooms managed by the authenticated teacher.
+        if (!$authenticatedTeacher->isAdmin() || !$options['all']) {
             // Get IDs of classrooms owned by the authenticated teacher.
             $primaryClassroomIds = $authenticatedTeacher->ownedClassrooms()
                 ->pluck('id')

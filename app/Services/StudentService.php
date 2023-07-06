@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Classroom;
 use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -32,7 +31,7 @@ class StudentService
                 $query->where('school_id', $options['school_id']);
             })
             ->when(isset($options['classroom_ids']), function (Builder $query) use ($options) {
-                $query->whereHas('classroomGroups', function ($query) use ($options) {
+                $query->whereHas('classroomGroups', function (Builder $query) use ($options) {
                     $query->whereIn('classroom_id', $options['classroom_ids']);
                 })->distinct();
             })
