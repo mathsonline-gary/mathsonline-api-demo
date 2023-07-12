@@ -34,6 +34,7 @@ class ClassroomController extends Controller
         $options = [
             'school_id' => $authenticatedTeacher->school_id,
             'key' => $request->input('search_key'),
+            'pagination' => $request->boolean('pagination', true),
         ];
 
         if (!$authenticatedTeacher->isAdmin()) {

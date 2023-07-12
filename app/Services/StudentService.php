@@ -45,7 +45,7 @@ class StudentService
                 });
             })
             ->when($options['pagination'] ?? true, function (Builder $query) {
-                return $query->paginate();
+                return $query->paginate()->withQueryString();
             }, function (Builder $query) {
                 return $query->get();
             });

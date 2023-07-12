@@ -33,6 +33,7 @@ class TeacherController extends Controller
         $teachers = $this->teacherService->search([
             'school_id' => $user->school_id,
             'key' => $request->input('search_key'),
+            'pagination' => $request->boolean('pagination', true),
         ]);
 
         return TeacherResource::collection($teachers);

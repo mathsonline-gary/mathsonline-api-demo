@@ -77,7 +77,7 @@ class TeacherService
             });
 
         return $options['pagination'] ?? true
-            ? $query->paginate()
+            ? $query->paginate()->withQueryString()
             : $query->get();
     }
 

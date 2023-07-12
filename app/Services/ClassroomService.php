@@ -57,7 +57,7 @@ class ClassroomService
                 $query->where('owner_id', $options['owner_id']);
             })
             ->when($options['pagination'] ?? true, function (Builder $query) {
-                return $query->paginate();
+                return $query->paginate()->withQueryString();
             }, function (Builder $query) {
                 return $query->get();
             });
