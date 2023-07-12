@@ -70,21 +70,12 @@ class TeacherController extends Controller
             'is_admin' => ['boolean'],
         ]);
 
-        $attributes = Arr::only($validated, [
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name',
-            'title',
-            'position',
-            'is_admin',
-        ]);
-
-        $teacher = $this->teacherService->create([
-            ...$attributes,
+        $attributes = [
+            ...$validated,
             'school_id' => $authenticatedTeacher->school_id,
-        ]);
+        ];
+
+        $teacher = $this->teacherService->create($attributes);
 
         TeacherCreated::dispatch($authenticatedTeacher, $teacher);
 

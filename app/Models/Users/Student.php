@@ -14,6 +14,14 @@ class Student extends User
     use HasFactory,
         SoftDeletes;
 
+    protected $fillable = [
+        'school_id',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+    ];
+
     protected $hidden = [
         'password',
     ];

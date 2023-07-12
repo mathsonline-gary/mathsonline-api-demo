@@ -8,6 +8,8 @@ use App\Models\Users\Student;
 use App\Services\AuthService;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class StudentController extends Controller
 {
@@ -52,6 +54,25 @@ class StudentController extends Controller
         ]);
 
         return new StudentResource($student);
+    }
+
+    public function update(Request $request, Student $student)
+    {
+        $this->authorize('update', $student);
+
+        $payload = $request->validate([
+            'username' => ['string', Rule::unique('students')->ignore($student->id)],
+            'email' => ['nullable', 'email'],
+            'first_name' => ['string', 'max:255'],
+            'last_name' => ['string', 'max:255'],
+            'password' => ['string', Password::defaults()],
+        ]);
+
+        $beforeAttributes = $student->getAttributes();
+
+        $updatedStudent = $this->studentService->update($student, $payload);
+
+        return new StudentResource($updatedStudent);
     }
 
     public function destroy(Student $student)

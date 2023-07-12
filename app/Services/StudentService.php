@@ -6,7 +6,9 @@ use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Log;
 
 class StudentService
@@ -77,6 +79,32 @@ class StudentService
                     $query->where('school_id', $student->school_id);
                 });
         }
+
+        return $student;
+    }
+
+    /**
+     * Update a student.
+     *
+     * @param Student $student
+     * @param array $payload
+     * @return Student
+     */
+    public function update(Student $student, array $payload): Student
+    {
+        $fillableAttributes = Arr::only($payload, [
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+        ]);
+
+        if (isset($fillableAttributes['password'])) {
+            $fillableAttributes['password'] = Hash::make($fillableAttributes['password']);
+        }
+
+        $student->update($fillableAttributes);
 
         return $student;
     }
