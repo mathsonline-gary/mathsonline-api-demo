@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\TeacherApis\Students;
 
+use App\Events\Students\StudentCreated;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -36,9 +38,12 @@ class CreateStudentTest extends TestCase
             'username' => fake()->userName,
             'email' => fake()->safeEmail,
             'password' => 'password',
+            'password_confirmation' => 'password',
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
         ];
+
+        Event::fake();
     }
 
     public function test_an_admin_teacher_can_create_a_student_in_the_same_school(): void
@@ -55,7 +60,19 @@ class CreateStudentTest extends TestCase
         $response->assertCreated();
 
         // Assert that the response contains the created student.
-        $response->assertJsonFragment(Arr::except($this->payload, ['password']));
+        $response->assertJsonFragment([
+            'school_id' => $school->id,
+            'username' => $this->payload['username'],
+            'email' => $this->payload['email'],
+            'first_name' => $this->payload['first_name'],
+            'last_name' => $this->payload['last_name'],
+        ]);
+
+        // Assert that StudentCreated event is dispatched.
+        Event::assertDispatched(StudentCreated::class, function ($event) use ($school, $adminTeacher) {
+            return $event->actor->id === $adminTeacher->id &&
+                $event->student->school_id === $school->id;
+        });
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_create_a_student(): void

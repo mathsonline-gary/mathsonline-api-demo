@@ -39,7 +39,13 @@ class StudentPolicy
         return Response::denyAsNotFound('No student found.');
     }
 
-    public function update(User $user, Student $student)
+    public function create(User $user): bool
+    {
+        return $user instanceof Teacher &&
+            $user->isAdmin();
+    }
+
+    public function update(User $user, Student $student): Response
     {
         // The user ia an admin teacher, and the student is from the same school.
         if ($user instanceof Teacher &&

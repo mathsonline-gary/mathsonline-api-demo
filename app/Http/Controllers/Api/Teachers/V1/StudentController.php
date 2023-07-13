@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Students\StudentCreated;
 use App\Events\Students\StudentSoftDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
@@ -54,6 +55,29 @@ class StudentController extends Controller
             'with_school' => true,
             'with_classroom_groups' => true,
         ]);
+
+        return new StudentResource($student);
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorize('create', Student::class);
+
+        $attributes = $request->validate([
+            'username' => ['required', 'string', 'unique:students'],
+            'email' => ['nullable', 'email'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $authenticatedTeacher = $this->authService->teacher();
+
+        $attributes['school_id'] = $authenticatedTeacher->school_id;
+
+        $student = $this->studentService->create($attributes);
+
+        StudentCreated::dispatch($authenticatedTeacher, $student);
 
         return new StudentResource($student);
     }

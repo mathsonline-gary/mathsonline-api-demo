@@ -84,6 +84,33 @@ class StudentService
     }
 
     /**
+     * Create a student with the given attributes.
+     *
+     * @param array $attributes
+     * @return Student
+     */
+    public function create(array $attributes): Student
+    {
+        $attributes = Arr::only($attributes, [
+            'school_id',
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+        ]);
+
+        $student = new Student([
+            ...$attributes,
+            'password' => Hash::make($attributes['password']),
+        ]);
+
+        $student->save();
+
+        return $student;
+    }
+
+    /**
      * Update a student.
      *
      * @param Student $student
@@ -103,7 +130,7 @@ class StudentService
             $fillableAttributes['password'] = Hash::make($payload['password']);
         }
 
-        $student->forceFill($fillableAttributes);
+        $student->fill($fillableAttributes);
 
         $student->save();
 

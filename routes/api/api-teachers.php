@@ -79,6 +79,9 @@ Route::prefix('/teachers/v1')
         Route::get('/students/{student}', [StudentController::class, 'show'])
             ->name('students.show');
 
+        Route::post('/students', [StudentController::class, 'store'])
+            ->name('students.store');
+
         Route::put('/students/{student}', [StudentController::class, 'update'])
             ->name('students.update');
 

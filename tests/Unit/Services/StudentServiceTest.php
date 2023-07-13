@@ -215,10 +215,44 @@ class StudentServiceTest extends TestCase
         $this->assertCount(2, $result->classroomGroups);
     }
 
+    public function test_it_creates_a_student(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $options = [
+            'first_name' => fake()->firstName,
+            'last_name' => fake()->lastName,
+            'username' => fake()->userName,
+            'email' => fake()->safeEmail,
+            'password' => fake()->password,
+            'school_id' => $school->id,
+        ];
+
+        $result = $this->studentService->create($options);
+
+        // Assert that it returns a student.
+        $this->assertInstanceOf(Student::class, $result);
+        $this->assertEquals($options['first_name'], $result->first_name);
+        $this->assertEquals($options['last_name'], $result->last_name);
+        $this->assertEquals($options['username'], $result->username);
+        $this->assertEquals($options['email'], $result->email);
+        $this->assertObjectNotHasProperty('password', $result);
+
+        // Assert that the student was created in the database.
+        $this->assertDatabaseHas('students', [
+            'id' => $result->id,
+            'school_id' => $school->id,
+            'first_name' => $options['first_name'],
+            'last_name' => $options['last_name'],
+            'username' => $options['username'],
+            'email' => $options['email'],
+        ]);
+    }
+
     /**
      * @see StudentService::update()
      */
-    public function test_it_updates_a_student()
+    public function test_it_updates_a_student(): void
     {
         $school = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school);
