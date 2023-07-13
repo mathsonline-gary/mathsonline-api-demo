@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\Users\Student;
 use App\Services\StudentService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class StudentServiceTest extends TestCase
@@ -214,9 +216,45 @@ class StudentServiceTest extends TestCase
     }
 
     /**
+     * @see StudentService::update()
+     */
+    public function test_it_updates_a_student()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $student = $this->fakeStudent($school);
+
+        $options = [
+            'first_name' => fake()->firstName,
+            'last_name' => fake()->lastName,
+            'username' => fake()->userName,
+            'password' => fake()->password,
+        ];
+
+        $result = $this->studentService->update($student, $options);
+
+        // Assert that it returns an updated student.
+        $this->assertEquals($options['first_name'], $result->first_name);
+        $this->assertEquals($options['last_name'], $result->last_name);
+        $this->assertEquals($options['username'], $result->username);
+        $this->assertObjectNotHasProperty('password', $result);
+
+        // Assert that the student was updated in the database.
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'first_name' => $options['first_name'],
+            'last_name' => $options['last_name'],
+            'username' => $options['username'],
+        ]);
+
+        // Assert that the student's password was updated in the database.
+        $password = Student::find($student->id)->password;
+        $this->assertTrue(Hash::check($options['password'], $password));
+    }
+
+    /**
      * @see StudentService::softDelete()
      */
-    public function test_it_soft_deletes_student(): void
+    public function test_it_soft_deletes_a_student(): void
     {
         $school = $this->fakeTraditionalSchool();
 

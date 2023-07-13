@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\TeacherApis\Students;
 
+use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -40,6 +42,8 @@ class UpdateStudentTest extends TestCase
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
         ];
+
+        Event::fake();
     }
 
     public function test_an_admin_teacher_can_update_details_of_a_student_in_the_same_school(): void
@@ -57,6 +61,14 @@ class UpdateStudentTest extends TestCase
         // Assert that the response is successful with updated student profile.
         $response->assertOk()
             ->assertJsonFragment(Arr::except($this->payload, ['password']));
+
+        // Assert that StudentUpdated event is dispatched.
+        Event::assertDispatched(StudentUpdated::class, function (StudentUpdated $event) use ($adminTeacher, $student) {
+            return $event->actor->is($adminTeacher)
+                && $event->before['username'] === $student->username
+                && $event->after->is($student)
+                && $event->after->username === $this->payload['username'];
+        });
     }
 
     public function test_an_admin_teacher_cannot_update_details_of_a_student_in_another_school(): void

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Teachers\V1;
 
+use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Resources\StudentResource;
 use App\Models\Users\Student;
@@ -71,6 +72,8 @@ class StudentController extends Controller
         $beforeAttributes = $student->getAttributes();
 
         $updatedStudent = $this->studentService->update($student, $payload);
+
+        StudentUpdated::dispatch($this->authService->teacher(), $beforeAttributes, $updatedStudent);
 
         return new StudentResource($updatedStudent);
     }

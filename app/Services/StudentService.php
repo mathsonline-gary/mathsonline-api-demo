@@ -95,16 +95,17 @@ class StudentService
         $fillableAttributes = Arr::only($payload, [
             'username',
             'email',
-            'password',
             'first_name',
             'last_name',
         ]);
 
-        if (isset($fillableAttributes['password'])) {
-            $fillableAttributes['password'] = Hash::make($fillableAttributes['password']);
+        if (isset($payload['password'])) {
+            $fillableAttributes['password'] = Hash::make($payload['password']);
         }
 
-        $student->update($fillableAttributes);
+        $student->forceFill($fillableAttributes);
+
+        $student->save();
 
         return $student;
     }

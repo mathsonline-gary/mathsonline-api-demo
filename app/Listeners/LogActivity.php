@@ -8,6 +8,7 @@ use App\Events\Auth\LoggedOut;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
+use App\Events\Students\StudentUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
@@ -70,6 +71,16 @@ class LogActivity
 
         if ($event instanceof ClassroomDeleted) {
             $this->activityService->create($event->actor, ActivityTypes::DELETED_CLASSROOM, $event->deletedAt, ['classroom' => $event->classroom]);
+        }
+        // ----------------------------------------------------------------------------------------------------
+
+        // Handle student events
+        // ----------------------------------------------------------------------------------------------------
+        if ($event instanceof StudentUpdated) {
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_STUDENT, $event->after->updated_at, [
+                'before' => $event->before,
+                'after' => $event->after->getAttributes(),
+            ]);
         }
         // ----------------------------------------------------------------------------------------------------
 
