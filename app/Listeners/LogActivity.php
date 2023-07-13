@@ -8,6 +8,7 @@ use App\Events\Auth\LoggedOut;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
+use App\Events\Students\StudentSoftDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
@@ -81,6 +82,10 @@ class LogActivity
                 'before' => $event->before,
                 'after' => $event->after->getAttributes(),
             ]);
+        }
+
+        if ($event instanceof StudentSoftDeleted) {
+            $this->activityService->create($event->actor, ActivityTypes::SOFT_DELETED_STUDENT, $event->student->deleted_at, ['student' => $event->student]);
         }
         // ----------------------------------------------------------------------------------------------------
 

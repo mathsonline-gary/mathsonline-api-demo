@@ -7,6 +7,7 @@ use App\Events\Auth\LoggedOut;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
+use App\Events\Students\StudentSoftDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
@@ -73,6 +74,9 @@ class EventServiceProvider extends ServiceProvider
         // Student events mappings
         // --------------------------------------------------------------------------------
         StudentUpdated::class => [
+            LogActivity::class,
+        ],
+        StudentSoftDeleted::class => [
             LogActivity::class,
         ],
         // --------------------------------------------------------------------------------
