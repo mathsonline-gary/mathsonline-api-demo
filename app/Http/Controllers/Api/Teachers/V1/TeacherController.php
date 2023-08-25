@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
+use App\Http\Controllers\Api\Controller;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
@@ -32,6 +33,7 @@ class TeacherController extends Controller
         $teachers = $this->teacherService->search([
             'school_id' => $user->school_id,
             'key' => $request->input('search_key'),
+            'pagination' => $request->boolean('pagination', true),
         ]);
 
         return TeacherResource::collection($teachers);
@@ -68,21 +70,12 @@ class TeacherController extends Controller
             'is_admin' => ['boolean'],
         ]);
 
-        $attributes = Arr::only($validated, [
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name',
-            'title',
-            'position',
-            'is_admin',
-        ]);
-
-        $teacher = $this->teacherService->create([
-            ...$attributes,
+        $attributes = [
+            ...$validated,
             'school_id' => $authenticatedTeacher->school_id,
-        ]);
+        ];
+
+        $teacher = $this->teacherService->create($attributes);
 
         TeacherCreated::dispatch($authenticatedTeacher, $teacher);
 

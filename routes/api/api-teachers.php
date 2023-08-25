@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
+use App\Http\Controllers\Api\Teachers\V1\ClassroomGroupController;
+use App\Http\Controllers\Api\Teachers\V1\ClassroomSecondaryTeacherController;
+use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Http\Controllers\Web\Teachers\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -51,4 +54,37 @@ Route::prefix('/teachers/v1')
 
         Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
             ->name('classrooms.destroy');
+
+        // Classroom group routes.
+        Route::post('/classrooms/{classroom}/groups', [ClassroomGroupController::class, 'store'])
+            ->name('classrooms.groups.store');
+
+        Route::put('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
+            ->name('classrooms.groups.update');
+
+        Route::delete('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
+            ->name('classrooms.groups.destroy');
+
+        // Classroom secondary teacher routes.
+        Route::post('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'store'])
+            ->name('classrooms.secondary-teachers.store');
+
+        Route::delete('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])
+            ->name('classrooms.secondary-teachers.destroy');
+
+        // Student routes.
+        Route::get('/students', [StudentController::class, 'index'])
+            ->name('students.index');
+
+        Route::get('/students/{student}', [StudentController::class, 'show'])
+            ->name('students.show');
+
+        Route::post('/students', [StudentController::class, 'store'])
+            ->name('students.store');
+
+        Route::put('/students/{student}', [StudentController::class, 'update'])
+            ->name('students.update');
+
+        Route::delete('/students/{student}', [StudentController::class, 'destroy'])
+            ->name('students.destroy');
     });

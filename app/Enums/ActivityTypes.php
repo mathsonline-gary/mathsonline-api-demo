@@ -39,4 +39,16 @@ enum ActivityTypes: string
     case CREATED_CLASSROOM = 'created classroom';
     case UPDATED_CLASSROOM = 'updated classroom';
     case DELETED_CLASSROOM = 'deleted classroom';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Student Enums
+    |--------------------------------------------------------------------------
+    |
+    | Enums relative to student module.
+    |
+    */
+    case CREATED_STUDENT = 'created student';
+    case UPDATED_STUDENT = 'updated student';
+    case SOFT_DELETED_STUDENT = 'soft deleted student';
 }

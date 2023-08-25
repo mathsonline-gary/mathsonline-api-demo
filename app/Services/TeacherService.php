@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Models\Users\Teacher;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class TeacherService
@@ -34,9 +36,9 @@ class TeacherService
         }
 
         if ($options['with_classrooms'] ?? false) {
-            $teacher->load(['classroomsAsOwner' => function (HasMany $query) use ($teacher) {
+            $teacher->load(['ownedClassrooms' => function (HasMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
-            }])->load(['classroomsAsSecondaryTeacher' => function (BelongsToMany $query) use ($teacher) {
+            }])->load(['secondaryClassrooms' => function (BelongsToMany $query) use ($teacher) {
                 $query->where('school_id', $teacher->school_id);
             }]);
         }
@@ -59,23 +61,23 @@ class TeacherService
         $searchKey = $options['key'] ?? null;
 
         $query = Teacher::with([
-            'classroomsAsOwner',
-            'classroomsAsSecondaryTeacher',
-        ]);
-
-        if (isset($options['school_id'])) {
-            $query = $query->where(['school_id' => $options['school_id']]);
-        }
-
-        if ($searchKey && $searchKey !== '') {
-            $query = $query->where('username', 'like', "%$searchKey%")
-                ->orWhere('first_name', 'like', "%$searchKey%")
-                ->orWhere('last_name', 'like', "%$searchKey%")
-                ->orWhere('email', 'like', "%$searchKey%");
-        }
+            'ownedClassrooms',
+            'secondaryClassrooms',
+        ])
+            ->when($options['school_id'] ?? false, function (Builder $query) use ($options) {
+                $query->where(['school_id' => $options['school_id']]);
+            })
+            ->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
+                $query->where(function (Builder $query) use ($searchKey) {
+                    $query->where('username', 'like', "%$searchKey%")
+                        ->orWhere('first_name', 'like', "%$searchKey%")
+                        ->orWhere('last_name', 'like', "%$searchKey%")
+                        ->orWhere('email', 'like', "%$searchKey%");
+                });
+            });
 
         return $options['pagination'] ?? true
-            ? $query->paginate()
+            ? $query->paginate()->withQueryString()
             : $query->get();
     }
 
@@ -120,11 +122,13 @@ class TeacherService
      */
     public function delete(Teacher $teacher): void
     {
-        // Detach the teacher from secondary teacher list.
-        $teacher->classroomsAsSecondaryTeacher()->detach();
+        DB::transaction(function () use ($teacher) {
+            // Detach the teacher from secondary teacher list.
+            $teacher->secondaryClassrooms()->detach();
 
-        // Delete the teacher.
-        $teacher->delete();
+            // Delete the teacher.
+            $teacher->delete();
+        });
     }
 
     /**

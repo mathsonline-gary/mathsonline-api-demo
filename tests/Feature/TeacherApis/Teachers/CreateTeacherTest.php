@@ -3,22 +3,43 @@
 namespace Tests\Feature\TeacherApis\Teachers;
 
 use App\Events\Teachers\TeacherCreated;
-use App\Models\School;
+use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Models\Users\Teacher;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
+/**
+ * @see TeacherController::store()
+ */
 class CreateTeacherTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * The payload to use for creating the teacher.
+     *
+     * @var array
+     */
+    protected array $payload;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         Event::fake();
+
+        $this->payload = [
+            'username' => fake()->userName,
+            'email' => fake()->safeEmail,
+            'password' => 'password',
+            'first_name' => fake()->firstName,
+            'last_name' => fake()->lastName,
+            'position' => fake()->jobTitle,
+            'title' => 'Mr',
+            'is_admin' => fake()->boolean,
+        ];
     }
 
     public function test_teacher_admins_can_add_a_teacher_in_the_same_school(): void
@@ -33,19 +54,7 @@ class CreateTeacherTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'school_id' => $adminTeacher->school_id,
-            'username' => 'new.teacher',
-            'email' => 'new.teacher@test.com',
-            'password' => 'password',
-            'first_name' => 'New',
-            'last_name' => 'Teacher',
-            'position' => 'Assistance',
-            'title' => 'Mr',
-            'is_admin' => true,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.teachers.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
@@ -55,23 +64,23 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response has correct data of the new teacher.
         $response->assertJsonFragment([
-            'school_id' => $adminTeacher->school_id,
-            'username' => $payload['username'],
-            'email' => $payload['email'],
-            'first_name' => $payload['first_name'],
-            'last_name' => $payload['last_name'],
-            'position' => $payload['position'],
-            'title' => $payload['title'],
-            'is_admin' => $payload['is_admin'],
+            'school_id' => $school->id,
+            'username' => $this->payload['username'],
+            'email' => $this->payload['email'],
+            'first_name' => $this->payload['first_name'],
+            'last_name' => $this->payload['last_name'],
+            'position' => $this->payload['position'],
+            'title' => $this->payload['title'],
+            'is_admin' => $this->payload['is_admin'],
         ]);
 
         // Assert that the response does not include the teacher's password
         $response->assertJsonMissing(['password']);
 
         // Assert that the TeacherCreated event was dispatched with the correct parameters
-        Event::assertDispatched(TeacherCreated::class, function ($event) use ($adminTeacher, $payload) {
+        Event::assertDispatched(TeacherCreated::class, function ($event) use ($adminTeacher) {
             return $event->creator->id === $adminTeacher->id &&
-                $event->teacher->username === $payload['username'];
+                $event->teacher->username === $this->payload['username'];
         });
     }
 
@@ -87,23 +96,12 @@ class CreateTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [
-            'username' => 'new.teacher',
-            'email' => 'email',
-            'password' => 'password',
-            'first_name' => 'New',
-            'last_name' => 'Teacher',
-            'position' => 'Assistance',
-            'title' => 'Mr',
-            'is_admin' => true,
-        ];
-
-        $response = $this->postJson(route('api.teachers.v1.teachers.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.teachers.store', $this->payload));
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
 
         // Assert that the count of teachers did not change.
-        $this->assertEquals($oldTeachersCount, Teacher::count(),);
+        $this->assertEquals($oldTeachersCount, Teacher::count());
     }
 }

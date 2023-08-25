@@ -69,7 +69,7 @@ class ClassroomTest extends TestCase
 
         $teachers = $this->fakeNonAdminTeacher($school, 5);
 
-        $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->attachSecondaryTeachersToClassroom($classroom, $teachers->pluck('id')->toArray());
 
         $this->assertInstanceOf(BelongsToMany::class, $classroom->secondaryTeachers());
         $this->assertInstanceOf(Teacher::class, $classroom->secondaryTeachers()->getRelated());
@@ -109,7 +109,6 @@ class ClassroomTest extends TestCase
 
         $this->assertInstanceOf(HasOne::class, $classroom->defaultClassroomGroup());
         $this->assertInstanceOf(ClassroomGroup::class, $classroom->defaultClassroomGroup()->getRelated());
-        $this->assertEquals(1, $classroom->defaultClassroomGroup->id);
     }
 
     public function test_it_has_many_custom_classroom_groups()

@@ -10,6 +10,7 @@ use App\Services\ClassroomService;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
 
@@ -18,7 +19,8 @@ use Tests\TestCase;
  */
 class ClassroomServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase,
+        WithFaker;
 
     protected ClassroomService $classroomService;
 
@@ -131,7 +133,7 @@ class ClassroomServiceTest extends TestCase
         $teachers = $this->fakeNonAdminTeacher($school, 2);
         $classroom = $this->fakeClassroom($adminTeacher);
         $this->fakeCustomClassroomGroup($classroom, 2);
-        $this->attachSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->attachSecondaryTeachersToClassroom($classroom, $teachers->pluck('id')->toArray());
 
         // Call find() method with default options.
         $result = $this->classroomService->find($classroom->id);
@@ -146,7 +148,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertTrue($result->relationLoaded('school'));
         $this->assertTrue($result->relationLoaded('owner'));
         $this->assertTrue($result->relationLoaded('secondaryTeachers'));
-        $this->assertTrue($result->relationLoaded('classroomGroups'));
+        $this->assertTrue($result->relationLoaded('customClassroomGroups'));
     }
 
     /**
@@ -190,15 +192,17 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($attributes['owner_id'], $classroom->owner_id);
         $this->assertEquals($attributes['type'], $classroom->type);
         $this->assertEquals($attributes['name'], $classroom->name);
-        $this->assertEquals($attributes['pass_grade'], $classroom->pass_grade);
-        $this->assertEquals($attributes['attempts'], $classroom->attempts);
 
         // Assert that secondary teachers were attached correctly.
         $this->assertEquals(2, $classroom->secondaryTeachers()->count());
         $this->assertEquals($secondaryTeachers->pluck('id')->toArray(), $classroom->secondaryTeachers->pluck('id')->toArray());
 
-        // Assert that classroom groups were created correctly.
+        // Assert that the default classroom groups were created correctly.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
+        $this->assertEquals($attributes['pass_grade'], $classroom->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $classroom->defaultClassroomGroup->attempts);
+
+        // Assert that custom classroom groups were created correctly.
         $this->assertEquals(2, $classroom->customClassroomGroups()->count());
     }
 
@@ -220,15 +224,21 @@ class ClassroomServiceTest extends TestCase
         $this->assertFalse($classroom->defaultClassroomGroup()->exists());
 
         try {
+            $attributes = [
+                'pass_grade' => 80,
+                'attempts' => 1,
+            ];
+
             // Add the default group for the classroom.
-            $group = $this->classroomService->addDefaultGroup($classroom);
+            $group = $this->classroomService->addDefaultGroup($classroom, $attributes);
 
             // Assert that the default group was added correctly.
             $this->assertTrue($classroom->defaultClassroomGroup()->exists());
             $this->assertEquals($classroom->defaultClassroomGroup->id, $group->id);
             $this->assertInstanceOf(ClassroomGroup::class, $group);
             $this->assertStringContainsString($classroom->name, $group->name);
-            $this->assertEquals($classroom->pass_grade, $group->pass_grade);
+            $this->assertEquals($attributes['pass_grade'], $group->pass_grade);
+            $this->assertEquals($attributes['attempts'], $group->attempts);
         } catch (DefaultClassroomGroupExistsException) {
             $this->fail();
         }
@@ -251,8 +261,10 @@ class ClassroomServiceTest extends TestCase
         // Expect that DefaultClassroomGroupExistsException to be thrown.
         $this->expectException(DefaultClassroomGroupExistsException::class);
 
-        $this->classroomService->addDefaultGroup($classroom);
-
+        $this->classroomService->addDefaultGroup($classroom, [
+            'pass_grade' => 80,
+            'attempts' => 1,
+        ]);
     }
 
     /**
@@ -275,6 +287,7 @@ class ClassroomServiceTest extends TestCase
         $attributes = [
             'name' => 'Custom Group 1',
             'pass_grade' => 40,
+            'attempts' => 4,
         ];
 
         // Add a custom classroom group.
@@ -288,6 +301,7 @@ class ClassroomServiceTest extends TestCase
             $this->assertEquals($classroom->id, $classroom->customClassroomGroups()->first()->classroom_id);
             $this->assertEquals($attributes['name'], $classroom->customClassroomGroups()->first()->name);
             $this->assertEquals($attributes['pass_grade'], $classroom->customClassroomGroups()->first()->pass_grade);
+            $this->assertEquals($attributes['attempts'], $classroom->customClassroomGroups()->first()->attempts);
         } catch (MaxClassroomGroupCountReachedException) {
             $this->fail();
         }
@@ -315,6 +329,7 @@ class ClassroomServiceTest extends TestCase
         $this->classroomService->addCustomGroup($classroom, [
             'name' => 'Custom Group 1',
             'pass_grade' => 40,
+            'attempts' => 4,
         ]);
     }
 
@@ -348,15 +363,15 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($classroom->id, $result->id);
         $this->assertEquals($attributes['name'], $result->name);
         $this->assertEquals($attributes['owner_id'], $result->owner_id);
-        $this->assertEquals($attributes['pass_grade'], $result->pass_grade);
-        $this->assertEquals($attributes['attempts'], $result->attempts);
+        $this->assertEquals($attributes['pass_grade'], $result->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $result->defaultClassroomGroup->attempts);
 
         // Assert that the classroom was updated correctly.
         $updatedClassroom = Classroom::find($classroom->id);
         $this->assertEquals($attributes['name'], $updatedClassroom->name);
         $this->assertEquals($attributes['owner_id'], $updatedClassroom->owner_id);
-        $this->assertEquals($attributes['pass_grade'], $updatedClassroom->pass_grade);
-        $this->assertEquals($attributes['attempts'], $updatedClassroom->attempts);
+        $this->assertEquals($attributes['pass_grade'], $updatedClassroom->defaultClassroomGroup->pass_grade);
+        $this->assertEquals($attributes['attempts'], $updatedClassroom->defaultClassroomGroup->attempts);
     }
 
 
@@ -436,6 +451,69 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals([$teacher1->id, $teacher2->id, $teacher3->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
     }
 
+
+    /**
+     * @see ClassroomService::removeSecondaryTeachers()
+     */
+    public function test_it_removes_secondary_teachers()
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher1 = $this->fakeNonAdminTeacher($school);
+        $teacher2 = $this->fakeNonAdminTeacher($school);
+        $teacher3 = $this->fakeNonAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+
+        // Assert that there is no secondary teacher associate with the classroom.
+        $this->assertEquals(0, $classroom->secondaryTeachers()->count());
+
+        // Add $teacher1, $teacher2 and $teacher3 as secondary teachers.
+        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id, $teacher3->id]);
+
+        // Assert that there are 3 secondary teachers associate with the classroom.
+        $this->assertEquals(3, $classroom->secondaryTeachers()->count());
+
+        // Remove $teacher1 as secondary teachers.
+        $this->classroomService->removeSecondaryTeachers($classroom, [$teacher1->id]);
+
+        // Assert that there are 2 secondary teacher associate with the classroom.
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
+
+        // Assert that the secondary teachers are $teacher2 and $teacher3.
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher1->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher2->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher3->id,
+        ]);
+
+        // Remove $teacher1 and $teacher2 as secondary teachers.
+        $this->classroomService->removeSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+
+        // Assert that there is 1 secondary teacher associate with the classroom.
+        $this->assertEquals(1, $classroom->secondaryTeachers()->count());
+
+        // Assert that the secondary teacher is $teacher3.
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher1->id,
+        ])->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher2->id,
+        ])->assertDatabaseHas('classroom_secondary_teacher', [
+            'classroom_id' => $classroom->id,
+            'teacher_id' => $teacher3->id,
+        ]);
+    }
+
     /**
      * @see ClassroomService::delete()
      */
@@ -457,8 +535,8 @@ class ClassroomServiceTest extends TestCase
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
-        $this->addStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
-        $this->addStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
+        $this->attachStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
 
         $this->classroomService->delete($classroom);
 
@@ -475,5 +553,82 @@ class ClassroomServiceTest extends TestCase
         // Assert that there is no student associate with the classroom groups.
         $this->assertDatabaseMissing('classroom_group_student', ['id' => $defaultClassroomGroup->id]);
         $this->assertDatabaseMissing('classroom_group_student', ['id' => $customClassroomGroup->id]);
+    }
+
+    /**
+     * @see ClassroomService::updateGroup()
+     */
+    public function test_it_updates_a_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+
+        $defaultClassroomGroup = $classroom->defaultClassroomGroup;
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        $attributes = [
+            'name' => fake()->name,
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(0, 10),
+            'is_default' => fake()->boolean,    // This should be ignored.
+        ];
+
+        // Update the custom classroom group.
+        $this->classroomService->updateGroup($customClassroomGroup, $attributes);
+
+        // Assert that the custom classroom group was updated correctly.
+        $this->assertDatabaseHas('classroom_groups', [
+            'id' => $customClassroomGroup->id,
+            'classroom_id' => $classroom->id,
+            'name' => $attributes['name'],
+            'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
+            'is_default' => false,
+        ]);
+
+        // Update the default classroom group.
+        $this->classroomService->updateGroup($defaultClassroomGroup, $attributes);
+
+        // Assert that the default classroom group was updated correctly.
+        $this->assertDatabaseHas('classroom_groups', [
+            'id' => $defaultClassroomGroup->id,
+            'classroom_id' => $classroom->id,
+            'name' => $attributes['name'],
+            'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
+            'is_default' => true,
+        ]);
+    }
+
+    /**
+     * @see ClassroomService::deleteGroup()
+     */
+    public function test_it_deletes_a_classroom_group(): void
+    {
+        $this->seed([MarketSeeder::class]);
+
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        // Attach students to the custom classroom group.
+        $students = $this->fakeStudent($school, 5);
+        $this->attachStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
+
+        $this->classroomService->deleteGroup($customClassroomGroup);
+
+        // Assert that the custom classroom group was deleted.
+        $this->assertDatabaseMissing('classroom_groups', ['id' => $customClassroomGroup->id]);
+
+        // Assert that there is no student associate with the classroom group.
+        $this->assertDatabaseMissing('classroom_group_student', ['classroom_group_id' => $customClassroomGroup->id]);
     }
 }

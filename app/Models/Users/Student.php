@@ -7,10 +7,21 @@ use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Student extends User
 {
-    use HasFactory;
+    use HasFactory,
+        SoftDeletes;
+
+    protected $fillable = [
+        'school_id',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'password',
+    ];
 
     protected $hidden = [
         'password',

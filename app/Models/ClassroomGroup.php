@@ -13,6 +13,8 @@ class ClassroomGroup extends Model
     use HasFactory;
 
     protected $casts = [
+        'pass_grade' => 'int',
+        'attempts' => 'int',
         'is_default' => 'bool',
     ];
 
@@ -20,8 +22,19 @@ class ClassroomGroup extends Model
         'classroom_id',
         'name',
         'pass_grade',
+        'attempts',
         'is_default',
     ];
+
+    /**
+     * Determine if the classroom group is the default group of the classroom.
+     *
+     * @return bool
+     */
+    public function isDefault(): bool
+    {
+        return $this->is_default;
+    }
 
     /**
      * Get the classroom associated with the classroom group.

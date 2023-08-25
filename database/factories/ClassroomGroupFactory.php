@@ -21,6 +21,7 @@ class ClassroomGroupFactory extends Factory
         return [
             'name' => 'Group ' . fake()->randomNumber(),
             'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(1, 5),
         ];
     }
 

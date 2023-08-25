@@ -54,8 +54,8 @@ class TeacherServiceTest extends TestCase
 
         // Assert that the loaded relationships are correct
         $this->assertTrue($foundTeacher->relationLoaded('school'));
-        $this->assertTrue($foundTeacher->relationLoaded('classroomsAsOwner'));
-        $this->assertTrue($foundTeacher->relationLoaded('classroomsAsSecondaryTeacher'));
+        $this->assertTrue($foundTeacher->relationLoaded('ownedClassrooms'));
+        $this->assertTrue($foundTeacher->relationLoaded('secondaryClassrooms'));
     }
 
     /**

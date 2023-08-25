@@ -2,14 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Users\Teacher;
+use App\Models\Users\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Teacher
+ * @mixin Student
  */
-class TeacherResource extends JsonResource
+class StudentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,17 +20,18 @@ class TeacherResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'school_id' => $this->school_id,
             'username' => $this->username,
             'email' => $this->email,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'title' => $this->title,
-            'position' => $this->position,
-            'is_admin' => $this->is_admin,
-            'school_id' => $this->school_id,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'school' => $this->whenLoaded('school'),
-            'owned_classrooms' => $this->whenLoaded('ownedClassrooms'),
-            'secondary_classrooms' => $this->whenLoaded('secondaryClassrooms'),
+            'classroom_groups' => $this->whenLoaded('classroomGroups'),
+            'classrooms' => $this->whenLoaded('classroomGroups', function () {
+                return $this->classroomGroups->pluck('classroom')->unique('id')->values();
+            }),
         ];
     }
 }

@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Classroom;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @mixin Classroom
+ */
 class ClassroomResource extends JsonResource
 {
     /**
@@ -17,15 +21,15 @@ class ClassroomResource extends JsonResource
         return [
             'id' => $this->id,
             'school_id' => $this->school_id,
-            'school' => $this->whenLoaded('school'),
             'type' => $this->type,
             'name' => $this->name,
             'owner_id' => $this->owner_id,
+            'pass_grade' => $this->defaultClassroomGroup->pass_grade,
+            'attempts' => $this->defaultClassroomGroup->attempts,
+            'school' => $this->whenLoaded('school'),
             'owner' => $this->whenLoaded('owner'),
             'secondary_teachers' => $this->whenLoaded('secondaryTeachers'),
-            'groups' => $this->whenLoaded('classroomGroups'),
-            'pass_grade' => $this->pass_grade,
-            'attempts' => $this->attempts,
+            'groups' => $this->whenLoaded('customClassroomGroups'),
         ];
     }
 }

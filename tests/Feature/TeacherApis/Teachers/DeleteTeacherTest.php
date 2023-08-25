@@ -37,8 +37,8 @@ class DeleteTeacherTest extends TestCase
         $classroom1 = $this->fakeClassroom($teacherAdmin);
         $classroom2 = $this->fakeClassroom($teacherAdmin);
 
-        $this->attachSecondaryTeachers($classroom1, [$teacher->id]);
-        $this->attachSecondaryTeachers($classroom2, [$teacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom1, [$teacher->id]);
+        $this->attachSecondaryTeachersToClassroom($classroom2, [$teacher->id]);
 
         // Assert that $teacher is in the database
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);

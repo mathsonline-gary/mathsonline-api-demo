@@ -27,14 +27,6 @@ return new class extends Migration {
 
             $table->string('name');
 
-            $table->unsignedInteger('pass_grade')
-                ->default(0)
-                ->comment('The minimum grade that students in this class should score to pass tasks.');
-
-            $table->unsignedInteger('attempts')
-                ->default(1)
-                ->comment('The maximum number of attempts that the student in this classroom to pass tasks.');
-
             $table->timestamps();
         });
     }

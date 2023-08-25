@@ -16,11 +16,24 @@ class UpdateClassroomTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * The payload to use for updating the classroom.
+     *
+     * @var array
+     */
+    protected array $payload;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         Event::fake();
+
+        $this->payload = [
+            'name' => fake()->name,
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(1, 10),
+        ];
     }
 
     public function test_admin_teachers_can_update_classrooms_in_the_same_school(): void
@@ -32,22 +45,13 @@ class UpdateClassroomTest extends TestCase
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher, 1, [
-            'name' => 'Old class name',
-            'pass_grade' => 80,
-            'attempts' => 2,
-        ]);
+        $classroom = $this->fakeClassroom($adminTeacher);
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'New class name',
-            'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => 60,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
 
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 200 “OK” status code.
         $response->assertOk();
@@ -57,10 +61,10 @@ class UpdateClassroomTest extends TestCase
             'id' => $classroom->id,
             'school_id' => $school->id,
             'type' => $classroom->type,
-            'name' => $payload['name'],
+            'name' => $this->payload['name'],
             'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => $payload['pass_grade'],
-            'attempts' => $payload['attempts'],
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
         ]);
 
         // Asser that ClassroomUpdated event was dispatched.
@@ -78,11 +82,11 @@ class UpdateClassroomTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $teacher = $this->fakeNonAdminTeacher($school2);
 
-        $payload = ['owner_id' => $teacher->id];
+        $this->payload['owner_id'] = $teacher->id;
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a "422" status code.
         $response->assertStatus(422);
@@ -97,21 +101,11 @@ class UpdateClassroomTest extends TestCase
 
         $school2 = $this->fakeTraditionalSchool();
         $teacher = $this->fakeNonAdminTeacher($school2);
-        $classroom = $this->fakeClassroom($teacher, 1, [
-            'name' => 'Old class name',
-            'pass_grade' => 80,
-            'attempts' => 2,
-        ]);
+        $classroom = $this->fakeClassroom($teacher);
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'New class name',
-            'pass_grade' => 60,
-            'attempts' => 1,
-        ];
-
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
@@ -125,21 +119,11 @@ class UpdateClassroomTest extends TestCase
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher, 1, [
-            'name' => 'Old class name',
-            'pass_grade' => 80,
-            'attempts' => 2,
-        ]);
+        $classroom = $this->fakeClassroom($nonAdminTeacher);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [
-            'name' => 'New class name',
-            'pass_grade' => 60,
-            'attempts' => 1,
-        ];
-
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 200 “OK” status code.
         $response->assertOk();
@@ -149,10 +133,10 @@ class UpdateClassroomTest extends TestCase
             'id' => $classroom->id,
             'school_id' => $school->id,
             'type' => $classroom->type,
-            'name' => $payload['name'],
+            'name' => $this->payload['name'],
             'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => $payload['pass_grade'],
-            'attempts' => $payload['attempts'],
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
         ]);
 
         // Asser that ClassroomUpdated event was dispatched.
@@ -168,17 +152,13 @@ class UpdateClassroomTest extends TestCase
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $teacher = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher, 1, [
-            'name' => 'Old class name',
-            'pass_grade' => 80,
-            'attempts' => 2,
-        ]);
+        $classroom = $this->fakeClassroom($nonAdminTeacher);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = ['owner_id' => $teacher->id];
+        $this->payload['owner_id'] = $teacher->id;
 
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 422 status code.
         $response->assertStatus(422);
@@ -193,21 +173,11 @@ class UpdateClassroomTest extends TestCase
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher2, 1, [
-            'name' => 'Old class name',
-            'pass_grade' => 80,
-            'attempts' => 2,
-        ]);
+        $classroom = $this->fakeClassroom($nonAdminTeacher2);
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
-        $payload = [
-            'name' => 'New class name',
-            'pass_grade' => 60,
-            'attempts' => 1,
-        ];
-
-        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $payload);
+        $response = $this->putJson(route('api.teachers.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();

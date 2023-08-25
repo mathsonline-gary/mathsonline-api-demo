@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Teachers\V1;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
+use App\Http\Controllers\Api\Controller;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
@@ -33,6 +34,7 @@ class ClassroomController extends Controller
         $options = [
             'school_id' => $authenticatedTeacher->school_id,
             'key' => $request->input('search_key'),
+            'pagination' => $request->boolean('pagination', true),
         ];
 
         if (!$authenticatedTeacher->isAdmin()) {

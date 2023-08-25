@@ -26,7 +26,7 @@ class ClassroomService
      *     with_school?: bool,
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
-     *     with_groups?: bool,
+     *     with_custom_groups?: bool,
      * } $options
      * @return Collection|LengthAwarePaginator
      */
@@ -34,27 +34,33 @@ class ClassroomService
     {
         $searchKey = $options['key'] ?? null;
 
-        $query = Classroom::when($options['with_school'] ?? false, function (Builder $query) {
-            $query->with('school');
-        })->when($options['with_owner'] ?? true, function (Builder $query) {
-            $query->with('owner');
-        })->when($options['with_secondary_teachers'] ?? true, function (Builder $query) {
-            $query->with('secondaryTeachers');
-        })->when($options['with_groups'] ?? false, function (Builder $query) {
-            $query->with('classroomGroups');
-        })->when(isset($options['school_id']), function (Builder $query) use ($options) {
-            $query->where('school_id', $options['school_id']);
-        })->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
-            $query->where('name', 'like', "%$searchKey%");
-        })->when(isset($options['owner_id']), function (Builder $query) use ($options) {
-            $query->where('owner_id', $options['owner_id']);
-        });
-
-        return $query->when($options['pagination'] ?? true, function (Builder $query) {
-            return $query->paginate();
-        }, function (Builder $query) {
-            return $query->get();
-        });
+        return Classroom::with('defaultClassroomGroup')
+            ->when($options['with_school'] ?? false, function (Builder $query) {
+                $query->with('school');
+            })
+            ->when($options['with_owner'] ?? true, function (Builder $query) {
+                $query->with('owner');
+            })
+            ->when($options['with_secondary_teachers'] ?? true, function (Builder $query) {
+                $query->with('secondaryTeachers');
+            })
+            ->when($options['with_custom_groups'] ?? false, function (Builder $query) {
+                $query->with('customClassroomGroups');
+            })
+            ->when(isset($options['school_id']), function (Builder $query) use ($options) {
+                $query->where('school_id', $options['school_id']);
+            })
+            ->when($searchKey && $searchKey !== '', function (Builder $query) use ($searchKey) {
+                $query->where('name', 'like', "%$searchKey%");
+            })
+            ->when(isset($options['owner_id']), function (Builder $query) use ($options) {
+                $query->where('owner_id', $options['owner_id']);
+            })
+            ->when($options['pagination'] ?? true, function (Builder $query) {
+                return $query->paginate()->withQueryString();
+            }, function (Builder $query) {
+                return $query->get();
+            });
     }
 
     /**
@@ -66,7 +72,7 @@ class ClassroomService
      *     with_school?: bool,
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
-     *     with_groups?: bool,
+     *     with_custom_groups?: bool,
      * } $options
      * @return Classroom|null
      */
@@ -90,9 +96,11 @@ class ClassroomService
             }]);
         }
 
-        if ($options['with_groups'] ?? true) {
-            $classroom->load('classroomGroups');
+        if ($options['with_custom_groups'] ?? true) {
+            $classroom->load('customClassroomGroups');
         }
+
+        $classroom->load('defaultClassroomGroup');
 
         return $classroom;
     }
@@ -109,6 +117,7 @@ class ClassroomService
      *     attempts: int,
      *     gorups: array,
      * } $attributes
+     *
      * @return Classroom
      */
     public function create(array $attributes): Classroom
@@ -129,7 +138,10 @@ class ClassroomService
             $classroom = Classroom::create($attributes);
 
             // Create the default classroom group.
-            $this->addDefaultGroup($classroom);
+            $this->addDefaultGroup($classroom, [
+                'pass_grade' => $attributes['pass_grade'],
+                'attempts' => $attributes['attempts'],
+            ]);
 
             // Create custom groups if it is passed.
             if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
@@ -151,18 +163,28 @@ class ClassroomService
      * Add the default group for the given classroom, if there is no default group of this classroom.
      *
      * @param Classroom $classroom
+     * @param array{
+     *     pass_grade: int,
+     *     attempts: int,
+     * } $attributes
      * @return ClassroomGroup|null
      * @throws DefaultClassroomGroupExistsException
      */
-    public function addDefaultGroup(Classroom $classroom): ?ClassroomGroup
+    public function addDefaultGroup(Classroom $classroom, array $attributes): ?ClassroomGroup
     {
         if ($classroom->defaultClassroomGroup()->exists()) {
             throw new DefaultClassroomGroupExistsException();
         }
 
+        $attributes = Arr::only($attributes, [
+            'pass_grade',
+            'attempts',
+        ]);
+
         return $classroom->defaultClassroomGroup()->create([
             'name' => $classroom->name . ' default group',
-            'pass_grade' => $classroom->pass_grade,
+            'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
             'is_default' => true,
         ]);
     }
@@ -185,11 +207,13 @@ class ClassroomService
         $attributes = Arr::only($attributes, [
             'name',
             'pass_grade',
+            'attempts',
         ]);
 
         return $classroom->customClassroomGroups()->create([
             'name' => $attributes['name'],
             'pass_grade' => $attributes['pass_grade'],
+            'attempts' => $attributes['attempts'],
             'is_default' => false,
         ]);
     }
@@ -210,6 +234,18 @@ class ClassroomService
     }
 
     /**
+     * Remove secondary teachers from the given classroom.
+     *
+     * @param Classroom $classroom The classroom to remove secondary teachers from.
+     * @param array $teacherIds The IDs of the teachers to remove.
+     * @return void
+     */
+    public function removeSecondaryTeachers(Classroom $classroom, array $teacherIds): void
+    {
+        $classroom->secondaryTeachers()->detach($teacherIds);
+    }
+
+    /**
      * Update a classroom with given valid attributes.
      *
      * @param Classroom $classroom
@@ -218,18 +254,41 @@ class ClassroomService
      */
     public function update(Classroom $classroom, array $attributes): Classroom
     {
-        $attributes = Arr::only($attributes, [
-            'name',
-            'owner_id',
-            'pass_grade',
-            'attempts',
-        ]);
+        DB::transaction(function () use ($classroom, $attributes) {
+            // Update classroom.
+            $classroom->update(Arr::only($attributes, [
+                'name',
+                'owner_id',
+            ]));
 
-        $classroom->fill($attributes);
-
-        $classroom->save();
+            // Update default group.
+            $classroom->defaultClassroomGroup()->update(Arr::only($attributes, [
+                'pass_grade',
+                'attempts',
+            ]));
+        });
 
         return $classroom;
+    }
+
+    /**
+     * Update the given classroom group with given valid attributes.
+     *
+     * @param ClassroomGroup $group
+     * @param array $attributes
+     * @return ClassroomGroup
+     */
+    public function updateGroup(ClassroomGroup $group, array $attributes): ClassroomGroup
+    {
+        DB::transaction(function () use ($group, $attributes) {
+            $group->update(Arr::only($attributes, [
+                'name',
+                'pass_grade',
+                'attempts',
+            ]));
+        });
+
+        return $group;
     }
 
     /**
@@ -255,6 +314,23 @@ class ClassroomService
 
             // Delete classroom.
             $classroom->delete();
+        });
+    }
+
+    /**
+     * Delete the given classroom group, detach its students.
+     *
+     * @param ClassroomGroup $group
+     * @return void
+     */
+    public function deleteGroup(ClassroomGroup $group): void
+    {
+        DB::transaction(function () use ($group) {
+            // Detach all students.
+            $group->students()->detach();
+
+            // Delete classroom group.
+            $group->delete();
         });
     }
 }

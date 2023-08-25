@@ -6,6 +6,7 @@ use App\Events\Classrooms\ClassroomCreated;
 use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
@@ -14,13 +15,27 @@ use Tests\TestCase;
  */
 class CreateClassroomTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase,
+        WithFaker;
+
+    /**
+     * The payload to use for the request.
+     *
+     * @var array
+     */
+    protected array $payload;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         Event::fake();
+
+        $this->payload = [
+            'name' => fake()->name,
+            'pass_grade' => fake()->numberBetween(0, 100),
+            'attempts' => fake()->numberBetween(1, 10),
+        ];
     }
 
     public function test_admin_teachers_can_create_classrooms_for_teachers_in_the_same_school(): void
@@ -33,20 +48,15 @@ class CreateClassroomTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'Test Class',
-            'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => 80,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
 
-        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
 
         // Assert that the response returns the correct data of the new classroom.
-        $response->assertJsonFragment($payload);
+        $response->assertJsonFragment($this->payload);
 
         // Assert that event ClassroomCreated was dispatched.
         Event::assertDispatched(ClassroomCreated::class, function (ClassroomCreated $event) use ($adminTeacher) {
@@ -66,14 +76,9 @@ class CreateClassroomTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $payload = [
-            'name' => 'Test Class',
-            'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => 80,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
 
-        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 422 status code.
         $response->assertStatus(422);
@@ -88,20 +93,15 @@ class CreateClassroomTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $payload = [
-            'name' => 'Test Class',
-            'owner_id' => $nonAdminTeacher->id,
-            'pass_grade' => 80,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
 
-        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
 
         // Assert that the response returns the correct data of the new classroom.
-        $response->assertJsonFragment($payload);
+        $response->assertJsonFragment($this->payload);
 
         // Assert that event ClassroomCreated was dispatched.
         Event::assertDispatched(ClassroomCreated::class, function (ClassroomCreated $event) use ($nonAdminTeacher) {
@@ -119,14 +119,9 @@ class CreateClassroomTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
-        $payload = [
-            'name' => 'Test Class',
-            'owner_id' => $nonAdminTeacher2->id,
-            'pass_grade' => 80,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher2->id;
 
-        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 422 status code.
         $response->assertStatus(422);
@@ -144,14 +139,9 @@ class CreateClassroomTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
-        $payload = [
-            'name' => 'Test Class',
-            'owner_id' => $nonAdminTeacher2->id,
-            'pass_grade' => 80,
-            'attempts' => 1,
-        ];
+        $this->payload['owner_id'] = $nonAdminTeacher2->id;
 
-        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $payload));
+        $response = $this->postJson(route('api.teachers.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 422 status code.
         $response->assertStatus(422);
