@@ -26,9 +26,9 @@ class Classroom extends Model
         'owner_id' => 'int',
     ];
 
-    public const TRADITIONAL_CLASSROOM = 'traditional classroom';
+    public const TYPE_TRADITIONAL_CLASSROOM = '1';
 
-    public const HOMESCHOOL_CLASSROOM = 'homeschool classroom';
+    public const TYPE_HOMESCHOOL_CLASSROOM = '2';
 
     // The max limit of the number of classroom groups.
     public const MAX_CUSTOM_GROUP_COUNT = 8;

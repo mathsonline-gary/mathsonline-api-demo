@@ -40,7 +40,7 @@ class SchoolServiceTest extends TestCase
         $attributes = [
             'market_id' => Market::first()->id,
             'name' => 'Test School',
-            'type' => School::TRADITIONAL_SCHOOL,
+            'type' => School::TYPE_TRADITIONAL_SCHOOL,
             'email' => 'school@test.com',
             'phone' => '1234567890',
             'fax' => '9876543210',

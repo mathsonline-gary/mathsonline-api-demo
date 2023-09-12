@@ -36,8 +36,8 @@ class ClassroomFactory extends Factory
             return [
                 'school_id' => $school->id,
                 'type' => match ($school->type) {
-                    School::TRADITIONAL_SCHOOL => Classroom::TRADITIONAL_CLASSROOM,
-                    School::HOMESCHOOL => Classroom::HOMESCHOOL_CLASSROOM,
+                    School::TYPE_TRADITIONAL_SCHOOL => Classroom::TYPE_TRADITIONAL_CLASSROOM,
+                    School::TYPE_HOMESCHOOL => Classroom::TYPE_HOMESCHOOL_CLASSROOM,
                 }
             ];
         });

@@ -21,9 +21,10 @@ return new class extends Migration {
                 ->constrained('teachers');
 
             $table->enum('type', [
-                Classroom::TRADITIONAL_CLASSROOM,
-                Classroom::HOMESCHOOL_CLASSROOM,
-            ]);
+                Classroom::TYPE_TRADITIONAL_CLASSROOM,
+                Classroom::TYPE_HOMESCHOOL_CLASSROOM,
+            ])
+                ->comment('1: Traditional Classroom, 2: Homeschool Classroom');
 
             $table->string('name');
 
