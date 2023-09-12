@@ -22,7 +22,6 @@ class TutorFactory extends Factory
     public function definition(): array
     {
         return [
-            'type_id' => fake()->randomElement(TutorType::pluck('id')->all()),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -39,7 +38,7 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => TutorType::where(['name' => TutorType::PRIMARY_PARENT])->first()->id,
+                'is_account_holder' => true,
             ];
         });
     }
@@ -53,7 +52,7 @@ class TutorFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type_id' => TutorType::where(['name' => TutorType::SECONDARY_PARENT])->first()->id,
+                'is_account_holder' => false,
             ];
         });
     }

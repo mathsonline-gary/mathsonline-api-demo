@@ -13,9 +13,6 @@ return new class extends Migration {
         Schema::create('tutors', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('type_id')
-                ->constrained('tutor_types');
-
             $table->string('email')
                 ->unique();
 
@@ -24,6 +21,9 @@ return new class extends Migration {
             $table->string('last_name');
 
             $table->string('password');
+
+            $table->boolean('is_account_holder')
+                ->default(false);
 
 //            $table->timestamp('email_verified_at')
 //                ->nullable();

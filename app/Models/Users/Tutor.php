@@ -13,11 +13,11 @@ class Tutor extends User
     protected $fillable = [
         'market_id',
         'school_id',
-        'type_id',
         'email',
         'first_name',
         'last_name',
         'password',
+        'is_account_holder',
     ];
 
     protected $hidden = [
