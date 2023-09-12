@@ -129,7 +129,7 @@ class ClassroomController extends Controller
             'groups',
         ]);
         $attributes['school_id'] = $authenticatedTeacher->school_id;
-        $attributes['type'] = Classroom::TRADITIONAL_CLASSROOM;
+        $attributes['type'] = Classroom::TYPE_TRADITIONAL_CLASSROOM;
 
         // Create the classroom.
         $classroom = $this->classroomService->create($attributes);

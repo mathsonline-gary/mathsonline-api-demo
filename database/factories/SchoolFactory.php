@@ -25,8 +25,8 @@ class SchoolFactory extends Factory
             'address_postal_code' => fake()->postcode(),
             'address_country' => fake()->country(),
             'type' => fake()->randomElement([
-                School::HOMESCHOOL,
-                School::TRADITIONAL_SCHOOL
+                School::TYPE_HOMESCHOOL,
+                School::TYPE_TRADITIONAL_SCHOOL
             ]),
         ];
     }
@@ -40,7 +40,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => School::HOMESCHOOL,
+                'type' => School::TYPE_HOMESCHOOL,
             ];
         });
     }
@@ -54,7 +54,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function (array $attribute) {
             return [
-                'type' => School::TRADITIONAL_SCHOOL,
+                'type' => School::TYPE_TRADITIONAL_SCHOOL,
             ];
         });
     }

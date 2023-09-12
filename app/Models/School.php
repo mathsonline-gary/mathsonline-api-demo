@@ -29,8 +29,8 @@ class School extends Model
         'address_country',
     ];
 
-    public const TRADITIONAL_SCHOOL = 'traditional school';
-    public const HOMESCHOOL = 'homeschool';
+    public const TYPE_TRADITIONAL_SCHOOL = '1';
+    public const TYPE_HOMESCHOOL = '2';
 
     /**
      * Get the school's tutors.
@@ -70,7 +70,7 @@ class School extends Model
      */
     public function scopeTraditionalSchools(Builder $query): Builder
     {
-        return $query->where('type', School::TRADITIONAL_SCHOOL);
+        return $query->where('type', School::TYPE_TRADITIONAL_SCHOOL);
     }
 
     /**
@@ -81,6 +81,6 @@ class School extends Model
      */
     public function scopeHomeschools(Builder $query): Builder
     {
-        return $query->where('type', School::HOMESCHOOL);
+        return $query->where('type', School::TYPE_HOMESCHOOL);
     }
 }

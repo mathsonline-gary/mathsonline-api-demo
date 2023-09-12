@@ -165,7 +165,7 @@ class ClassroomServiceTest extends TestCase
         $attributes = [
             'school_id' => $school->id,
             'owner_id' => $teacher->id,
-            'type' => Classroom::TRADITIONAL_CLASSROOM,
+            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
             'name' => 'Test Class',
             'pass_grade' => 80,
             'attempts' => 1,
