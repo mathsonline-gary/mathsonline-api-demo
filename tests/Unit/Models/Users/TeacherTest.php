@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models\Users;
 
-use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use Database\Seeders\MarketSeeder;
@@ -11,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use function Symfony\Component\String\s;
 
 class TeacherTest extends TestCase
 {
@@ -52,7 +50,7 @@ class TeacherTest extends TestCase
         $classroom1 = $this->fakeClassroom($teacher);
         $classroom2 = $this->fakeClassroom($teacher);
 
-        $classrooms = $teacher->classroomsAsOwner;
+        $classrooms = $teacher->ownedClassrooms;
 
         // Assert that the classrooms collection is not empty
         $this->assertNotEmpty($classrooms);
@@ -119,7 +117,7 @@ class TeacherTest extends TestCase
         $secondaryTeacher->secondaryClassrooms()->attach([$classroom1->id, $classroom2->id]);
 
         // Get secondary classrooms of $secondaryTeacher
-        $classrooms1 = $secondaryTeacher->classroomsAsSecondaryTeacher;
+        $classrooms1 = $secondaryTeacher->secondaryClassrooms;
 
         // Assert that the classrooms collection is not empty
         $this->assertNotEmpty($classrooms1);
@@ -147,7 +145,7 @@ class TeacherTest extends TestCase
         $classroom2 = $this->fakeClassroom($owner);
 
         // Get secondary classrooms of $nonSecondaryTeacher
-        $classrooms = $teacher->classroomsAsSecondaryTeacher;
+        $classrooms = $teacher->secondaryClassrooms;
 
         // Assert that the classrooms collection is empty
         $this->assertEmpty($classrooms);
@@ -247,16 +245,16 @@ class TeacherTest extends TestCase
     }
 
     /**
-     * @see Teacher::asTutor()
+     * @see Teacher::asMember()
      */
-    public function test_a_teacher_is_not_a_tutor(): void
+    public function test_a_teacher_is_not_a_member(): void
     {
         $this->seed([MarketSeeder::class]);
 
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
 
-        $this->assertNull($teacher->asTutor());
+        $this->assertNull($teacher->asMember());
     }
 
     /**

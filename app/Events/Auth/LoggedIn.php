@@ -6,7 +6,7 @@ use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;

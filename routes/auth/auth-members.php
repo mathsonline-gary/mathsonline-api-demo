@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\Web\Tutors\AuthController;
+use App\Http\Controllers\Web\Members\AuthController;
 use Illuminate\Support\Facades\Route;
 
-// Auth routers for tutor.
-Route::prefix('/tutors')
-    ->name('tutors.')
+// Auth routers for members.
+Route::prefix('/members')
+    ->name('members.')
     ->group(function () {
         Route::post('/register', [AuthController::class, 'register'])
             ->middleware('guest')
@@ -24,11 +24,11 @@ Route::prefix('/tutors')
             ->name('password.store');
 
 //        Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-//            ->middleware(['auth:tutor', 'signed', 'throttle:6,1'])
+//            ->middleware(['auth:member', 'signed', 'throttle:6,1'])
 //            ->name('verification.verify');
 //
 //        Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-//            ->middleware(['auth:tutor', 'throttle:6,1'])
+//            ->middleware(['auth:member', 'throttle:6,1'])
 //            ->name('verification.send');
 
         Route::post('/logout', [AuthController::class, 'logout'])

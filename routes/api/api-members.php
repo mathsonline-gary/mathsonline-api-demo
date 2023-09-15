@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\Web\Tutors\AuthController;
+use App\Http\Controllers\Web\Members\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Tutor Routes
+| Member Routes
 |--------------------------------------------------------------------------
 |
-| API routes for tutors.
+| API routes for members.
 |
 */
 
-Route::prefix('/tutors/v1')
-    ->name('api.tutors.v1.')
+Route::prefix('/members/v1')
+    ->name('api.members.v1.')
     ->group(function () {
 
         Route::get('/me', [AuthController::class, 'me']);

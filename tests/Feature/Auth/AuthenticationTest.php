@@ -4,9 +4,9 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
+use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +17,7 @@ class AuthenticationTest extends TestCase
     public function test_users_can_authenticate_from_a_valid_referer(): void
     {
         $users = [
-            'tutor' => Tutor::first(),
+            'member' => Member::first(),
             'teacher' => Teacher::first(),
             'student' => Student::first(),
             'admin' => Admin::first(),
@@ -49,7 +49,7 @@ class AuthenticationTest extends TestCase
     public function test_users_are_unauthorized_to_authenticate_from_an_invalid_referer(): void
     {
         $users = [
-            'tutor' => Tutor::first(),
+            'member' => Member::first(),
             'teacher' => Teacher::first(),
             'student' => Student::first(),
             'admin' => Admin::first(),
@@ -76,7 +76,7 @@ class AuthenticationTest extends TestCase
     public function test_users_cannot_authenticate_with_invalid_password(): void
     {
         $users = [
-            'tutor' => Tutor::first(),
+            'member' => Member::first(),
             'teacher' => Teacher::first(),
             'student' => Student::first(),
             'admin' => Admin::first(),
@@ -103,7 +103,7 @@ class AuthenticationTest extends TestCase
     public function test_authenticated_users_can_logout()
     {
         $users = [
-            'tutor' => Tutor::first(),
+            'member' => Member::first(),
             'teacher' => Teacher::first(),
             'student' => Student::first(),
             'admin' => Admin::first(),

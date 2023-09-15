@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,13 +33,13 @@ class School extends Model
     public const TYPE_HOMESCHOOL = '2';
 
     /**
-     * Get the school's tutors.
+     * Get the school's members.
      *
      * @return HasMany
      */
-    public function tutors(): HasMany
+    public function members(): HasMany
     {
-        return $this->hasMany(Tutor::class);
+        return $this->hasMany(Member::class);
     }
 
     /**

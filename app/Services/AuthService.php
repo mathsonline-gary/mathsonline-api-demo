@@ -9,7 +9,7 @@ use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -134,13 +134,13 @@ class AuthService
     }
 
     /**
-     * Get the authenticated tutor.
+     * Get the authenticated member.
      *
-     * @return Tutor|null
+     * @return Member|null
      */
-    public function tutor(): ?Tutor
+    public function member(): ?Member
     {
-        return $this->user()?->asTutor();
+        return $this->user()?->asMember();
     }
 
     /**

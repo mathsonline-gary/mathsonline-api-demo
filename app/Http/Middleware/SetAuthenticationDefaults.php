@@ -23,11 +23,11 @@ class SetAuthenticationDefaults
         $path = $request->getPathInfo();
 
         switch (true) {
-            case Str::startsWith($path, '/tutors'):
-            case Str::startsWith($path, '/api/tutors/v1'):
-                Auth::setDefaultDriver('tutor');
-                config(['sanctum.guard' => 'tutor']);
-                Password::setDefaultDriver('tutors');
+            case Str::startsWith($path, '/members'):
+            case Str::startsWith($path, '/api/members/v1'):
+                Auth::setDefaultDriver('member');
+                config(['sanctum.guard' => 'member']);
+                Password::setDefaultDriver('members');
 
                 break;
 

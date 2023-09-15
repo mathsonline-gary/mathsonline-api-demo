@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\School;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use Illuminate\Database\Seeder;
 
 class SchoolSeeder extends Seeder
@@ -17,17 +17,12 @@ class SchoolSeeder extends Seeder
             ->count(10)
             ->homeschool()
             ->has(
-                Tutor::factory()
-                    ->primary()
+                Member::factory()
                     ->state(function (array $attributes, School $school) {
                         return [
                             'email' => $school->email,
                         ];
                     })
-            )
-            ->has(
-                Tutor::factory()
-                    ->secondary()
             )
             ->has(
                 Student::factory()

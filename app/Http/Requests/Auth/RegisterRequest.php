@@ -65,7 +65,7 @@ class RegisterRequest extends FormRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('tutors', 'email'),
+                Rule::unique('members', 'email'),
             ],
             'password' => ['required', 'confirmed', Password::defaults()],
             'phone' => ['required', 'string', 'digits_between:8,30'],

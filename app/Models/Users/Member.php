@@ -6,7 +6,7 @@ use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Tutor extends User
+class Member extends User
 {
     use HasFactory;
 
@@ -28,9 +28,8 @@ class Tutor extends User
         'email_verified_at' => 'datetime',
     ];
 
-
     /**
-     * Get the tutor's school.
+     * Get the member's school.
      *
      * @return BelongsTo
      */

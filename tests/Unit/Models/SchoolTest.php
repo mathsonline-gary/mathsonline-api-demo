@@ -3,11 +3,10 @@
 namespace Tests\Unit\Models;
 
 use App\Models\School;
+use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
 use Database\Seeders\MarketSeeder;
-use Database\Seeders\TutorTypeSeeder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -36,7 +35,7 @@ class SchoolTest extends TestCase
         $this->assertEquals(10, $school->teachers()->count());
 
         foreach ($school->teachers as $teacher) {
-            // Assert that the instructors are tutors
+            // Assert that the instructors are teachers
             $this->assertInstanceOf(Teacher::class, $teacher);
 
             // Assert that the instructors are associated with the correct school
@@ -47,34 +46,33 @@ class SchoolTest extends TestCase
     /**
      * @return void
      *
-     * @see School::tutors()
+     * @see School::members()
      */
-    public function test_a_homeschool_has_many_tutors(): void
+    public function test_a_homeschool_has_many_members(): void
     {
         $this->seed([
             MarketSeeder::class,
-            TutorTypeSeeder::class,
         ]);
 
         $school = $this->fakeHomeSchool();
 
-        Tutor::factory()
+        Member::factory()
             ->count(10)
             ->ofSchool($school)
             ->create();
 
         // Assert that the school has a relationship with the instructors
-        $this->assertInstanceOf(HasMany::class, $school->tutors());
+        $this->assertInstanceOf(HasMany::class, $school->members());
 
         // Assert that the school has the correct number of instructors
-        $this->assertEquals(10, $school->tutors()->count());
+        $this->assertEquals(10, $school->members()->count());
 
-        foreach ($school->tutors as $tutor) {
-            // Assert that the instructors are tutors
-            $this->assertInstanceOf(Tutor::class, $tutor);
+        foreach ($school->members as $member) {
+            // Assert that the instructors are members
+            $this->assertInstanceOf(Member::class, $member);
 
             // Assert that the instructors are associated with the correct school
-            $this->assertEquals($school->id, $tutor->school_id);
+            $this->assertEquals($school->id, $member->school_id);
         }
     }
 
@@ -98,7 +96,7 @@ class SchoolTest extends TestCase
         $this->assertEquals(10, $school->students()->count());
 
         foreach ($school->students as $student) {
-            // Assert that the instructors are tutors
+            // Assert that the instructors are students
             $this->assertInstanceOf(Student::class, $student);
 
             // Assert that the instructors are associated with the correct school

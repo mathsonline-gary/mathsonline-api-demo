@@ -43,13 +43,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the user as a tutor.
+     * Get the user as a member.
      *
-     * @return Tutor|null
+     * @return Member|null
      */
-    public function asTutor(): ?Tutor
+    public function asMember(): ?Member
     {
-        return $this instanceof Tutor ? $this : null;
+        return $this instanceof Member ? $this : null;
     }
 
     /**

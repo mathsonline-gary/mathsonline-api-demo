@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class TutorService
+class MemberService
 {
     /**
-     * Create a new tutor.
+     * Create a new member.
      *
      * @param array $attributes
-     * @return Tutor
+     * @return Member
      */
-    public function create(array $attributes): Tutor
+    public function create(array $attributes): Member
     {
         $attributes = Arr::only($attributes, [
             'market_id',
@@ -30,9 +30,9 @@ class TutorService
 
         $attributes['password'] = Hash::make($attributes['password']);
 
-        $tutor = Tutor::create($attributes);
+        $member = Member::create($attributes);
 
-        Log::info('Tutor created: ', $tutor->only([
+        Log::info('Member created: ', $member->only([
             'id',
             'username',
             'email',
@@ -40,6 +40,6 @@ class TutorService
             'last_name',
         ]));
 
-        return $tutor;
+        return $member;
     }
 }

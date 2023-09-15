@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,7 +10,7 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_new_users_can_register_as_a_tutor(): void
+    public function test_new_users_can_register_as_a_member(): void
     {
         $payload = [
             'market_id' => 1,
@@ -30,16 +30,16 @@ class RegistrationTest extends TestCase
 
         $response = $this->post(route('api.v1.register'), $payload);
 
-        $newTutor = Tutor::where('email', $payload['email'])->first();
-        $newSchool = $newTutor?->school;
+        $newMember = Member::where('email', $payload['email'])->first();
+        $newSchool = $newMember?->school;
 
         $response->assertStatus(201)
             ->assertJson([
                 'token' => true,
             ]);
 
-        $this->assertEquals(1, $newTutor->tokens()->count());
-        $this->assertNotNull($newTutor);
+        $this->assertEquals(1, $newMember->tokens()->count());
+        $this->assertNotNull($newMember);
         $this->assertNotNull($newSchool);
     }
 }
