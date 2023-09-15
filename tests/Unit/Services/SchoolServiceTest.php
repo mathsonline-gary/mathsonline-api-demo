@@ -35,8 +35,6 @@ class SchoolServiceTest extends TestCase
      */
     public function test_it_creates_a_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $attributes = [
             'market_id' => Market::first()->id,
             'name' => 'Test School',

@@ -36,8 +36,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_searches_classrooms_by_school_id(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         // Create classrooms in school 1.
         $school1 = $this->fakeTraditionalSchool();
         $teacher1 = $this->fakeAdminTeacher($school1);
@@ -72,8 +70,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_fuzzy_searches_classrooms(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $owner = $this->fakeAdminTeacher($school);
 
@@ -106,8 +102,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_returns_search_result_without_pagination(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $owner = $this->fakeAdminTeacher($school);
         $classrooms = $this->fakeClassroom($owner, 30);
@@ -126,8 +120,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_finds_a_classroom_with_relationships()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
         $teachers = $this->fakeNonAdminTeacher($school, 2);
@@ -156,8 +148,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_creates_a_classroom()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $secondaryTeachers = $this->fakeNonAdminTeacher($school, 2);
@@ -211,8 +201,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_adds_default_classroom_group(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($teacher);
@@ -249,8 +237,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_throws_exception_when_adding_the_default_classroom_group_if_it_exists(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($teacher);
@@ -272,8 +258,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_adds_a_custom_classroom_group(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($teacher);
@@ -312,8 +296,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_throw_an_exception_when_hits_the_max_limit_of_classroom_groups(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($teacher);
@@ -338,8 +320,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_updates_a_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher1 = $this->fakeAdminTeacher($school);
         $teacher2 = $this->fakeAdminTeacher($school);
@@ -380,8 +360,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_adds_secondary_teachers_with_detaching_by_default()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -418,8 +396,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_adds_secondary_teachers_without_detaching()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -457,8 +433,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_removes_secondary_teachers()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -519,8 +493,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_deletes_a_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -560,8 +532,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_updates_a_classroom_group(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -610,8 +580,6 @@ class ClassroomServiceTest extends TestCase
      */
     public function test_it_deletes_a_classroom_group(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);

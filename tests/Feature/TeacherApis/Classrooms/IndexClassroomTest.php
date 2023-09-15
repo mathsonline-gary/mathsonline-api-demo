@@ -12,8 +12,6 @@ class IndexClassroomTest extends TestCase
 
     public function test_admin_teachers_can_get_all_classrooms_in_the_school()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
         $classrooms = $this->fakeClassroom($adminTeacher, 10);
@@ -41,8 +39,6 @@ class IndexClassroomTest extends TestCase
 
     public function test_non_admin_teachers_can_only_get_classrooms_that_they_own()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher1 = $this->fakeNonAdminTeacher($school);
         $classroom1 = $this->fakeClassroom($teacher1);

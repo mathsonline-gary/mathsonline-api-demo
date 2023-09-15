@@ -4,7 +4,6 @@ namespace Tests\Unit\Models\Users;
 
 use App\Models\School;
 use App\Models\Users\Student;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,10 +14,6 @@ class StudentTest extends TestCase
 
     public function test_a_student_belongs_to_a_school(): void
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
-
         $school = School::factory()
             ->traditionalSchool()
             ->create();

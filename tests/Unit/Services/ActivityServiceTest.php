@@ -34,8 +34,6 @@ class ActivityServiceTest extends TestCase
      */
     public function test_it_creates_activities()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
 

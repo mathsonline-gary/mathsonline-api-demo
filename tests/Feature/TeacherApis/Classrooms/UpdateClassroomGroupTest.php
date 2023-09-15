@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\TeacherApis\Classrooms;
 
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -30,10 +29,8 @@ class UpdateClassroomGroupTest extends TestCase
         ];
     }
 
-    public function test_admin_teachers_can_update_groups_of_classrooms_in_the_same_school(): void
+    public function test_admin_teachers_can_update_classroom_group_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -65,8 +62,6 @@ class UpdateClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_are_unauthorized_to_update_groups_of_classrooms_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -90,8 +85,6 @@ class UpdateClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_can_update_groups_of_classrooms_that_they_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -122,8 +115,6 @@ class UpdateClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorized_to_update_groups_of_classrooms_that_they_do_not_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -146,8 +137,6 @@ class UpdateClassroomGroupTest extends TestCase
 
     public function test_it_responses_not_found_when_the_classroom_group_does_not_belong_to_the_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);

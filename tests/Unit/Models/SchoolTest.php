@@ -6,8 +6,8 @@ use App\Models\School;
 use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,14 +16,10 @@ class SchoolTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @return void
-     *
      * @see School::teachers()
      */
     public function test_a_traditional_school_has_many_teachers(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $this->fakeNonAdminTeacher($school, 10);
@@ -44,47 +40,32 @@ class SchoolTest extends TestCase
     }
 
     /**
-     * @return void
-     *
-     * @see School::members()
+     * @see School::owner()
      */
-    public function test_a_homeschool_has_many_members(): void
+    public function test_a_homeschool_has_one_owner(): void
     {
-        $this->seed([
-            MarketSeeder::class,
-        ]);
-
         $school = $this->fakeHomeSchool();
 
         Member::factory()
-            ->count(10)
+            ->count(1)
             ->ofSchool($school)
             ->create();
 
         // Assert that the school has a relationship with the instructors
-        $this->assertInstanceOf(HasMany::class, $school->members());
+        $this->assertInstanceOf(HasOne::class, $school->owner());
 
-        // Assert that the school has the correct number of instructors
-        $this->assertEquals(10, $school->members()->count());
+        // Assert that the school has only one owner
+        $this->assertEquals(1, $school->owner()->count());
 
-        foreach ($school->members as $member) {
-            // Assert that the instructors are members
-            $this->assertInstanceOf(Member::class, $member);
-
-            // Assert that the instructors are associated with the correct school
-            $this->assertEquals($school->id, $member->school_id);
-        }
+        $this->assertInstanceOf(Member::class, $school->owner);
+        $this->assertEquals($school->id, $school->owner->school_id);
     }
 
     /**
-     * @return void
-     *
      * @see School::students()
      */
     public function test_a_traditional_school_has_many_students(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $this->fakeStudent($school, 10);
@@ -105,16 +86,10 @@ class SchoolTest extends TestCase
     }
 
     /**
-     * @return void
-     *
      * @see School::scopeTraditionalSchools()
-     *
-     * @test
      */
-    public function it_gets_traditional_schools(): void
+    public function test_it_gets_traditional_schools(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $traditionalSchools = $this->fakeTraditionalSchool(10);
 
         $homeschools = $this->fakeHomeSchool(10);
@@ -136,16 +111,10 @@ class SchoolTest extends TestCase
     }
 
     /**
-     * @return void
-     *
      * @see School::scopeHomeschools()
-     *
-     * @test
      */
-    public function it_gets_homeschools(): void
+    public function test_it_gets_homeschools(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $traditionalSchools = $this->fakeTraditionalSchool(10);
 
         $homeschools = $this->fakeHomeSchool(10);

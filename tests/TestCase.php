@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Traits\TestActivityHelpers;
 use Tests\Traits\TestClassroomHelpers;
@@ -17,4 +18,18 @@ abstract class TestCase extends BaseTestCase
         TestStudentHelpers,
         TestClassroomHelpers,
         TestActivityHelpers;
+
+    /**
+     * Indicates whether the default seeder should run before each test.
+     *
+     * @var bool
+     */
+    protected bool $seed = true;
+
+    /**
+     * Run a specific seeder before each test.
+     *
+     * @var string
+     */
+    protected string $seeder = TestSeeder::class;
 }

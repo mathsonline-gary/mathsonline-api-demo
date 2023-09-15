@@ -16,8 +16,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_can_delete_groups_from_classrooms_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -36,8 +34,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_are_unauthorized_to_delete_groups_from_classrooms_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher1 = $this->fakeAdminTeacher($school1);
 
@@ -56,8 +52,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_can_delete_groups_from_classrooms_that_they_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -76,8 +70,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorized_to_delete_groups_from_classrooms_that_they_do_not_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
 
@@ -95,8 +87,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_teachers_cannot_delete_the_default_group_without_deleting_the_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -113,8 +103,6 @@ class DeleteClassroomGroupTest extends TestCase
 
     public function test_teachers_cannot_delete_the_group_that_does_not_belong_to_the_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);

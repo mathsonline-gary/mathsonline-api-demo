@@ -36,8 +36,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_can_add_custom_classroom_groups_to_classrooms_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -65,8 +63,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_are_unauthorized_to_add_custom_classroom_groups_to_classrooms_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -88,8 +84,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_admin_teachers_cannot_add_custom_classroom_groups_to_classrooms_when_the_max_limit_has_been_reached(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -109,8 +103,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_can_add_custom_classroom_groups_to_classrooms_that_they_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -139,8 +131,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorized_to_add_custom_classroom_groups_to_classroom_that_they_do_not_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
@@ -161,8 +151,6 @@ class CreateClassroomGroupTest extends TestCase
 
     public function test_non_admin_teachers_cannot_add_classrooms_groups_to_classrooms_when_the_max_limit_has_been_reached()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);

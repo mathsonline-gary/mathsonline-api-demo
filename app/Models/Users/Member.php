@@ -17,7 +17,6 @@ class Member extends User
         'first_name',
         'last_name',
         'password',
-        'is_account_holder',
     ];
 
     protected $hidden = [

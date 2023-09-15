@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\School;
+use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Member;
 use Illuminate\Database\Seeder;
 
 class SchoolSeeder extends Seeder
@@ -22,7 +22,8 @@ class SchoolSeeder extends Seeder
                         return [
                             'email' => $school->email,
                         ];
-                    })
+                    }),
+                'owner'
             )
             ->has(
                 Student::factory()

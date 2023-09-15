@@ -38,8 +38,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_admin_teachers_can_update_classrooms_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -73,8 +71,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_admin_teachers_cannot_update_the_classroom_owner_to_a_teacher_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
         $classroom = $this->fakeClassroom($adminTeacher);
@@ -94,8 +90,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_admin_teachers_are_unauthorized_to_update_classrooms_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
 
@@ -113,8 +107,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_non_admin_teachers_can_update_classrooms_that_they_owns(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -145,8 +137,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_non_admin_teacher_cannot_update_the_owner_of_the_classroom(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -166,8 +156,6 @@ class UpdateClassroomTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorized_to_update_classroom_that_they_do_not_own(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
