@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Web\Teachers;
 
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -51,9 +50,9 @@ class AuthController extends Controller
 
     public function me()
     {
-        $teacher = $this->authService->user();
+        $teacher = $this->authService->teacher();
 
-        if ($teacher instanceof Teacher) {
+        if ($teacher) {
             return response()->json([
                 'user' => $teacher,
                 'type' => 'teacher',

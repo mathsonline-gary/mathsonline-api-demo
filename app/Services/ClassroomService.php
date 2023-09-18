@@ -78,9 +78,11 @@ class ClassroomService
      */
     public function find(int|string $id, array $options = []): ?Classroom
     {
-        $classroom = $options['throwable'] ?? true
-            ? Classroom::findOrFail($id)
-            : Classroom::find($id);
+        $classroom = Classroom::when($options['throwable'] ?? true, function (Builder $query) use ($id) {
+            return $query->findOrFail($id);
+        }, function (Builder $query) use ($id) {
+            return $query->find($id);
+        });
 
         if ($options['with_school'] ?? true) {
             $classroom->load('school');

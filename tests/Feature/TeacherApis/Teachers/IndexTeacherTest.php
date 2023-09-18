@@ -2,9 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Models\School;
-use App\Models\Users\Teacher;
-use Database\Seeders\MarketSeeder;
+use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,6 +16,9 @@ class IndexTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @see TeacherController::index()
+     */
     public function test_admin_teachers_can_only_get_the_list_of_teachers_in_same_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -58,6 +59,9 @@ class IndexTeacherTest extends TestCase
         ]);
     }
 
+    /**
+     * @see TeacherController::index()
+     */
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -73,6 +77,9 @@ class IndexTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
+    /**
+     * @see TeacherController::index()
+     */
     public function test_admin_teachers_can_fuzzy_search_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();

@@ -27,9 +27,11 @@ class TeacherService
      */
     public function find(int $id, array $options = []): ?Teacher
     {
-        $teacher = $options['throwable'] ?? true
-            ? Teacher::findOrFail($id)
-            : Teacher::find($id);
+        $teacher = Teacher::when($options['throwable'] ?? true, function (Builder $query) use ($id) {
+            return $query->findOrFail($id);
+        }, function (Builder $query) use ($id) {
+            return $query->find($id);
+        });
 
         if ($options['with_school'] ?? false) {
             $teacher->load('school');
