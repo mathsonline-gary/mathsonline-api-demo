@@ -16,7 +16,7 @@ class ShowTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teacher_administrators_can_get_the_profile_of_a_teacher_in_same_school(): void
+    public function test_an_admin_teacher_can_get_the_profile_of_a_teacher_in_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
 
@@ -49,7 +49,7 @@ class ShowTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_teacher_administrators_are_unauthorized_to_get_the_profile_of_a_teacher_in_different_school(): void
+    public function test_an_admin_teacher_is_unauthorized_to_get_the_profile_of_a_teacher_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
@@ -65,7 +65,7 @@ class ShowTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_non_admin_teachers_are_unauthorised_to_get_the_profile_of_a_teacher_in_different_school(): void
+    public function test_a_non_admin_teachers_is_unauthorised_to_view_the_details_of_a_teacher_in_different_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();

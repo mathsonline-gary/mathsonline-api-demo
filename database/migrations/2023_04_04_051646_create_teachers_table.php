@@ -38,6 +38,8 @@ return new class extends Migration {
                 ->comment('Indicate whether this teacher has the administrator access.');
 
             $table->timestamps();
+
+            $table->softDeletes();
         });
     }
 

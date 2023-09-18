@@ -16,9 +16,6 @@ class IndexTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @see TeacherController::index()
-     */
     public function test_admin_teachers_can_only_get_the_list_of_teachers_in_same_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -59,9 +56,6 @@ class IndexTeacherTest extends TestCase
         ]);
     }
 
-    /**
-     * @see TeacherController::index()
-     */
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -77,50 +71,60 @@ class IndexTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * @see TeacherController::index()
-     */
-    public function test_admin_teachers_can_fuzzy_search_teachers(): void
+    public function test_admin_teachers_can_fuzzy_search_teachers_by_names(): void
     {
         $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->fakeAdminTeacher($school, 1, [
+        $teacher1 = $this->fakeAdminTeacher($school, 1, [
             'username' => 'gary',
             'first_name' => 'Gary',
             'last_name' => 'Zhang',
             'email' => 'gary@test.com'
         ]);
 
-        $teacher1 = $this->fakeNonAdminTeacher($school, 1, [
+        $teacher2 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'tom',
             'first_name' => 'Tom',
             'last_name' => 'Porter',
             'email' => 'tom.porter@mathsonline.com.au'
         ]);
 
-        $teacher2 = $this->fakeNonAdminTeacher($school, 1, [
+        $teacher3 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'mike',
-            'first_name' => 'Mike',
+            'first_name' => 'Tom',
             'last_name' => 'Smith',
             'email' => 'mike.smith@mathsonline.com.au'
         ]);
 
-        $this->actingAsTeacher($teacherAdmin);
+        $this->actingAsTeacher($teacher1);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gary']));
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gar'])); // 'gar' is for 'Gary'
 
         $response->assertSuccessful();
 
         // Assert that the search result is correct
-        $response->assertJsonFragment(['id' => $teacherAdmin->id])
-            ->assertJsonMissing(['id' => $teacher1->id])
-            ->assertJsonMissing(['id' => $teacher2->id]);
+        $response->assertJsonFragment(['id' => $teacher1->id])
+            ->assertJsonMissing(['id' => $teacher2->id])
+            ->assertJsonMissing(['id' => $teacher3->id]);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'mathsonline']));
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'to'])); // 'to' is for 'Tom'
 
         // Assert that the search result is correct
-        $response->assertJsonMissing(['id' => $teacherAdmin->id])
-            ->assertJsonFragment(['id' => $teacher1->id])
-            ->assertJsonFragment(['id' => $teacher2->id]);
+        $response->assertJsonMissing(['id' => $teacher1->id])
+            ->assertJsonFragment(['id' => $teacher2->id])
+            ->assertJsonFragment(['id' => $teacher3->id]);
+    }
+
+    public function test_non_admin_teachers_are_unauthorized_to_search_teachers()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teachers = $this->fakeNonAdminTeacher($school, 10);
+
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $this->actingAsTeacher($nonAdminTeacher);
+
+        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gary'])); // 'gar' is for 'Gary'
+
+        $response->assertForbidden();
     }
 }

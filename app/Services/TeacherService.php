@@ -116,7 +116,7 @@ class TeacherService
     }
 
     /**
-     * Delete teacher for the given ID.
+     * Soft-delete teacher for the given ID.
      *
      * @param Teacher $teacher The teacher to be deleted.
      *
@@ -127,6 +127,9 @@ class TeacherService
         DB::transaction(function () use ($teacher) {
             // Detach the teacher from secondary teacher list.
             $teacher->secondaryClassrooms()->detach();
+
+            // Dissociate the teacher from the owner of classrooms.
+            $teacher->ownedClassrooms()->update(['owner_id' => null]);
 
             // Delete the teacher.
             $teacher->delete();

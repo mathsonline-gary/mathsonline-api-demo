@@ -222,4 +222,43 @@ class TeacherServiceTest extends TestCase
         $this->assertEquals($attributes['position'], $updatedTeacher->position);
         $this->assertFalse($updatedTeacher->is_admin);
     }
+
+    /**
+     * @see TeacherService::delete()
+     */
+    public function test_it_deletes_a_teacher()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeAdminTeacher($school);
+
+        // Set the $teacher as the owner of $classroom1, and the secondary teacher of $classroom2.
+        $classroom1 = $this->fakeClassroom($teacherAdmin);
+        $classroom2 = $this->fakeClassroom($teacher);
+        $this->attachSecondaryTeachersToClassroom($classroom1, [$teacher->id]);
+
+        // Assert $teacher was set correctly
+        $this->assertDatabaseHas('teachers', ['id' => $teacher->id])
+            ->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => $teacher->id])
+            ->assertDatabaseHas('classroom_secondary_teacher', [
+                'classroom_id' => $classroom1->id,
+                'teacher_id' => $teacher->id,
+            ]);
+
+        // Call the delete method.
+        $this->teacherService->delete($teacher);
+
+        // Assert that the teacher was soft-deleted.
+        $this->assertSoftDeleted('teachers', ['id' => $teacher->id,]);
+
+        // Assert that $teacher was removed from the secondary teachers list.
+        $this->assertDatabaseMissing('classroom_secondary_teacher', [
+            'classroom_id' => $classroom1->id,
+            'teacher_id' => $teacher->id,
+        ]);
+
+        // Assert that $teacher was removed from the owner of $classroom2.
+        $this->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => null]);
+    }
 }
