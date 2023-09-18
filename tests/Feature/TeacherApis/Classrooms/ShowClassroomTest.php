@@ -16,8 +16,6 @@ class ShowClassroomTest extends TestCase
 
     public function test_admin_teachers_can_get_details_of_classrooms_in_the_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -38,8 +36,6 @@ class ShowClassroomTest extends TestCase
 
     public function test_admin_teachers_are_unauthorised_to_get_details_of_classrooms_in_other_schools(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
 
@@ -57,8 +53,6 @@ class ShowClassroomTest extends TestCase
 
     public function test_non_admin_teachers_can_get_details_of_owned_classrooms()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $classroom = $this->fakeClassroom($nonAdminTeacher);
@@ -76,8 +70,6 @@ class ShowClassroomTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorised_to_get_details_of_classrooms_that_they_do_not_own()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $adminTeacher = $this->fakeAdminTeacher($school);

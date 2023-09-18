@@ -18,8 +18,6 @@ class ClassroomGroupTest extends TestCase
      */
     public function test_it_has_many_students(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $students = $this->fakeStudent($school, 5);
@@ -37,8 +35,6 @@ class ClassroomGroupTest extends TestCase
      */
     public function test_it_can_determine_if_it_is_the_default_classroom_group(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($teacher);

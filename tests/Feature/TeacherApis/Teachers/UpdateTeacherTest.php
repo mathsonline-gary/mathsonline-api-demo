@@ -46,8 +46,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_teacher_admins_can_update_personal_profile(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
 
@@ -69,8 +67,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_non_admin_teachers_can_update_personal_profile(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeNonAdminTeacher($school);
 
@@ -92,8 +88,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_non_admin_teachers_cannot_update_is_admin_attribute(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeNonAdminTeacher($school);
 
@@ -114,8 +108,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_teacher_admins_can_update_teachers_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -139,8 +131,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_non_admin_teachers_are_unauthorised_to_update_other_teachers_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -158,8 +148,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_teacher_admins_are_unauthorised_to_update_teachers_in_other_schools(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -178,8 +166,6 @@ class UpdateTeacherTest extends TestCase
      */
     public function test_non_admin_teachers_are_unauthorised_to_update_teachers_in_other_schools(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 

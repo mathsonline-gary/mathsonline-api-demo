@@ -27,8 +27,6 @@ class DeleteTeacherTest extends TestCase
 
     public function test_teacher_admins_can_delete_teachers_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacherAdmin = $this->fakeAdminTeacher($school);
@@ -84,8 +82,6 @@ class DeleteTeacherTest extends TestCase
 
     public function test_teacher_admins_are_unauthorised_to_delete_teachers_in_another_school()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -108,8 +104,6 @@ class DeleteTeacherTest extends TestCase
 
     public function test_teacher_admins_are_unauthorised_to_delete_teachers_who_own_classrooms()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacherAdmin = $this->fakeAdminTeacher($school);
@@ -139,8 +133,6 @@ class DeleteTeacherTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorised_to_delete_teachers()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);

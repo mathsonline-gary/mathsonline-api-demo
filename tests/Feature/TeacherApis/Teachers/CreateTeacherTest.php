@@ -44,8 +44,6 @@ class CreateTeacherTest extends TestCase
 
     public function test_teacher_admins_can_add_a_teacher_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -86,8 +84,6 @@ class CreateTeacherTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorized_to_add_teacher(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);

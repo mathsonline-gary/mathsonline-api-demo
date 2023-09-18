@@ -25,4 +25,4 @@ require __DIR__ . '/auth/auth-admins.php';
 
 require __DIR__ . '/auth/auth-developers.php';
 
-require __DIR__ . '/auth/auth-tutors.php';
+require __DIR__ . '/auth/auth-members.php';

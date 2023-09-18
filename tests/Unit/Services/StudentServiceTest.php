@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Models\Users\Student;
 use App\Services\StudentService;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -14,13 +13,6 @@ class StudentServiceTest extends TestCase
     use RefreshDatabase;
 
     protected StudentService $studentService;
-
-    /**
-     * Run MarketSeeder before each test.
-     *
-     * @var string
-     */
-    protected string $seeder = MarketSeeder::class;
 
     protected function setUp(): void
     {

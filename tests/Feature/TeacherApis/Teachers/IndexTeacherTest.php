@@ -20,8 +20,6 @@ class IndexTeacherTest extends TestCase
 
     public function test_admin_teachers_can_only_get_the_list_of_teachers_in_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -62,8 +60,6 @@ class IndexTeacherTest extends TestCase
 
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -79,8 +75,6 @@ class IndexTeacherTest extends TestCase
 
     public function test_admin_teachers_can_fuzzy_search_teachers(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacherAdmin = $this->fakeAdminTeacher($school, 1, [

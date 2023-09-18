@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Web\Tutors;
+namespace App\Http\Controllers\Web\Members;
 
 use App\Http\Controllers\Web\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use App\Services\AuthService;
 use App\Services\SchoolService;
-use App\Services\TutorService;
+use App\Services\MemberService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -23,7 +23,7 @@ class AuthController extends Controller
     public function __construct(
         protected AuthService   $authService,
         protected SchoolService $schoolService,
-        protected TutorService  $tutorService
+        protected MemberService $memberService
     )
     {
     }
@@ -49,22 +49,22 @@ class AuthController extends Controller
         ]);
 
         try {
-            DB::transaction(function () use ($validated, $request, &$tutor) {
+            DB::transaction(function () use ($validated) {
                 $school = $this->schoolService->create([
                     ...$validated,
                     'name' => $validated['first_name'] . ' ' . $validated['last_name'] . "'s Homeschool",
                     'type' => 'homeschool',
                 ]);
 
-                $tutor = $this->tutorService->create([
+                $member = $this->memberService->create([
                     ...$validated,
                     'type_id' => 1,
                     'school_id' => $school->id,
                 ]);
 
-                event(new Registered($tutor));
+                event(new Registered($member));
 
-                Auth::login($tutor);
+                Auth::login($member);
             });
         } catch (Throwable $exception) {
             Log::error('Failed to register: ', [
@@ -119,12 +119,12 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $tutor = $request->user();
+        $member = $request->user();
 
-        if ($tutor instanceof Tutor) {
+        if ($member instanceof Member) {
             return response()->json([
-                'user' => $tutor,
-                'type' => 'tutor',
+                'user' => $member,
+                'type' => 'member',
             ]);
         }
 

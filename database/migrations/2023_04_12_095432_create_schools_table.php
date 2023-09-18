@@ -52,7 +52,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::table('tutors', function (Blueprint $table) {
+        Schema::table('members', function (Blueprint $table) {
             $table->foreignId('school_id')
                 ->constrained('schools');
         });
@@ -70,7 +70,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('tutors', function (Blueprint $table) {
+        Schema::table('members', function (Blueprint $table) {
             $table->dropForeign(['school_id']);
         });
 

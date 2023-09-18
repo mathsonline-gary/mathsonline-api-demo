@@ -23,8 +23,6 @@ class ClassroomTest extends TestCase
      */
     public function test_it_belongs_to_a_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);
@@ -41,8 +39,6 @@ class ClassroomTest extends TestCase
      */
     public function test_it_belongs_to_an_owner(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);
@@ -59,8 +55,6 @@ class ClassroomTest extends TestCase
      */
     public function test_it_belongs_to_many_secondary_teachers(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);
@@ -82,8 +76,6 @@ class ClassroomTest extends TestCase
      */
     public function test_it_has_many_classroom_groups(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);
@@ -99,8 +91,6 @@ class ClassroomTest extends TestCase
 
     public function test_it_has_one_default_classroom_group()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);
@@ -113,8 +103,6 @@ class ClassroomTest extends TestCase
 
     public function test_it_has_many_custom_classroom_groups()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $owner = $this->fakeAdminTeacher($school);

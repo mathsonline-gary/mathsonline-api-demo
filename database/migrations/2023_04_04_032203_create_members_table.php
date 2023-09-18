@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('tutors', function (Blueprint $table) {
+        Schema::create('members', function (Blueprint $table) {
             $table->id();
 
             $table->string('email')
@@ -21,10 +21,7 @@ return new class extends Migration {
             $table->string('last_name');
 
             $table->string('password');
-
-            $table->boolean('is_account_holder')
-                ->default(false);
-
+            
 //            $table->timestamp('email_verified_at')
 //                ->nullable();
 
@@ -37,6 +34,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('tutors');
+        Schema::dropIfExists('members');
     }
 };

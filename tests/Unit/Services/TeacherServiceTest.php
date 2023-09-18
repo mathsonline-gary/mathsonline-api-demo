@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -32,8 +31,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_finds_a_teacher(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacher = Teacher::factory()
@@ -63,8 +60,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_searches_teachers_by_school_id()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
@@ -97,8 +92,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_fuzzy_search_teachers()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacher1 = $this->fakeAdminTeacher($school, 1, ['username' => 'john']);
@@ -136,10 +129,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_returns_search_result_without_pagination(): void
     {
-        $this->seed([
-            MarketSeeder::class
-        ]);
-
         $school = $this->fakeTraditionalSchool();
 
         $this->fakeAdminTeacher($school, 10);
@@ -157,8 +146,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_creates_a_teacher(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $attributes = [
@@ -193,8 +180,6 @@ class TeacherServiceTest extends TestCase
      */
     public function test_it_updates_a_teacher()
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
 
         $teacher = $this->fakeAdminTeacher($school);

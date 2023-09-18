@@ -40,8 +40,6 @@ class CreateClassroomTest extends TestCase
 
     public function test_admin_teachers_can_create_classrooms_for_teachers_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
@@ -66,8 +64,6 @@ class CreateClassroomTest extends TestCase
 
     public function test_admin_teachers_cannot_create_classrooms_for_teachers_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
 
@@ -86,8 +82,6 @@ class CreateClassroomTest extends TestCase
 
     public function test_non_admin_teachers_can_create_classrooms_for_themselves(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
@@ -111,8 +105,6 @@ class CreateClassroomTest extends TestCase
 
     public function test_non_admin_teachers_cannot_create_classrooms_for_other_teachers_in_the_same_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
@@ -129,8 +121,6 @@ class CreateClassroomTest extends TestCase
 
     public function test_non_admin_teachers_cannot_create_classrooms_for_other_teachers_in_another_school(): void
     {
-        $this->seed([MarketSeeder::class]);
-
         $school1 = $this->fakeTraditionalSchool();
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
 

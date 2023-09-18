@@ -4,7 +4,7 @@ use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
+use App\Models\Users\Member;
 use App\Models\Users\User;
 
 return [
@@ -48,9 +48,9 @@ return [
             'provider' => 'users',
         ],
 
-        'tutor' => [
+        'member' => [
             'driver' => 'session',
-            'provider' => 'tutors',
+            'provider' => 'members',
         ],
 
         'teacher' => [
@@ -97,9 +97,9 @@ return [
             'model' => User::class,
         ],
 
-        'tutors' => [
+        'members' => [
             'driver' => 'eloquent',
-            'model' => Tutor::class,
+            'model' => Member::class,
         ],
 
         'teachers' => [
@@ -155,8 +155,8 @@ return [
             'throttle' => 60,
         ],
 
-        'tutors' => [
-            'provider' => 'tutors',
+        'members' => [
+            'provider' => 'members',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

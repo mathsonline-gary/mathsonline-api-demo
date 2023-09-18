@@ -2,19 +2,50 @@
 
 namespace Tests\Feature\TeacherApis\Auth;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Http\Controllers\Web\Teachers\AuthController;
 use Tests\TestCase;
 
 class AuthenticatedTeacherTest extends TestCase
 {
     /**
-     * A basic feature test example.
+     * @see AuthController::me()
      */
-    public function test_example(): void
+    public function test_an_admin_teacher_can_view_their_personal_profile(): void
     {
-        $response = $this->get('/');
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeAdminTeacher($school);
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->getJson(route('api.teachers.v1.me'));
 
         $response->assertStatus(200);
+        $response->assertJsonFragment(['id' => $teacher->id]);
+    }
+
+    /**
+     * @see AuthController::me()
+     */
+    public function test_a_non_admin_teacher_can_view_their_personal_profile(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacher = $this->fakeNonAdminTeacher($school);
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->getJson(route('api.teachers.v1.me'));
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['id' => $teacher->id]);
+    }
+
+    /**
+     * @see AuthController::me()
+     */
+    public function test_a_teacher_cannot_view_their_personal_profile_if_not_authenticated(): void
+    {
+        $response = $this->getJson(route('api.teachers.v1.me'));
+
+        $response->assertUnauthorized();
     }
 }

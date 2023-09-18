@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Tutor;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class School extends Model
 {
@@ -33,17 +34,17 @@ class School extends Model
     public const TYPE_HOMESCHOOL = '2';
 
     /**
-     * Get the school's tutors.
+     * Get the owner of the school (homeschool).
      *
-     * @return HasMany
+     * @return HasOne
      */
-    public function tutors(): HasMany
+    public function owner(): HasOne
     {
-        return $this->hasMany(Tutor::class);
+        return $this->hasOne(Member::class);
     }
 
     /**
-     * Get the school's teachers.
+     * Get the teachers of the school (traditional school).
      *
      * @return HasMany
      */

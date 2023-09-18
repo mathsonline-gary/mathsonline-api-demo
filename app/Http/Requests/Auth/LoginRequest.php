@@ -37,7 +37,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => [
-                Rule::requiredIf($this->guard === 'tutor'),
+                Rule::requiredIf($this->guard === 'member'),
                 'string',
                 'email',
             ],
@@ -58,7 +58,7 @@ class LoginRequest extends FormRequest
     protected function passedValidation(): void
     {
         switch ($this->guard) {
-            case 'tutor':
+            case 'member':
                 $this->credentials = $this->only('email', 'password');
                 $this->primaryInputKey = 'email';
 
