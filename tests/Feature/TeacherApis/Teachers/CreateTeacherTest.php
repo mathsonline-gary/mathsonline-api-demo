@@ -5,8 +5,8 @@ namespace Tests\Feature\TeacherApis\Teachers;
 use App\Events\Teachers\TeacherCreated;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Models\Users\Teacher;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
@@ -42,13 +42,13 @@ class CreateTeacherTest extends TestCase
         ];
     }
 
-    public function test_teacher_admins_can_add_a_teacher_in_the_same_school(): void
+    public function test_an_admin_teacher_can_add_a_teacher_into_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
 
-        $oldTeachersCount = Teacher::count();
+        $teachersCount = Teacher::count();
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -56,9 +56,6 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
-
-        // Assert that the count of teachers increased by 1.
-        $this->assertEquals($oldTeachersCount + 1, Teacher::count());
 
         // Assert that the response has correct data of the new teacher.
         $response->assertJsonFragment([
@@ -80,15 +77,28 @@ class CreateTeacherTest extends TestCase
             return $event->creator->id === $adminTeacher->id &&
                 $event->teacher->username === $this->payload['username'];
         });
+
+        // Assert that the teacher was created in the database.
+        $this->assertEquals($teachersCount + 1, Teacher::count());
+        $this->assertDatabaseHas('teachers', Arr::only($this->payload, [
+            'school_id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'position',
+            'title',
+            'is_admin',
+        ]));
     }
 
-    public function test_non_admin_teachers_are_unauthorized_to_add_teacher(): void
+    public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher(): void
     {
         $school = $this->fakeTraditionalSchool();
 
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $oldTeachersCount = Teacher::count();
+        $teachersCount = Teacher::count();
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -98,6 +108,12 @@ class CreateTeacherTest extends TestCase
         $response->assertForbidden();
 
         // Assert that the count of teachers did not change.
-        $this->assertEquals($oldTeachersCount, Teacher::count());
+        $this->assertEquals($teachersCount, Teacher::count());
+
+        // Assert that the TeacherCreated event was not dispatched.
+        Event::assertNotDispatched(TeacherCreated::class);
+
+        // Assert that the teacher was not created in the database.
+        $this->assertDatabaseMissing('teachers', Arr::only($this->payload, ['username']));
     }
 }

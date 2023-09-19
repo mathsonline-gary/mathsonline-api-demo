@@ -106,6 +106,11 @@ class TeacherController extends Controller
             $validated = Arr::except($validated, 'is_admin');
         }
 
+        // Prevent admin teachers from changing their own admin access.
+        if ($authenticatedTeacher->isAdmin() && $authenticatedTeacher->id === $teacher->id) {
+            $validated = Arr::except($validated, 'is_admin');
+        }
+
         $beforeAttributes = $teacher->getAttributes();
 
         $updatedTeacher = $this->teacherService->update($teacher, $validated);

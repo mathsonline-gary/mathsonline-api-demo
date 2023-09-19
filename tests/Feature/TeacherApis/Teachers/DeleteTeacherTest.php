@@ -3,11 +3,8 @@
 namespace Tests\Feature\TeacherApis\Teachers;
 
 use App\Events\Teachers\TeacherDeleted;
-use App\Models\Users\Teacher;
-use App\Services\TeacherService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-use Mockery\MockInterface;
 use Tests\TestCase;
 
 /**
@@ -20,17 +17,11 @@ class DeleteTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected MockInterface $TeacherServiceSpy;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Event::fake();
-
-        // Spy on the TeacherService.
-        $this->TeacherServiceSpy = $this->spy(TeacherService::class);
-        $this->app->instance(TeacherService::class, $this->TeacherServiceSpy);
     }
 
     public function test_an_admin_teacher_can_delete_a_teacher_in_their_school(): void
@@ -57,15 +48,18 @@ class DeleteTeacherTest extends TestCase
 
         $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
 
-        // Assert that the 'delete' service method was called.
-        $this->TeacherServiceSpy->shouldHaveReceived('delete')
-            ->once()
-            ->withArgs(function (Teacher $arg) use ($teacher) {
-                return $arg->id === $teacher->id;
-            });
-
         // Assert that the response returns no content
         $response->assertNoContent();
+
+        // Assert that $teacher is soft-deleted
+        $this->assertSoftDeleted('teachers', ['id' => $teacher->id]);
+
+        // Assert that $teacher is removed as the owner of $classroom2, and as a secondary teacher of $classroom1.
+        $this->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => null])
+            ->assertDatabaseMissing('classroom_secondary_teacher', [
+                'classroom_id' => $classroom1->id,
+                'teacher_id' => $teacher->id,
+            ]);
 
         // Assert that TeacherDeleted event was dispatched.
         Event::assertDispatched(TeacherDeleted::class, function ($event) use ($teacherAdmin, $teacher) {
@@ -94,6 +88,9 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+
+        // Assert that TeacherDeleted event was not dispatched.
+        Event::assertNotDispatched(TeacherDeleted::class);
     }
 
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_their_school()
@@ -115,6 +112,9 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+
+        // Assert that TeacherDeleted event was not dispatched.
+        Event::assertNotDispatched(TeacherDeleted::class);
     }
 
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school()
@@ -137,5 +137,8 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
+
+        // Assert that TeacherDeleted event was not dispatched.
+        Event::assertNotDispatched(TeacherDeleted::class);
     }
 }

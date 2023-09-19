@@ -211,16 +211,16 @@ class TeacherServiceTest extends TestCase
         $this->assertFalse($teacher->is_admin);
 
         // Assert that the teacher was updated correctly.
-        $updatedTeacher = Teacher::find($teacher->id);
-        $this->assertEquals($teacher->school_id, $updatedTeacher->school_id);
-        $this->assertEquals($attributes['username'], $updatedTeacher->username);
-        $this->assertEquals($attributes['email'], $updatedTeacher->email);
-        $this->assertTrue(Hash::check($attributes['password'], $updatedTeacher->password));
-        $this->assertEquals($attributes['first_name'], $updatedTeacher->first_name);
-        $this->assertEquals($attributes['last_name'], $updatedTeacher->last_name);
-        $this->assertEquals($attributes['title'], $updatedTeacher->title);
-        $this->assertEquals($attributes['position'], $updatedTeacher->position);
-        $this->assertFalse($updatedTeacher->is_admin);
+        $teacher->refresh();
+        $this->assertEquals($teacher->school_id, $teacher->school_id);
+        $this->assertEquals($attributes['username'], $teacher->username);
+        $this->assertEquals($attributes['email'], $teacher->email);
+        $this->assertTrue(Hash::check($attributes['password'], $teacher->password));
+        $this->assertEquals($attributes['first_name'], $teacher->first_name);
+        $this->assertEquals($attributes['last_name'], $teacher->last_name);
+        $this->assertEquals($attributes['title'], $teacher->title);
+        $this->assertEquals($attributes['position'], $teacher->position);
+        $this->assertFalse($teacher->is_admin);
     }
 
     /**
