@@ -27,7 +27,7 @@ return new class extends Migration {
 
             $table->string('password');
 
-            $table->string('title')
+            $table->string('title', 16)
                 ->nullable();
 
             $table->string('position')

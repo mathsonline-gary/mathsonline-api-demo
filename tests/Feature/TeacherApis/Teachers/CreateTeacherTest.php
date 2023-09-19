@@ -36,13 +36,13 @@ class CreateTeacherTest extends TestCase
             'password' => 'password',
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
-            'position' => fake()->jobTitle,
+            'position' => fake()->word,
             'title' => 'Mr',
             'is_admin' => fake()->boolean,
         ];
     }
 
-    public function test_an_admin_teacher_can_add_a_teacher_into_their_school(): void
+    public function test_an_admin_teacher_can_add_a_teacher_into_their_school()
     {
         $school = $this->fakeTraditionalSchool();
 
@@ -92,7 +92,7 @@ class CreateTeacherTest extends TestCase
         ]));
     }
 
-    public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher(): void
+    public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher()
     {
         $school = $this->fakeTraditionalSchool();
 
@@ -115,5 +115,30 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the teacher was not created in the database.
         $this->assertDatabaseMissing('teachers', Arr::only($this->payload, ['username']));
+    }
+
+    public function test_the_username_should_be_unique()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $teachersCount = Teacher::count();
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['username'] = $adminTeacher->username;
+
+        $response = $this->postJson(route('api.teachers.v1.teachers.store', $this->payload));
+
+        // Assert that the response has a 422 “Unprocessable Entity” status code.
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['username']);
+
+        // Assert that the count of teachers did not change.
+        $this->assertEquals($teachersCount, Teacher::count());
+
+        // Assert that the TeacherCreated event was not dispatched.
+        Event::assertNotDispatched(TeacherCreated::class);
     }
 }

@@ -6,6 +6,7 @@ use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\TeacherRequests\StoreTeacherRequest;
 use App\Http\Requests\TeacherRequests\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
@@ -13,7 +14,6 @@ use App\Services\AuthService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rules\Password;
 
 class TeacherController extends Controller
 {
@@ -51,7 +51,7 @@ class TeacherController extends Controller
         return new TeacherResource($teacher);
     }
 
-    public function store(Request $request)
+    public function store(StoreTeacherRequest $request)
     {
         // Authorize the request.
         $this->authorize('create', Teacher::class);
@@ -59,15 +59,15 @@ class TeacherController extends Controller
         // Get the authenticated teacher.
         $authenticatedTeacher = $this->authService->teacher();
 
-        $validated = $request->validate([
-            'username' => ['required', 'string', 'unique:teachers'],
-            'email' => ['nullable', 'email'],
-            'first_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'password' => ['required', 'string', Password::defaults()],
-            'title' => ['nullable', 'string', 'max:255'],
-            'position' => ['nullable', 'string', 'max:255'],
-            'is_admin' => ['boolean'],
+        $validated = $request->safe()->only([
+            'username',
+            'email',
+            'password',
+            'first_name',
+            'last_name',
+            'title',
+            'position',
+            'is_admin',
         ]);
 
         $attributes = [
