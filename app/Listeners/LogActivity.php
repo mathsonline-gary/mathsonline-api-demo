@@ -43,17 +43,17 @@ class LogActivity
         // Handle teacher events
         // ----------------------------------------------------------------------------------------------------
         if ($event instanceof TeacherCreated) {
-            $this->activityService->create($event->creator, ActivityTypes::CREATED_TEACHER, $event->createdAt, ['teacher' => $event->teacher]);
+            $this->activityService->create($event->creator, ActivityTypes::CREATED_TEACHER, $event->createdAt, ['teacher_id' => $event->teacher->id]);
         }
 
         if ($event instanceof TeacherDeleted) {
-            $this->activityService->create($event->actor, ActivityTypes::DELETED_TEACHER, $event->deletedAt, ['teacher' => $event->teacher]);
+            $this->activityService->create($event->actor, ActivityTypes::DELETED_TEACHER, $event->deletedAt, ['teacher_id' => $event->teacher->id]);
         }
 
         if ($event instanceof TeacherUpdated) {
-            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->after->updated_at, [
+            $this->activityService->create($event->actor, ActivityTypes::UPDATED_TEACHER, $event->updatedAt, [
                 'before' => $event->before,
-                'after' => $event->after->getAttributes(),
+                'after' => $event->after,
             ]);
         }
         // ----------------------------------------------------------------------------------------------------
