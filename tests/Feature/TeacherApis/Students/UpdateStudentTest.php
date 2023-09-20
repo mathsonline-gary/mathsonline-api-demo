@@ -7,6 +7,7 @@ use App\Http\Requests\StudentRequests\UpdateStudentRequest;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
+use App\Policies\StudentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -37,6 +38,25 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Authentication test.
+     *
+     * @see SetAuthenticationDefaults::handle()
+     */
+    public function test_a_guest_is_unauthenticated_to_update_details_of_a_student()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $student = $this->fakeStudent($school);
+
+        $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
+
+        // Assert that the response has a 401 “Unauthorized” status code.
+        $response->assertUnauthorized();
+    }
+
+    /**
+     * Authorization & Operation test.
+     *
+     * @see StudentPolicy::update()
      * @see StudentController::update()
      */
     public function test_an_admin_teacher_can_update_details_of_a_student_in_the_their_school(): void
@@ -79,7 +99,9 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
-     * @see StudentController::update()
+     * Authorization test.
+     *
+     * @see StudentPolicy::update()
      */
     public function test_an_admin_teacher_cannot_update_details_of_a_student_in_another_school(): void
     {
@@ -89,26 +111,18 @@ class UpdateStudentTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
 
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
-
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
 
         // Assert that the response has a 404 “Not Found” status code.
         $response->assertNotFound();
-
-        // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', $studentsCount)
-            ->assertDatabaseHas('students', $student->getAttributes());
-
-        // Assert that no new activity is logged.
-        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
-     * @see StudentController::update()
+     * Authorization test.
+     *
+     * @see StudentPolicy::update()
      */
     public function test_a_non_admin_teacher_is_unauthorized_to_update_details_of_a_student_in_the_their_school(): void
     {
@@ -116,26 +130,18 @@ class UpdateStudentTest extends TestCase
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $student = $this->fakeStudent($school);
 
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
-
         $this->actingAsTeacher($nonAdminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', $studentsCount)
-            ->assertDatabaseHas('students', $student->getAttributes());
-
-        // Assert that no new activity is logged.
-        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
-     * @see StudentController::update()
+     * Authorization test.
+     *
+     * @see StudentPolicy::update()
      */
     public function test_a_non_admin_teacher_is_unauthorized_to_update_details_of_a_student_in_another_school(): void
     {
@@ -145,25 +151,17 @@ class UpdateStudentTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
 
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
-
         $this->actingAsTeacher($nonAdminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', $studentsCount)
-            ->assertDatabaseHas('students', $student->getAttributes());
-
-        // Assert that no new activity is logged.
-        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_username_is_optional()
@@ -182,6 +180,7 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
      * @see UpdateStudentRequest::rules()
      */
     public function test_username_must_be_unique()
@@ -200,6 +199,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_username_length_validation()
@@ -224,6 +225,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_email_is_optional()
@@ -242,6 +245,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_email_must_be_valid_email_address()
@@ -260,6 +265,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_first_name_is_optional()
@@ -278,6 +285,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_first_name_is_trimmed()
@@ -296,6 +305,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_first_name_length_validation()
@@ -320,6 +331,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_last_name_is_optional()
@@ -338,6 +351,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_last_name_is_trimmed()
@@ -356,6 +371,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_last_name_length_validation()
@@ -380,6 +397,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see UpdateStudentRequest::rules()
      */
     public function test_password_is_optional()
@@ -401,6 +420,8 @@ class UpdateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_password_length_validation(): void

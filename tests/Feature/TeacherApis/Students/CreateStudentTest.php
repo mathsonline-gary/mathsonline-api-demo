@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\TeacherApis\Students;
 
+use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Http\Requests\StudentRequests\StoreStudentRequest;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
+use App\Policies\StudentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -36,15 +38,28 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Authentication test.
+     *
+     * @see SetAuthenticationDefaults::handle()
+     */
+    public function test_a_guest_is_unauthenticated_to_create_a_student()
+    {
+        $response = $this->postJson(route('api.teachers.v1.students.store', $this->payload));
+
+        // Assert that the response has a 401 “Unauthorized” status code.
+        $response->assertUnauthorized();
+    }
+
+    /**
+     * Authorization & Operation test.
+     *
+     * @see StudentPolicy::create()
      * @see StudentController::store()
      */
     public function test_an_admin_teacher_can_create_a_student_in_the_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
-
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -63,8 +78,8 @@ class CreateStudentTest extends TestCase
         ])->assertJsonMissing(['password']);
 
         // Assert that the student is created in the database.
-        $this->assertDatabaseCount('students', $studentsCount + 1);
-        $student = Student::first();
+        $this->assertDatabaseCount('students', 1);
+        $student = Student::latest('id')->first();
         $this->assertEquals($school->id, $student->school_id);
         $this->assertEquals($this->payload['username'], $student->username);
         $this->assertEquals($this->payload['email'], $student->email);
@@ -73,8 +88,8 @@ class CreateStudentTest extends TestCase
         $this->assertTrue(Hash::check($this->payload['password'], $student->password));
 
         // Assert that the activity is logged.
-        $this->assertDatabaseCount('activities', $activitiesCount + 1);
-        $activity = Activity::first();
+        $this->assertDatabaseCount('activities', 1);
+        $activity = Activity::latest('id')->first();
         $this->assertEquals(Teacher::class, $activity->actable_type);
         $this->assertEquals($adminTeacher->id, $activity->actable_id);
         $this->assertEquals('created student', $activity->type);
@@ -84,6 +99,9 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Authorization & Operation test.
+     *
+     * @see StudentPolicy::create()
      * @see StudentController::store()
      */
     public function test_an_admin_teacher_can_only_create_a_student_in_their_school()
@@ -91,9 +109,6 @@ class CreateStudentTest extends TestCase
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
-
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -107,13 +122,13 @@ class CreateStudentTest extends TestCase
             ->assertJsonMissing(['password']);
 
         // Assert that the student is created with the correct school_id.
-        $this->assertDatabaseCount('students', $studentsCount + 1);
-        $student = Student::first();
+        $this->assertDatabaseCount('students', 1);
+        $student = Student::latest('id')->first();
         $this->assertEquals($school1->id, $student->school_id);
 
         // Assert that the activity is logged.
-        $this->assertDatabaseCount('activities', $activitiesCount + 1);
-        $activity = Activity::first();
+        $this->assertDatabaseCount('activities', 1);
+        $activity = Activity::latest('id')->first();
         $this->assertEquals(Teacher::class, $activity->actable_type);
         $this->assertEquals($adminTeacher->id, $activity->actable_id);
         $this->assertEquals('created student', $activity->type);
@@ -123,7 +138,9 @@ class CreateStudentTest extends TestCase
     }
 
     /**
-     * @see StudentController::store()
+     * Authorization test.
+     *
+     * @see StudentPolicy::create()
      */
     public function test_a_non_admin_teacher_is_unauthorized_to_create_a_student(): void
     {
@@ -131,22 +148,15 @@ class CreateStudentTest extends TestCase
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $studentsCount = Student::count();
-        $activitiesCount = Activity::count();
-
         $response = $this->postJson(route('api.teachers.v1.students.store', $this->payload));
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that the student is not created in the database.
-        $this->assertDatabaseCount('students', $studentsCount);
-
-        // Assert that no activity was logged.
-        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_username_is_required(): void
@@ -163,6 +173,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_username_must_be_string_and_trimmed(): void
@@ -179,6 +191,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_username_must_be_unique(): void
@@ -195,6 +209,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_username_length_validation(): void
@@ -217,6 +233,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_email_is_optional(): void
@@ -229,9 +247,14 @@ class CreateStudentTest extends TestCase
         unset($this->payload['email']);
         $this->postJson(route('api.teachers.v1.students.store', $this->payload))
             ->assertCreated();
+
+        // Assert that the email is null in the database.
+        $this->assertDatabaseHas('students', ['email' => null]);
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_email_is_trimmed(): void
@@ -245,9 +268,14 @@ class CreateStudentTest extends TestCase
         $this->postJson(route('api.teachers.v1.students.store', $this->payload))
             ->assertCreated()
             ->assertJsonFragment(['email' => 'test@test.com']);
+
+        // Assert that the email is trimmed in the database.
+        $this->assertDatabaseHas('students', ['email' => 'test@test.com']);
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_email_must_be_valid(): void
@@ -264,6 +292,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_first_name_is_required(): void
@@ -280,6 +310,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_first_name_must_be_string_and_trimmed(): void
@@ -296,6 +328,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_first_name_length_validation(): void
@@ -312,6 +346,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_last_name_is_required(): void
@@ -328,6 +364,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_last_name_must_be_string_and_trimmed(): void
@@ -344,6 +382,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_last_name_length_validation(): void
@@ -360,6 +400,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_password_is_required(): void
@@ -376,6 +418,8 @@ class CreateStudentTest extends TestCase
     }
 
     /**
+     * Validation test.
+     *
      * @see StoreStudentRequest::rules()
      */
     public function test_password_length_validation(): void

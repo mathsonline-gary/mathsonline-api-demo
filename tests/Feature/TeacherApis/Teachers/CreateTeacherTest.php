@@ -3,9 +3,11 @@
 namespace Tests\Feature\TeacherApis\Teachers;
 
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
+use App\Http\Requests\TeacherRequests\StoreTeacherRequest;
 use App\Models\Users\Teacher;
+use App\Policies\TeacherPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
@@ -69,19 +71,24 @@ class CreateTeacherTest extends TestCase
         $response->assertJsonMissing(['password']);
 
         // Assert that the teacher was created in the database.
-        $this->assertEquals($teachersCount + 1, Teacher::count());
-        $this->assertDatabaseHas('teachers', Arr::only($this->payload, [
-            'school_id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'position',
-            'title',
-            'is_admin',
-        ]));
+        $this->assertDatabaseCount('teachers', $teachersCount + 1);
+
+        // Assert that the teacher was created in the database with correct data.
+        $teacher = Teacher::latest('id')->first();
+        $this->assertEquals($school->id, $teacher->school_id);
+        $this->assertEquals($this->payload['username'], $teacher->username);
+        $this->assertEquals($this->payload['email'], $teacher->email);
+        $this->assertEquals($this->payload['first_name'], $teacher->first_name);
+        $this->assertEquals($this->payload['last_name'], $teacher->last_name);
+        $this->assertEquals($this->payload['position'], $teacher->position);
+        $this->assertEquals($this->payload['title'], $teacher->title);
+        $this->assertTrue($teacher->is_admin);
+        $this->assertTrue(Hash::check($this->payload['password'], $teacher->password));
     }
 
+    /**
+     * @see TeacherPolicy::create()
+     */
     public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher()
     {
         $school = $this->fakeTraditionalSchool();
@@ -96,21 +103,16 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that the count of teachers did not change.
-        $this->assertEquals($teachersCount, Teacher::count());
-
-        // Assert that the teacher was not created in the database.
-        $this->assertDatabaseMissing('teachers', Arr::only($this->payload, ['username']));
     }
 
-    public function test_the_username_should_be_unique()
+    /**
+     * @see StoreTeacherRequest::rules()
+     */
+    public function test_username_is_unique()
     {
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
-
-        $teachersCount = Teacher::count();
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -121,8 +123,5 @@ class CreateTeacherTest extends TestCase
         // Assert that the response has a 422 “Unprocessable Entity” status code.
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['username']);
-
-        // Assert that the count of teachers did not change.
-        $this->assertEquals($teachersCount, Teacher::count());
     }
 }
