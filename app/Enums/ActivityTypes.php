@@ -50,5 +50,5 @@ enum ActivityTypes: string
     */
     case CREATED_STUDENT = 'created student';
     case UPDATED_STUDENT = 'updated student';
-    case SOFT_DELETED_STUDENT = 'soft deleted student';
+    case DELETED_STUDENT = 'deleted student';
 }
