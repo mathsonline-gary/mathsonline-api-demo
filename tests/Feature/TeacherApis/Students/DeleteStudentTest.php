@@ -33,7 +33,7 @@ class DeleteStudentTest extends TestCase
     }
 
     /**
-     * Authorization & Options test.
+     * Authorization & Operation test.
      *
      * @see StudentPolicy::destroy()
      * @see StudentController::destroy()

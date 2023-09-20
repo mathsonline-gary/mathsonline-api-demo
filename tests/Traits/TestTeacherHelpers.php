@@ -11,13 +11,15 @@ trait TestTeacherHelpers
     /**
      * Create fake teacher(s) with admin access.
      *
-     * @param School $school
+     * @param School|null $school
      * @param int $count
      * @param array $attributes
      * @return Collection<Teacher>|Teacher
      */
-    public function fakeAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
+    public function fakeAdminTeacher(School $school = null, int $count = 1, array $attributes = []): Collection|Teacher
     {
+        $school ??= $this->fakeTraditionalSchool();
+
         $teachers = Teacher::factory()
             ->count($count)
             ->admin()
@@ -32,13 +34,15 @@ trait TestTeacherHelpers
     /**
      * Create non-admin teacher(s) in a given school.
      *
-     * @param School $school
+     * @param School|null $school
      * @param int $count
      * @param array $attributes
      * @return Collection<Teacher>|Teacher
      */
-    public function fakeNonAdminTeacher(School $school, int $count = 1, array $attributes = []): Collection|Teacher
+    public function fakeNonAdminTeacher(School $school = null, int $count = 1, array $attributes = []): Collection|Teacher
     {
+        $school ??= $this->fakeTraditionalSchool();
+        
         $teachers = Teacher::factory()
             ->count($count)
             ->nonAdmin()

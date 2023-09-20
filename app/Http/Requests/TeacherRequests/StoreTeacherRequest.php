@@ -18,12 +18,12 @@ class StoreTeacherRequest extends FormRequest
         return [
             'username' => ['required', 'string', 'min:3', 'max:32', 'unique:teachers'],
             'email' => ['nullable', 'email', 'min:4', 'max:128'],
-            'first_name' => ['required', 'string', 'min:1', 'max:255'],
-            'last_name' => ['required', 'string', 'min:1', 'max:255'],
-            'password' => ['string', Password::defaults(), 'min:4', 'max:32'],
+            'first_name' => ['required', 'string', 'max:32'],
+            'last_name' => ['required', 'string', 'max:32'],
+            'password' => ['required', 'string', Password::defaults(), 'min:4', 'max:32'],
             'title' => ['nullable', 'string', 'max:16'],
             'position' => ['nullable', 'string', 'max:128'],
-            'is_admin' => ['boolean'],
+            'is_admin' => ['required', 'boolean'],
         ];
     }
 }
