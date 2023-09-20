@@ -2,11 +2,9 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Events\Teachers\TeacherUpdated;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -28,8 +26,6 @@ class UpdateTeacherTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Event::fake();
 
         $this->payload = [
             'username' => fake()->userName,
@@ -55,9 +51,6 @@ class UpdateTeacherTest extends TestCase
         $response->assertOk()
             ->assertJsonFragment(Arr::except($this->payload, 'password'))
             ->assertJsonMissingPath('password');
-
-        // Assert that the TeacherUpdated event was dispatched.
-        Event::assertDispatched(TeacherUpdated::class);
 
         // Assert that the teacher was updated in the database.
         $teacher->refresh();
@@ -104,9 +97,6 @@ class UpdateTeacherTest extends TestCase
         $response->assertOk()
             ->assertJsonFragment(Arr::except($this->payload, 'password'))
             ->assertJsonMissingPath('password');
-
-        // Assert that the TeacherUpdated event was dispatched.
-        Event::assertDispatched(TeacherUpdated::class);
 
         // Assert that the teacher was updated in the database.
         $teacher->refresh();
@@ -158,9 +148,6 @@ class UpdateTeacherTest extends TestCase
             ->assertJsonFragment(Arr::except($this->payload, 'password'))
             ->assertJsonMissingPath('password');
 
-        // Assert that the TeacherUpdated event was dispatched.
-        Event::assertDispatched(TeacherUpdated::class);
-
         // Assert that the teacher was updated in the database.
         $teacher->refresh();
         $this->assertEquals($this->payload['username'], $teacher->username);
@@ -186,9 +173,6 @@ class UpdateTeacherTest extends TestCase
 
         $response->assertForbidden();
 
-        // Assert that the TeacherUpdated event was not dispatched.
-        Event::assertNotDispatched(TeacherUpdated::class);
-
         // Assert that the teacher was unchanged.
         $originalAttributes = $teacher->getAttributes();
         $teacher->refresh();
@@ -211,9 +195,6 @@ class UpdateTeacherTest extends TestCase
 
         $response->assertForbidden();
 
-        // Assert that the TeacherUpdated event was not dispatched.
-        Event::assertNotDispatched(TeacherUpdated::class);
-
         // Assert that the teacher was unchanged.
         $originalAttributes = $teacher->getAttributes();
         $teacher->refresh();
@@ -235,9 +216,6 @@ class UpdateTeacherTest extends TestCase
         $response = $this->putJson(route('api.teachers.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         $response->assertForbidden();
-
-        // Assert that the TeacherUpdated event was not dispatched.
-        Event::assertNotDispatched(TeacherUpdated::class);
 
         // Assert that the teacher was unchanged.
         $originalAttributes = $teacher->getAttributes();

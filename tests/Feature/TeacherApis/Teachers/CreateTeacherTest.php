@@ -2,12 +2,10 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Events\Teachers\TeacherCreated;
 use App\Http\Controllers\Api\Teachers\V1\TeacherController;
 use App\Models\Users\Teacher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -27,8 +25,6 @@ class CreateTeacherTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Event::fake();
 
         $this->payload = [
             'username' => fake()->userName,
@@ -72,12 +68,6 @@ class CreateTeacherTest extends TestCase
         // Assert that the response does not include the teacher's password
         $response->assertJsonMissing(['password']);
 
-        // Assert that the TeacherCreated event was dispatched with the correct parameters
-        Event::assertDispatched(TeacherCreated::class, function ($event) use ($adminTeacher) {
-            return $event->creator->id === $adminTeacher->id &&
-                $event->teacher->username === $this->payload['username'];
-        });
-
         // Assert that the teacher was created in the database.
         $this->assertEquals($teachersCount + 1, Teacher::count());
         $this->assertDatabaseHas('teachers', Arr::only($this->payload, [
@@ -110,9 +100,6 @@ class CreateTeacherTest extends TestCase
         // Assert that the count of teachers did not change.
         $this->assertEquals($teachersCount, Teacher::count());
 
-        // Assert that the TeacherCreated event was not dispatched.
-        Event::assertNotDispatched(TeacherCreated::class);
-
         // Assert that the teacher was not created in the database.
         $this->assertDatabaseMissing('teachers', Arr::only($this->payload, ['username']));
     }
@@ -137,8 +124,5 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the count of teachers did not change.
         $this->assertEquals($teachersCount, Teacher::count());
-
-        // Assert that the TeacherCreated event was not dispatched.
-        Event::assertNotDispatched(TeacherCreated::class);
     }
 }

@@ -8,7 +8,7 @@ use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
 use App\Events\Students\StudentCreated;
-use App\Events\Students\StudentSoftDeleted;
+use App\Events\Students\StudentDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
@@ -77,11 +77,11 @@ class EventServiceProvider extends ServiceProvider
         StudentCreated::class => [
             LogActivity::class,
         ],
-        
+
         StudentUpdated::class => [
             LogActivity::class,
         ],
-        StudentSoftDeleted::class => [
+        StudentDeleted::class => [
             LogActivity::class,
         ],
         // --------------------------------------------------------------------------------

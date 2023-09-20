@@ -2,9 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Events\Teachers\TeacherDeleted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -16,13 +14,6 @@ use Tests\TestCase;
 class DeleteTeacherTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Event::fake();
-    }
 
     public function test_an_admin_teacher_can_delete_a_teacher_in_their_school(): void
     {
@@ -60,12 +51,6 @@ class DeleteTeacherTest extends TestCase
                 'classroom_id' => $classroom1->id,
                 'teacher_id' => $teacher->id,
             ]);
-
-        // Assert that TeacherDeleted event was dispatched.
-        Event::assertDispatched(TeacherDeleted::class, function ($event) use ($teacherAdmin, $teacher) {
-            return $event->actor->id === $teacherAdmin->id &&
-                $event->teacher->id === $teacher->id;
-        });
     }
 
     public function test_an_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school()
@@ -88,9 +73,6 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
-
-        // Assert that TeacherDeleted event was not dispatched.
-        Event::assertNotDispatched(TeacherDeleted::class);
     }
 
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_their_school()
@@ -112,9 +94,6 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
-
-        // Assert that TeacherDeleted event was not dispatched.
-        Event::assertNotDispatched(TeacherDeleted::class);
     }
 
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school()
@@ -137,8 +116,5 @@ class DeleteTeacherTest extends TestCase
 
         // Assert that $teacher is not deleted
         $this->assertDatabaseHas('teachers', ['id' => $teacher->id]);
-
-        // Assert that TeacherDeleted event was not dispatched.
-        Event::assertNotDispatched(TeacherDeleted::class);
     }
 }

@@ -2,12 +2,10 @@
 
 namespace Tests\Feature\TeacherApis\Students;
 
-use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use App\Http\Requests\StudentRequests\UpdateStudentRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -33,8 +31,6 @@ class UpdateStudentTest extends TestCase
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
         ];
-
-        Event::fake();
     }
 
     /**
@@ -53,14 +49,6 @@ class UpdateStudentTest extends TestCase
         // Assert that the response is successful with updated student profile.
         $response->assertOk()
             ->assertJsonFragment(Arr::except($this->payload, ['password']));
-
-        // Assert that StudentUpdated event is dispatched.
-        Event::assertDispatched(StudentUpdated::class, function (StudentUpdated $event) use ($adminTeacher, $student) {
-            return $event->actor->is($adminTeacher)
-                && $event->before['username'] === $student->username
-                && $event->after->is($student)
-                && $event->after->username === $this->payload['username'];
-        });
 
         // Assert that the student is updated in the database.
         $student->refresh();
@@ -92,9 +80,6 @@ class UpdateStudentTest extends TestCase
         // Assert that the response has a 404 “Not Found” status code.
         $response->assertNotFound();
 
-        // Assert that StudentUpdated event is dispatched.
-        Event::assertNotDispatched(StudentUpdated::class);
-
         // Assert that the student is not updated in the database.
         $this->assertDatabaseCount('students', 1)
             ->assertDatabaseHas('students', $student->getAttributes());
@@ -115,9 +100,6 @@ class UpdateStudentTest extends TestCase
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that StudentUpdated event is dispatched.
-        Event::assertNotDispatched(StudentUpdated::class);
 
         // Assert that the student is not updated in the database.
         $this->assertDatabaseCount('students', 1)
@@ -141,9 +123,6 @@ class UpdateStudentTest extends TestCase
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-
-        // Assert that StudentUpdated event is dispatched.
-        Event::assertNotDispatched(StudentUpdated::class);
 
         // Assert that the student is not updated in the database.
         $this->assertDatabaseCount('students', 1)

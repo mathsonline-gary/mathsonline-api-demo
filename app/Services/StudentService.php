@@ -144,7 +144,7 @@ class StudentService
      * @param Student|int $student
      * @return void
      */
-    public function softDelete(Student|int $student): void
+    public function delete(Student|int $student): void
     {
         DB::transaction(function () use ($student) {
             if (is_int($student)) {

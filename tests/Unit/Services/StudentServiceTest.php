@@ -275,7 +275,7 @@ class StudentServiceTest extends TestCase
     }
 
     /**
-     * @see StudentService::softDelete()
+     * @see StudentService::delete()
      */
     public function test_it_soft_deletes_a_student(): void
     {
@@ -291,7 +291,7 @@ class StudentServiceTest extends TestCase
         $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, [$student->id]);
         $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, [$student->id]);
 
-        $this->studentService->softDelete($student);
+        $this->studentService->delete($student);
 
         // Assert that the student was softly deleted.
         $this->assertSoftDeleted('students', ['id' => $student->id]);

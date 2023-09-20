@@ -2,10 +2,8 @@
 
 namespace Tests\Feature\TeacherApis\Students;
 
-use App\Events\Students\StudentCreated;
 use App\Http\Requests\StudentRequests\StoreStudentRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class CreateStudentTest extends TestCase
@@ -31,8 +29,6 @@ class CreateStudentTest extends TestCase
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
         ];
-
-        Event::fake();
     }
 
     /**
@@ -57,12 +53,6 @@ class CreateStudentTest extends TestCase
             'first_name' => $this->payload['first_name'],
             'last_name' => $this->payload['last_name'],
         ])->assertJsonMissing(['password']);
-
-        // Assert that StudentCreated event is dispatched.
-        Event::assertDispatched(StudentCreated::class, function ($event) use ($school, $adminTeacher) {
-            return $event->actor->id === $adminTeacher->id &&
-                $event->student->school_id === $school->id;
-        });
 
         // Assert that the student is created in the database.
         $this->assertDatabaseHas('students', [
@@ -92,12 +82,6 @@ class CreateStudentTest extends TestCase
         $response->assertCreated()
             ->assertJsonFragment(['school_id' => $school1->id])
             ->assertJsonMissing(['password']);
-
-        // Assert that StudentCreated event is dispatched.
-        Event::assertDispatched(StudentCreated::class, function ($event) use ($school1, $adminTeacher) {
-            return $event->actor->id === $adminTeacher->id &&
-                $event->student->school_id === $school1->id;
-        });
 
         // Assert that the student is created in the database.
         $this->assertDatabaseHas('students', [

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\Teachers\V1;
 
 use App\Events\Students\StudentCreated;
-use App\Events\Students\StudentSoftDeleted;
+use App\Events\Students\StudentDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StudentRequests\StoreStudentRequest;
@@ -107,9 +107,9 @@ class StudentController extends Controller
     {
         $this->authorize('delete', $student);
 
-        $this->studentService->softDelete($student);
+        $this->studentService->delete($student);
 
-        StudentSoftDeleted::dispatch($this->authService->teacher(), $student);
+        StudentDeleted::dispatch($this->authService->teacher(), $student);
 
         return response()->noContent();
     }
