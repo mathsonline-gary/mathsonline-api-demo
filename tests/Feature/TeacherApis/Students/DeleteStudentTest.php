@@ -4,6 +4,7 @@ namespace Tests\Feature\TeacherApis\Students;
 
 use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use App\Models\Activity;
+use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,6 +22,9 @@ class DeleteStudentTest extends TestCase
         $adminTeacher = $this->fakeAdminTeacher($school);
         $student = $this->fakeStudent($school);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
@@ -31,23 +35,34 @@ class DeleteStudentTest extends TestCase
         // Assert that the student was soft-deleted.
         $this->assertSoftDeleted('students', ['id' => $student->id,]);
 
+        // Assert that the student was not removed from the database.
+        $this->assertDatabaseCount('students', $studentsCount);
+
         // Assert that the activity was logged.
         $student->refresh();
         $this->assertDatabaseCount('activities', 1);
         $loggedActivity = Activity::first();
         $this->assertEquals(Teacher::class, $loggedActivity->actable_type);
         $this->assertEquals($adminTeacher->id, $loggedActivity->actable_id);
+        $this->assertEquals('deleted student', $loggedActivity->type);
         $this->assertArrayHasKey('student_id', $loggedActivity->data);
         $this->assertEquals($student->id, $loggedActivity->data['student_id']);
+        $this->assertEquals($student->deleted_at, $loggedActivity->acted_at);
     }
 
-    public function test_an_admin_teacher_is_unauthorized_to_delete_a_student_in_another_school(): void
+    /**
+     * @see StudentController::destroy()
+     */
+    public function test_an_admin_teacher_cannot_delete_a_student_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
 
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
+
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -59,17 +74,21 @@ class DeleteStudentTest extends TestCase
         // Assert that the student was not soft-deleted.
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);
 
-        // Assert that no activity was logged.
-        $this->assertDatabaseEmpty('activities');
+        // Assert that the student was not removed from the database.
+        $this->assertDatabaseCount('students', $studentsCount);
+
+        // Assert that no new activity was logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_delete_a_student_in_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
-
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
-
         $student = $this->fakeStudent($school);
+
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -81,8 +100,11 @@ class DeleteStudentTest extends TestCase
         // Assert that the student was not soft-deleted.
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);
 
-        // Assert that no activity was logged.
-        $this->assertDatabaseEmpty('activities');
+        // Assert that the student was not removed from the database.
+        $this->assertDatabaseCount('students', $studentsCount);
+
+        // Assert that no new activity was logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_delete_a_student_in_another_school()
@@ -93,6 +115,9 @@ class DeleteStudentTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($nonAdminTeacher);
 
         $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
@@ -103,7 +128,10 @@ class DeleteStudentTest extends TestCase
         // Assert that the student was not soft-deleted.
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);
 
+        // Assert that the student was not removed from the database.
+        $this->assertDatabaseCount('students', $studentsCount);
+
         // Assert that no activity was logged.
-        $this->assertDatabaseEmpty('activities');
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 }

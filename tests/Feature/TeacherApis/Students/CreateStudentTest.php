@@ -3,7 +3,11 @@
 namespace Tests\Feature\TeacherApis\Students;
 
 use App\Http\Requests\StudentRequests\StoreStudentRequest;
+use App\Models\Activity;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class CreateStudentTest extends TestCase
@@ -38,6 +42,10 @@ class CreateStudentTest extends TestCase
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->postJson(route('api.teachers.v1.students.store', $this->payload));
@@ -55,13 +63,24 @@ class CreateStudentTest extends TestCase
         ])->assertJsonMissing(['password']);
 
         // Assert that the student is created in the database.
-        $this->assertDatabaseHas('students', [
-            'school_id' => $school->id,
-            'username' => $this->payload['username'],
-            'email' => $this->payload['email'],
-            'first_name' => $this->payload['first_name'],
-            'last_name' => $this->payload['last_name'],
-        ]);
+        $this->assertDatabaseCount('students', $studentsCount + 1);
+        $student = Student::first();
+        $this->assertEquals($school->id, $student->school_id);
+        $this->assertEquals($this->payload['username'], $student->username);
+        $this->assertEquals($this->payload['email'], $student->email);
+        $this->assertEquals($this->payload['first_name'], $student->first_name);
+        $this->assertEquals($this->payload['last_name'], $student->last_name);
+        $this->assertTrue(Hash::check($this->payload['password'], $student->password));
+
+        // Assert that the activity is logged.
+        $this->assertDatabaseCount('activities', $activitiesCount + 1);
+        $activity = Activity::first();
+        $this->assertEquals(Teacher::class, $activity->actable_type);
+        $this->assertEquals($adminTeacher->id, $activity->actable_id);
+        $this->assertEquals('created student', $activity->type);
+        $this->assertArrayHasKey('student_id', $activity->data);
+        $this->assertEquals($student->id, $activity->data['student_id']);
+        $this->assertEquals($student->created_at, $activity->acted_at);
     }
 
     /**
@@ -72,6 +91,10 @@ class CreateStudentTest extends TestCase
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
+
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($adminTeacher);
 
         $this->payload['school_id'] = $school2->id;
@@ -83,20 +106,20 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['school_id' => $school1->id])
             ->assertJsonMissing(['password']);
 
-        // Assert that the student is created in the database.
-        $this->assertDatabaseHas('students', [
-            'school_id' => $school1->id,
-            'username' => $this->payload['username'],
-            'email' => $this->payload['email'],
-            'first_name' => $this->payload['first_name'],
-            'last_name' => $this->payload['last_name'],
-        ]);
+        // Assert that the student is created with the correct school_id.
+        $this->assertDatabaseCount('students', $studentsCount + 1);
+        $student = Student::first();
+        $this->assertEquals($school1->id, $student->school_id);
 
-        // Assert that the student is not created in $school2.
-        $this->assertDatabaseMissing('students', [
-            'school_id' => $school2->id,
-            'username' => $this->payload['username'],
-        ]);
+        // Assert that the activity is logged.
+        $this->assertDatabaseCount('activities', $activitiesCount + 1);
+        $activity = Activity::first();
+        $this->assertEquals(Teacher::class, $activity->actable_type);
+        $this->assertEquals($adminTeacher->id, $activity->actable_id);
+        $this->assertEquals('created student', $activity->type);
+        $this->assertArrayHasKey('student_id', $activity->data);
+        $this->assertEquals($student->id, $activity->data['student_id']);
+        $this->assertEquals($student->created_at, $activity->acted_at);
     }
 
     /**
@@ -108,10 +131,19 @@ class CreateStudentTest extends TestCase
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $this->actingAsTeacher($nonAdminTeacher);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $response = $this->postJson(route('api.teachers.v1.students.store', $this->payload));
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
+
+        // Assert that the student is not created in the database.
+        $this->assertDatabaseCount('students', $studentsCount);
+
+        // Assert that no activity was logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**

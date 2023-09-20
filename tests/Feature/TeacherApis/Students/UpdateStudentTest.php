@@ -4,6 +4,9 @@ namespace Tests\Feature\TeacherApis\Students;
 
 use App\Http\Controllers\Api\Teachers\V1\StudentController;
 use App\Http\Requests\StudentRequests\UpdateStudentRequest;
+use App\Models\Activity;
+use App\Models\Users\Student;
+use App\Models\Users\Teacher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -42,6 +45,9 @@ class UpdateStudentTest extends TestCase
         $adminTeacher = $this->fakeAdminTeacher($school);
         $student = $this->fakeStudent($school);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
@@ -59,7 +65,17 @@ class UpdateStudentTest extends TestCase
         $this->assertTrue(Hash::check($this->payload['password'], $student->password));
 
         // Assert that no new student is created in the database.
-        $this->assertDatabaseCount('students', 1);
+        $this->assertDatabaseCount('students', $studentsCount);
+
+        // Assert that it logs the activity.
+        $this->assertDatabaseCount('activities', $activitiesCount + 1);
+        $activity = Activity::latest('id')->first();
+        $this->assertEquals(Teacher::class, $activity->actable_type);
+        $this->assertEquals($adminTeacher->id, $activity->actable_id);
+        $this->assertEquals('updated student', $activity->type);
+        $this->assertArrayHasKey('before', $activity->data);
+        $this->assertArrayHasKey('after', $activity->data);
+        $this->assertEquals($student->updated_at, $activity->acted_at);
     }
 
     /**
@@ -73,6 +89,9 @@ class UpdateStudentTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
@@ -81,8 +100,11 @@ class UpdateStudentTest extends TestCase
         $response->assertNotFound();
 
         // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', 1)
+        $this->assertDatabaseCount('students', $studentsCount)
             ->assertDatabaseHas('students', $student->getAttributes());
+
+        // Assert that no new activity is logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
@@ -94,6 +116,9 @@ class UpdateStudentTest extends TestCase
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $student = $this->fakeStudent($school);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($nonAdminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
@@ -102,8 +127,11 @@ class UpdateStudentTest extends TestCase
         $response->assertForbidden();
 
         // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', 1)
+        $this->assertDatabaseCount('students', $studentsCount)
             ->assertDatabaseHas('students', $student->getAttributes());
+
+        // Assert that no new activity is logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
@@ -117,6 +145,9 @@ class UpdateStudentTest extends TestCase
         $school2 = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school2);
 
+        $studentsCount = Student::count();
+        $activitiesCount = Activity::count();
+
         $this->actingAsTeacher($nonAdminTeacher);
 
         $response = $this->putJson(route('api.teachers.v1.students.update', ['student' => $student]), $this->payload);
@@ -125,8 +156,11 @@ class UpdateStudentTest extends TestCase
         $response->assertForbidden();
 
         // Assert that the student is not updated in the database.
-        $this->assertDatabaseCount('students', 1)
+        $this->assertDatabaseCount('students', $studentsCount)
             ->assertDatabaseHas('students', $student->getAttributes());
+
+        // Assert that no new activity is logged.
+        $this->assertDatabaseCount('activities', $activitiesCount);
     }
 
     /**
