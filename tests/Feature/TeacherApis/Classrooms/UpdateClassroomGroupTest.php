@@ -25,7 +25,7 @@ class UpdateClassroomGroupTest extends TestCase
         $this->payload = [
             'name' => fake()->name(),
             'pass_grade' => fake()->numberBetween(0, 100),
-            'attempts' => fake()->numberBetween(0, 10),
+            'attempts' => fake()->numberBetween(1, 10),
         ];
     }
 

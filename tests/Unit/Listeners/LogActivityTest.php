@@ -29,6 +29,7 @@ class LogActivityTest extends TestCase
         // Assert that it listens to correct events
         Event::assertListening(LoggedIn::class, LogActivity::class);
         Event::assertListening(LoggedOut::class, LogActivity::class);
+
         Event::assertListening(TeacherCreated::class, LogActivity::class);
         Event::assertListening(TeacherDeleted::class, LogActivity::class);
         Event::assertListening(TeacherUpdated::class, LogActivity::class);

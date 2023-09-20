@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Web\Members;
 
 use App\Http\Controllers\Web\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\AuthRequests\LoginRequest;
+use App\Http\Requests\AuthRequests\RegisterRequest;
 use App\Models\Users\Member;
 use App\Services\AuthService;
-use App\Services\SchoolService;
 use App\Services\MemberService;
+use App\Services\SchoolService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;

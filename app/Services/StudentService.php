@@ -9,7 +9,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Log;
 
 class StudentService
 {
@@ -64,9 +63,11 @@ class StudentService
      */
     public function find(int $id, array $options = []): ?Student
     {
-        $student = $options['throwable'] ?? true
-            ? Student::findOrFail($id)
-            : Student::find($id);
+        $student = Student::when($options['throwable'] ?? true, function (Builder $query) use ($id) {
+            return $query->findOrFail($id);
+        }, function (Builder $query) use ($id) {
+            return $query->find($id);
+        });
 
 
         if ($options['with_school'] ?? false) {
@@ -140,15 +141,15 @@ class StudentService
     /**
      * Soft delete a student.
      *
-     * @param mixed $student
+     * @param Student|int $student
      * @return void
      */
-    public function softDelete(mixed $student): void
+    public function softDelete(Student|int $student): void
     {
         DB::transaction(function () use ($student) {
-            $student = $student instanceof Student
-                ? $student
-                : Student::findOrFail($student);
+            if (is_int($student)) {
+                $student = Student::findOrFail($student);
+            }
 
             // Detach the student from all classroom groups.
             $student->classroomGroups()->detach();

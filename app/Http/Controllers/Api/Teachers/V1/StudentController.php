@@ -6,6 +6,7 @@ use App\Events\Students\StudentCreated;
 use App\Events\Students\StudentSoftDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\StudentRequests\StoreStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Users\Student;
 use App\Services\AuthService;
@@ -59,16 +60,16 @@ class StudentController extends Controller
         return new StudentResource($student);
     }
 
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
         $this->authorize('create', Student::class);
 
-        $attributes = $request->validate([
-            'username' => ['required', 'string', 'unique:students'],
-            'email' => ['nullable', 'email'],
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'confirmed', Password::defaults()],
+        $attributes = $request->safe()->only([
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'password',
         ]);
 
         $authenticatedTeacher = $this->authService->teacher();

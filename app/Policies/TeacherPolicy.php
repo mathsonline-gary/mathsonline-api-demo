@@ -59,7 +59,6 @@ class TeacherPolicy
     {
         return $user instanceof Teacher &&
             $user->isAdmin() &&
-            $user->school_id === $teacher->school_id &&
-            !$teacher->isClassroomOwner();
+            $user->school_id === $teacher->school_id;
     }
 }

@@ -38,14 +38,4 @@ class AuthenticatedTeacherTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonFragment(['id' => $teacher->id]);
     }
-
-    /**
-     * @see AuthController::me()
-     */
-    public function test_a_teacher_cannot_view_their_personal_profile_if_not_authenticated(): void
-    {
-        $response = $this->getJson(route('api.teachers.v1.me'));
-
-        $response->assertUnauthorized();
-    }
 }

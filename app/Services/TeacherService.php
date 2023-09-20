@@ -27,9 +27,11 @@ class TeacherService
      */
     public function find(int $id, array $options = []): ?Teacher
     {
-        $teacher = $options['throwable'] ?? true
-            ? Teacher::findOrFail($id)
-            : Teacher::find($id);
+        $teacher = Teacher::when($options['throwable'] ?? true, function (Builder $query) use ($id) {
+            return $query->findOrFail($id);
+        }, function (Builder $query) use ($id) {
+            return $query->find($id);
+        });
 
         if ($options['with_school'] ?? false) {
             $teacher->load('school');
@@ -114,7 +116,7 @@ class TeacherService
     }
 
     /**
-     * Delete teacher for the given ID.
+     * Soft-delete teacher for the given ID.
      *
      * @param Teacher $teacher The teacher to be deleted.
      *
@@ -125,6 +127,9 @@ class TeacherService
         DB::transaction(function () use ($teacher) {
             // Detach the teacher from secondary teacher list.
             $teacher->secondaryClassrooms()->detach();
+
+            // Dissociate the teacher from the owner of classrooms.
+            $teacher->ownedClassrooms()->update(['owner_id' => null]);
 
             // Delete the teacher.
             $teacher->delete();

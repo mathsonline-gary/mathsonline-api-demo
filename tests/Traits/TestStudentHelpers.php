@@ -27,4 +27,15 @@ trait TestStudentHelpers
 
         return $count === 1 ? $students->first() : $students;
     }
+
+    /**
+     * Set the currently logged-in student for the application.
+     *
+     * @param Student $student
+     * @return void
+     */
+    public function actingAsStudent(Student $student): void
+    {
+        $this->actingAs($student, 'student');
+    }
 }

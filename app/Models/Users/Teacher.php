@@ -2,7 +2,6 @@
 
 namespace App\Models\Users;
 
-use App\Models\Activity;
 use App\Models\Classroom;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,11 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Teacher extends User
 {
-    use HasFactory;
+    use HasFactory,
+        SoftDeletes;
 
     protected $fillable = [
         'username',
