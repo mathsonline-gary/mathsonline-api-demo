@@ -4,12 +4,12 @@ namespace App\Services;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\AuthRequests\LoginRequest;
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
+use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use App\Models\Users\Member;
 use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;

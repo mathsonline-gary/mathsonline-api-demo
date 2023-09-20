@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Web\Teachers;
 
 use App\Http\Controllers\Web\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\AuthRequests\LoginRequest;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
