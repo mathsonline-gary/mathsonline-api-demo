@@ -7,13 +7,12 @@ use App\Events\Students\StudentSoftDeleted;
 use App\Events\Students\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StudentRequests\StoreStudentRequest;
+use App\Http\Requests\StudentRequests\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Users\Student;
 use App\Services\AuthService;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class StudentController extends Controller
 {
@@ -83,21 +82,21 @@ class StudentController extends Controller
         return new StudentResource($student);
     }
 
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student)
     {
         $this->authorize('update', $student);
 
-        $payload = $request->validate([
-            'username' => ['string', Rule::unique('students')->ignore($student->id)],
-            'email' => ['nullable', 'email'],
-            'first_name' => ['string', 'max:255'],
-            'last_name' => ['string', 'max:255'],
-            'password' => ['string', Password::defaults()],
+        $validated = $request->safe()->only([
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'password',
         ]);
 
         $beforeAttributes = $student->getAttributes();
 
-        $updatedStudent = $this->studentService->update($student, $payload);
+        $updatedStudent = $this->studentService->update($student, $validated);
 
         StudentUpdated::dispatch($this->authService->teacher(), $beforeAttributes, $updatedStudent);
 

@@ -4,6 +4,8 @@ namespace Tests\Unit\Listeners;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Students\StudentCreated;
+use App\Events\Students\StudentUpdated;
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
@@ -33,5 +35,8 @@ class LogActivityTest extends TestCase
         Event::assertListening(TeacherCreated::class, LogActivity::class);
         Event::assertListening(TeacherDeleted::class, LogActivity::class);
         Event::assertListening(TeacherUpdated::class, LogActivity::class);
+
+        Event::assertListening(StudentCreated::class, LogActivity::class);
+        Event::assertListening(StudentUpdated::class, LogActivity::class);
     }
 }

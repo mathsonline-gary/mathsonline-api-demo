@@ -3,24 +3,14 @@
 namespace Tests\Feature\TeacherApis\Students;
 
 use App\Events\Students\StudentCreated;
-use Database\Seeders\MarketSeeder;
+use App\Http\Requests\StudentRequests\StoreStudentRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
-/**
- * @see StudentController::store()
- */
 class CreateStudentTest extends TestCase
 {
     use RefreshDatabase;
-
-    /**
-     * Run MarketSeeder before each test.
-     *
-     * @var string
-     */
-    protected string $seeder = MarketSeeder::class;
 
     /**
      * The payload to use for creating the student.
@@ -45,6 +35,9 @@ class CreateStudentTest extends TestCase
         Event::fake();
     }
 
+    /**
+     * @see StudentController::store()
+     */
     public function test_an_admin_teacher_can_create_a_student_in_the_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -81,6 +74,9 @@ class CreateStudentTest extends TestCase
         ]);
     }
 
+    /**
+     * @see StudentController::store()
+     */
     public function test_an_admin_teacher_can_only_create_a_student_in_their_school()
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -119,6 +115,9 @@ class CreateStudentTest extends TestCase
         ]);
     }
 
+    /**
+     * @see StudentController::store()
+     */
     public function test_a_non_admin_teacher_is_unauthorized_to_create_a_student(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -132,7 +131,7 @@ class CreateStudentTest extends TestCase
     }
 
     /**
-     * @see
+     * @see StoreStudentRequest::rules()
      */
     public function test_username_is_required(): void
     {
@@ -147,6 +146,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_username_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -160,6 +162,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_username_must_be_unique(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -173,13 +178,22 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_username_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
         $this->actingAsTeacher($adminTeacher);
 
-        // Test that the username attribute must be between 1 and 32 characters.
+        // Test that the min length of the username attribute is 3 characters.
+        $this->payload['username'] = str_repeat('a', 2);
+        $this->postJson(route('api.teachers.v1.students.store', $this->payload))
+            ->assertUnprocessable()
+            ->assertInvalid('username');
+
+        // Test that the max length of the username attribute is 32 characters.
         $this->payload['username'] = str_repeat('a', 33);
         $this->postJson(route('api.teachers.v1.students.store', $this->payload))
             ->assertUnprocessable()
@@ -187,7 +201,7 @@ class CreateStudentTest extends TestCase
     }
 
     /**
-     * @see
+     * @see StoreStudentRequest::rules()
      */
     public function test_email_is_optional(): void
     {
@@ -201,6 +215,9 @@ class CreateStudentTest extends TestCase
             ->assertCreated();
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_email_is_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -214,6 +231,9 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['email' => 'test@test.com']);
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_email_must_be_valid(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -227,6 +247,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('email');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_first_name_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -240,6 +263,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_first_name_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -253,6 +279,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_first_name_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -266,6 +295,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_last_name_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -279,6 +311,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_last_name_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -292,6 +327,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_last_name_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -305,6 +343,9 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_password_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -318,19 +359,23 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('password');
     }
 
+    /**
+     * @see StoreStudentRequest::rules()
+     */
     public function test_password_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
         $this->actingAsTeacher($adminTeacher);
 
-        // Test that the password attribute must be between 4 and 32 characters.
-        $this->payload['password'] = 'abc'; // Too short (3 characters).
+        // Test that the min length of the password attribute is 4 characters.
+        $this->payload['password'] = fake()->password(3);
         $this->postJson(route('api.teachers.v1.students.store', $this->payload))
             ->assertUnprocessable()
             ->assertInvalid('password');
 
-        $this->payload['password'] = str_repeat('a', 33); // Too long (33 characters).
+        // Test that the max length of the password attribute is 32 characters.
+        $this->payload['password'] = fake()->password(33);
         $this->postJson(route('api.teachers.v1.students.store', $this->payload))
             ->assertUnprocessable()
             ->assertInvalid('password');

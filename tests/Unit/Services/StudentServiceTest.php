@@ -220,25 +220,24 @@ class StudentServiceTest extends TestCase
             'school_id' => $school->id,
         ];
 
-        $result = $this->studentService->create($options);
+        $student = $this->studentService->create($options);
 
         // Assert that it returns a student.
-        $this->assertInstanceOf(Student::class, $result);
-        $this->assertEquals($options['first_name'], $result->first_name);
-        $this->assertEquals($options['last_name'], $result->last_name);
-        $this->assertEquals($options['username'], $result->username);
-        $this->assertEquals($options['email'], $result->email);
-        $this->assertObjectNotHasProperty('password', $result);
+        $this->assertInstanceOf(Student::class, $student);
+        $this->assertEquals($options['first_name'], $student->first_name);
+        $this->assertEquals($options['last_name'], $student->last_name);
+        $this->assertEquals($options['username'], $student->username);
+        $this->assertEquals($options['email'], $student->email);
+        $this->assertObjectNotHasProperty('password', $student);
 
-        // Assert that the student was created in the database.
-        $this->assertDatabaseHas('students', [
-            'id' => $result->id,
-            'school_id' => $school->id,
-            'first_name' => $options['first_name'],
-            'last_name' => $options['last_name'],
-            'username' => $options['username'],
-            'email' => $options['email'],
-        ]);
+        // Assert that the student was created correctly in the database.
+        $student->refresh();
+        $this->assertEquals($options['first_name'], $student->first_name);
+        $this->assertEquals($options['last_name'], $student->last_name);
+        $this->assertEquals($options['username'], $student->username);
+        $this->assertEquals($options['email'], $student->email);
+        $this->assertEquals($options['school_id'], $student->school_id);
+        $this->assertTrue(Hash::check($options['password'], $student->password));
     }
 
     /**
@@ -252,6 +251,7 @@ class StudentServiceTest extends TestCase
         $options = [
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
+            'email' => fake()->safeEmail,
             'username' => fake()->userName,
             'password' => fake()->password,
         ];
@@ -262,19 +262,16 @@ class StudentServiceTest extends TestCase
         $this->assertEquals($options['first_name'], $result->first_name);
         $this->assertEquals($options['last_name'], $result->last_name);
         $this->assertEquals($options['username'], $result->username);
+        $this->assertEquals($options['email'], $result->email);
         $this->assertObjectNotHasProperty('password', $result);
 
         // Assert that the student was updated in the database.
-        $this->assertDatabaseHas('students', [
-            'id' => $student->id,
-            'first_name' => $options['first_name'],
-            'last_name' => $options['last_name'],
-            'username' => $options['username'],
-        ]);
-
-        // Assert that the student's password was updated in the database.
-        $password = Student::find($student->id)->password;
-        $this->assertTrue(Hash::check($options['password'], $password));
+        $student->refresh();
+        $this->assertEquals($options['first_name'], $student->first_name);
+        $this->assertEquals($options['last_name'], $student->last_name);
+        $this->assertEquals($options['username'], $student->username);
+        $this->assertEquals($options['email'], $student->email);
+        $this->assertTrue(Hash::check($options['password'], $student->password));
     }
 
     /**
