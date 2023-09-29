@@ -14,15 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum'])
+    ->prefix('v1')
+    ->name('api.v1.')
     ->group(function () {
 
-        require __DIR__ . '/api-members.php';
-
-        require __DIR__ . '/api-teachers.php';
-
-        require __DIR__ . '/api-students.php';
-
-        require __DIR__ . '/api-admins.php';
-
-        require __DIR__ . '/api-developers.php';
+        // Auth module routes
+        Route::get('/me', function (\Illuminate\Http\Request $request) {
+            return $request->user();
+        });
     });

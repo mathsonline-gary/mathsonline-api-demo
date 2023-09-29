@@ -1,10 +1,5 @@
 <?php
 
-use App\Models\Users\Admin;
-use App\Models\Users\Developer;
-use App\Models\Users\Student;
-use App\Models\Users\Teacher;
-use App\Models\Users\Member;
 use App\Models\Users\User;
 
 return [
@@ -47,31 +42,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
-        'member' => [
-            'driver' => 'session',
-            'provider' => 'members',
-        ],
-
-        'teacher' => [
-            'driver' => 'session',
-            'provider' => 'teachers',
-        ],
-
-        'student' => [
-            'driver' => 'session',
-            'provider' => 'students',
-        ],
-
-        'admin' => [
-            'driver' => 'session',
-            'provider' => 'admins',
-        ],
-
-        'developer' => [
-            'driver' => 'session',
-            'provider' => 'developers',
-        ],
     ],
 
     /*
@@ -95,31 +65,6 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => User::class,
-        ],
-
-        'members' => [
-            'driver' => 'eloquent',
-            'model' => Member::class,
-        ],
-
-        'teachers' => [
-            'driver' => 'eloquent',
-            'model' => Teacher::class,
-        ],
-
-        'students' => [
-            'driver' => 'eloquent',
-            'model' => Student::class,
-        ],
-
-        'admins' => [
-            'driver' => 'eloquent',
-            'model' => Admin::class,
-        ],
-
-        'developers' => [
-            'driver' => 'eloquent',
-            'model' => Developer::class,
         ],
 
         // 'users' => [
@@ -150,41 +95,6 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'members' => [
-            'provider' => 'members',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'teachers' => [
-            'provider' => 'teachers',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'students' => [
-            'provider' => 'students',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'admins' => [
-            'provider' => 'admins',
-            'table' => 'password_reset_tokens',
-            'expire' => 60,
-            'throttle' => 60,
-        ],
-
-        'developers' => [
-            'provider' => 'developers',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,

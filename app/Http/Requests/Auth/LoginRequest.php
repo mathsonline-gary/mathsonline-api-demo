@@ -1,78 +1,37 @@
 <?php
 
-namespace App\Http\Requests\AuthRequests;
+namespace App\Http\Requests\Auth;
 
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    protected string $guard;
-
-    private array $credentials = [];
-
-    private string $primaryInputKey;
-
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        $this->guard = Auth::getDefaultDriver();
-
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     * @return array<string, Rule|array|string>
      */
     public function rules(): array
     {
         return [
-            'email' => [
-                Rule::requiredIf($this->guard === 'member'),
-                'string',
-                'email',
-            ],
-            'username' => [
-                Rule::requiredIf(in_array($this->guard, ['teacher', 'student', 'admin', 'developer'])),
-                'string',
-            ],
+            'login' => ['required', 'string'],
             'password' => ['required', 'string'],
+            'type_id' => ['required', 'integer', 'between:1,5'],
         ];
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     * This method is called after the validation passes, but before the controller method is executed.
-     *
-     * @return void
-     */
-    protected function passedValidation(): void
-    {
-        switch ($this->guard) {
-            case 'member':
-                $this->credentials = $this->only('email', 'password');
-                $this->primaryInputKey = 'email';
-
-                break;
-
-            case 'teacher':
-            case 'student':
-            case 'admin':
-            case 'developer':
-                $this->credentials = $this->only('username', 'password');
-                $this->primaryInputKey = 'username';
-
-                break;
-        }
     }
 
     /**
@@ -84,13 +43,11 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (
-            !Auth::attempt($this->credentials, $this->boolean('remember'))
-        ) {
+        if (!Auth::attempt($this->only('login', 'password', 'type_id'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                $this->primaryInputKey => __('auth.failed'),
+                'login' => __('auth.failed'),
             ]);
         }
 
@@ -113,7 +70,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            $this->primaryInputKey => trans('auth.throttle', [
+            'login' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -125,6 +82,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input($this->primaryInputKey)) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->input('login')) . '|' . $this->ip());
     }
 }
