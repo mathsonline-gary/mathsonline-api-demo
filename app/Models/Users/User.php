@@ -3,72 +3,96 @@
 namespace App\Models\Users;
 
 use App\Models\Activity;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
+
+    protected $fillable = [
+        'login',
+        'password',
+        'type_id',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    protected $casts = [
+        'type_id' => 'int',
+    ];
+
+    public $timestamps = false;
+
+    public const TYPE_STUDENT = 1;
+    public const TYPE_TEACHER = 2;
+    public const TYPE_MEMBER = 3;
+    public const TYPE_ADMIN = 4;
+    public const TYPE_DEVELOPER = 5;
 
     /**
      * Get all the user's activities.
      *
-     * @return MorphMany
+     * @return HasMany
      */
-    public function activities(): MorphMany
+    public function activities(): HasMany
     {
-        return $this->morphMany(Activity::class, 'actable');
+        return $this->hasMany(Activity::class);
     }
 
     /**
-     * Get the user as a teacher.
+     * Indicate the user to be a teacher.
      *
-     * @return Teacher|null
+     * @return HasOne
      */
-    public function asTeacher(): ?Teacher
+    public function asTeacher(): HasOne
     {
-        return $this instanceof Teacher ? $this : null;
+        return $this->hasOne(Teacher::class);
     }
 
     /**
-     * Get the user as a student.
+     * Indicate the user to be a student.
      *
-     * @return Student|null
+     * @return HasOne
      */
-    public function asStudent(): ?Student
+    public function asStudent(): HasOne
     {
-        return $this instanceof Student ? $this : null;
+        return $this->hasOne(Student::class);
     }
 
     /**
-     * Get the user as a member.
+     * Indicate the user to be a member.
      *
-     * @return Member|null
+     * @return HasOne
      */
-    public function asMember(): ?Member
+    public function asMember(): HasOne
     {
-        return $this instanceof Member ? $this : null;
+        return $this->hasOne(Member::class);
     }
 
     /**
-     * Get the user as an admin.
+     * Indicate the user to be an administrator.
      *
-     * @return Admin|null
+     * @return HasOne
      */
-    public function asAdmin(): ?Admin
+    public function asAdmin(): HasOne
     {
-        return $this instanceof Admin ? $this : null;
+        return $this->hasOne(Admin::class);
     }
 
     /**
-     * Get the user as an developer.
+     * Indicate the user to be a developer.
      *
-     * @return Developer|null
+     * @return HasOne
      */
-    public function asDeveloper(): ?Developer
+    public function asDeveloper(): HasOne
     {
-        return $this instanceof Developer ? $this : null;
+        return $this->hasOne(Developer::class);
     }
 }

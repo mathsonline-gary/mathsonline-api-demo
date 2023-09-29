@@ -21,7 +21,7 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The owner of the classroom. If the classroom is a traditional classroom, the key will be a teacher ID, If the classroom is a homeschool classroom, the key will be a member ID.');
 
-            $table->enum('type', [
+            $table->enum('type_id', [
                 Classroom::TYPE_TRADITIONAL_CLASSROOM,
                 Classroom::TYPE_HOMESCHOOL_CLASSROOM,
             ])

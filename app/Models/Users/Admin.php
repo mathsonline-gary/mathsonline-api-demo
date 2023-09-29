@@ -2,13 +2,14 @@
 
 namespace App\Models\Users;
 
-use App\Models\Activity;
+use App\Concerns\HasCredentials;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Model;
 
-class Admin extends User
+class Admin extends Model
 {
-    use HasFactory;
+    use HasFactory,
+        HasCredentials;
 
     protected $fillable = [
         'market_id',
@@ -16,10 +17,5 @@ class Admin extends User
         'email',
         'first_name',
         'last_name',
-        'password'
-    ];
-
-    protected $hidden = [
-        'password',
     ];
 }

@@ -37,7 +37,7 @@ class SchoolSeeder extends Seeder
             ->has(
                 Teacher::factory()
                     ->admin()
-                    ->state(['username' => 'teacher.admin',])
+                    ->state(['username' => 'admin.teacher',])
             )
             ->has(
                 Teacher::factory()

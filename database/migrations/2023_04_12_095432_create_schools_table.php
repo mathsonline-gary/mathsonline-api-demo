@@ -16,7 +16,7 @@ return new class extends Migration {
 
             $table->string('name');
 
-            $table->enum('type', [
+            $table->enum('type_id', [
                 School::TYPE_TRADITIONAL_SCHOOL,
                 School::TYPE_HOMESCHOOL,
             ])

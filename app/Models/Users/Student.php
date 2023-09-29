@@ -2,17 +2,20 @@
 
 namespace App\Models\Users;
 
+use App\Concerns\HasCredentials;
 use App\Models\ClassroomGroup;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Student extends User
+class Student extends Model
 {
     use HasFactory,
-        SoftDeletes;
+        SoftDeletes,
+        HasCredentials;
 
     protected $fillable = [
         'school_id',
@@ -20,11 +23,6 @@ class Student extends User
         'email',
         'first_name',
         'last_name',
-        'password',
-    ];
-
-    protected $hidden = [
-        'password',
     ];
 
     public function school(): BelongsTo

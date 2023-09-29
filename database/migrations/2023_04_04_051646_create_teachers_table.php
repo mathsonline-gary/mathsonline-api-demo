@@ -12,33 +12,24 @@ return new class extends Migration {
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('user_id')
+                ->constrained('users');
             $table->string('username')
                 ->unique();
-
             $table->string('email')
                 ->nullable();
-
             $table->string('first_name')
                 ->nullable();
-
             $table->string('last_name')
                 ->nullable();
-
-            $table->string('password');
-
             $table->string('title', 16)
                 ->nullable();
-
             $table->string('position')
                 ->nullable();
-
             $table->boolean('is_admin')
                 ->default(false)
                 ->comment('Indicate whether this teacher has the administrator access.');
-
             $table->timestamps();
-
             $table->softDeletes();
         });
     }

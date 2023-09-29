@@ -4,6 +4,7 @@ namespace Database\Factories\Users;
 
 use App\Models\School;
 use App\Models\Users\Member;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,11 +22,27 @@ class MemberFactory extends Factory
     public function definition(): array
     {
         return [
+            'user_id' => User::factory()->member()->create()->id,
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
         ];
+    }
+
+    /**
+     * Configure the model factory: synchronize the username with the login identifier.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Member $member) {
+            $member->credentials->update([
+                'login' => $member->email,
+            ]);
+        })->afterCreating(function (Member $member) {
+            $member->credentials->update([
+                'login' => $member->email,
+            ]);
+        });
     }
 
     /**

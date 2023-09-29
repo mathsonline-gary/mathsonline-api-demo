@@ -35,7 +35,7 @@ class ClassroomFactory extends Factory
         return $this->state(function () use ($school) {
             return [
                 'school_id' => $school->id,
-                'type' => match ($school->type) {
+                'type_id' => match ($school->type_id) {
                     School::TYPE_TRADITIONAL_SCHOOL => Classroom::TYPE_TRADITIONAL_CLASSROOM,
                     School::TYPE_HOMESCHOOL => Classroom::TYPE_HOMESCHOOL_CLASSROOM,
                 }

@@ -12,19 +12,14 @@ return new class extends Migration {
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('user_id')
+                ->constrained('users');
             $table->string('email')
                 ->unique();
-
             $table->string('first_name');
-
             $table->string('last_name');
-
-            $table->string('password');
-            
 //            $table->timestamp('email_verified_at')
 //                ->nullable();
-
             $table->timestamps();
         });
     }
