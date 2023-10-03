@@ -6,7 +6,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Concerns\HasRelationships;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-trait Authenticatable
+trait BelongsToUser
 {
     use HasRelationships;
 

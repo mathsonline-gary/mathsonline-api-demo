@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\Authenticatable;
+use App\Concerns\BelongsToUser;
 use App\Models\Classroom;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,7 +17,7 @@ class Teacher extends Model
 {
     use HasFactory,
         SoftDeletes,
-        Authenticatable;
+        BelongsToUser;
 
     protected $fillable = [
         'username',

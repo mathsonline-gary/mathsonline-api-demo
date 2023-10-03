@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\Authenticatable;
+use App\Concerns\BelongsToUser;
 use App\Models\ClassroomGroup;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,7 @@ class Student extends Model
 {
     use HasFactory,
         SoftDeletes,
-        Authenticatable;
+        BelongsToUser;
 
     protected $fillable = [
         'school_id',
