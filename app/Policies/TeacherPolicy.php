@@ -12,8 +12,8 @@ class TeacherPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin();
+        return $user->isTeacher() &&
+            $user->asTeacher()->isAdmin();
     }
 
     /**
@@ -21,9 +21,9 @@ class TeacherPolicy
      */
     public function view(User $user, Teacher $teacher): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+        return $user->isTeacher() &&
+            $user->asTeacher()->isAdmin() &&
+            $user->asTeacher()->school_id === $teacher->school_id;
     }
 
     /**

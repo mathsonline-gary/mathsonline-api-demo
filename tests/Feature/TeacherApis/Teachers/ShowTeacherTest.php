@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Http\Controllers\Api\Teachers\V1\TeacherController;
+use App\Http\Controllers\Api\V1\TeacherController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

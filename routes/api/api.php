@@ -19,7 +19,20 @@ Route::middleware(['auth:sanctum'])
     ->group(function () {
 
         // Auth module routes
-        Route::get('/me', function (\Illuminate\Http\Request $request) {
-            return $request->user();
-        });
+        Route::prefix('/auth')
+            ->name('auth.')
+            ->group(function () {
+                Route::get('/me', function () {
+                    return auth()->user();
+                });
+            });
+
+        // Teacher module routes.
+        require __DIR__ . '/api-teachers.php';
+
+        // Student module routes.
+        require __DIR__ . '/api-students.php';
+
+        // Classroom module routes.
+        require __DIR__ . '/api-classrooms.php';
     });

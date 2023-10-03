@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\TeacherApis\Classrooms;
 
+use App\Http\Controllers\Api\V1\ClassroomGroupController;
 use App\Models\Classroom;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;

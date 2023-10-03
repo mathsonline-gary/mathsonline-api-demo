@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Teachers\V1;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
@@ -28,13 +28,19 @@ class TeacherController extends Controller
     {
         $this->authorize('viewAny', Teacher::class);
 
-        $user = $this->authService->teacher();
-
-        $teachers = $this->teacherService->search([
-            'school_id' => $user->school_id,
+        $options = [
             'key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
-        ]);
+        ];
+
+        // Set options for teachers.
+        if ($user = $this->authService->teacher()) {
+            $options[] = [
+                'school_id' => $user->school_id,
+            ];
+        }
+
+        $teachers = $this->teacherService->search($options);
 
         return TeacherResource::collection($teachers);
     }

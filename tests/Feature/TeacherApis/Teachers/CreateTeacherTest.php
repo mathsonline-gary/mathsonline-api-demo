@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Teachers;
 
-use App\Http\Controllers\Api\Teachers\V1\TeacherController;
+use App\Http\Controllers\Api\V1\TeacherController;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Http\Requests\TeacherRequests\StoreTeacherRequest;
 use App\Models\Activity;

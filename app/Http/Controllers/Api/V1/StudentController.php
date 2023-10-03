@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Teachers\V1;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Events\Students\StudentCreated;
 use App\Events\Students\StudentDeleted;

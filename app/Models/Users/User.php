@@ -51,7 +51,7 @@ class User extends Authenticatable
      *
      * @return HasOne
      */
-    public function asTeacher(): HasOne
+    public function teacher(): HasOne
     {
         return $this->hasOne(Teacher::class);
     }
@@ -61,7 +61,7 @@ class User extends Authenticatable
      *
      * @return HasOne
      */
-    public function asStudent(): HasOne
+    public function student(): HasOne
     {
         return $this->hasOne(Student::class);
     }
@@ -71,7 +71,7 @@ class User extends Authenticatable
      *
      * @return HasOne
      */
-    public function asMember(): HasOne
+    public function member(): HasOne
     {
         return $this->hasOne(Member::class);
     }
@@ -81,7 +81,7 @@ class User extends Authenticatable
      *
      * @return HasOne
      */
-    public function asAdmin(): HasOne
+    public function admin(): HasOne
     {
         return $this->hasOne(Admin::class);
     }
@@ -91,8 +91,109 @@ class User extends Authenticatable
      *
      * @return HasOne
      */
-    public function asDeveloper(): HasOne
+    public function developer(): HasOne
     {
         return $this->hasOne(Developer::class);
+    }
+
+
+    /**
+     * Determine whether the user is a teacher.
+     *
+     * @return bool
+     */
+    public function isTeacher(): bool
+    {
+        return $this->type_id === self::TYPE_TEACHER && $this->teacher !== null;
+    }
+
+    /**
+     * Get the user as a teacher.
+     *
+     * @return Teacher
+     */
+    public function asTeacher(): Teacher
+    {
+        return $this->teacher;
+    }
+
+    /**
+     * Determine whether the user is a student.
+     *
+     * @return bool
+     */
+    public function isStudent(): bool
+    {
+        return $this->type_id === self::TYPE_STUDENT && $this->student !== null;
+    }
+
+    /**
+     * Get the user as a student.
+     *
+     * @return Student
+     */
+    public function asStudent(): Student
+    {
+        return $this->student;
+    }
+
+    /**
+     * Determine whether the user is a member.
+     *
+     * @return bool
+     */
+    public function isMember(): bool
+    {
+        return $this->type_id === self::TYPE_MEMBER && $this->member !== null;
+    }
+
+    /**
+     * Get the user as a member.
+     *
+     * @return Member
+     */
+    public function asMember(): Member
+    {
+        return $this->member;
+    }
+
+    /**
+     * Determine whether the user is an administrator.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->type_id === self::TYPE_ADMIN && $this->admin !== null;
+    }
+
+    /**
+     * Get the user as an administrator.
+     *
+     * @return Admin
+     */
+    public function asAdmin(): Admin
+    {
+        return $this->admin;
+    }
+
+    /**
+     * Determine whether the user is a developer.
+     *
+     * @return bool
+     */
+    public function isDeveloper(): bool
+    {
+        return $this->type_id === self::TYPE_DEVELOPER && $this->developer !== null;
+    }
+
+    /**
+     * Get the user as a developer.
+     *
+     * @return Developer
+     */
+    public function asDeveloper(): Developer
+    {
+        return $this->developer;
     }
 }

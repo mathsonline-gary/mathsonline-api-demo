@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Teachers\V1;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Http\Controllers\Api\Controller;
