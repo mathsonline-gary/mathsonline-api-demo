@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\TeacherApis\Classrooms;
+namespace Feature\Classrooms;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;

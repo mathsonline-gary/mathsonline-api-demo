@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\TeacherApis\Students;
+namespace Feature\Students;
 
 use App\Http\Controllers\Api\V1\StudentController;
 use App\Http\Middleware\SetAuthenticationDefaults;

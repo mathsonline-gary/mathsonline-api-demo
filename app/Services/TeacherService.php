@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -103,16 +104,22 @@ class TeacherService
             'is_admin',
         ]);
 
-        $teacher = new Teacher([
-            ...$attributes,
-            'password' => Hash::make($attributes['password']),
-        ]);
+        return DB::transaction(function () use ($attributes) {
+            // Create a user.
+            $user = User::create([
+                'login' => $attributes['username'],
+                'password' => Hash::make($attributes['password']),
+                'type_id' => User::TYPE_TEACHER,
+            ]);
 
-        $teacher->is_admin = $attributes['is_admin'];
+            $teacher = new Teacher($attributes);
 
-        $teacher->save();
+            $teacher->is_admin = $attributes['is_admin'];
 
-        return $teacher;
+            $user->teacher()->save($teacher);
+
+            return $teacher;
+        });
     }
 
     /**

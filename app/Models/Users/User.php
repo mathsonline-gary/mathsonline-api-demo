@@ -47,7 +47,7 @@ class User extends Authenticatable
      */
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class, 'actor_id');
     }
 
     /**

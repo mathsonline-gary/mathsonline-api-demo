@@ -62,7 +62,8 @@ class TeacherController extends Controller
         // Authorize the request.
         $this->authorize('create', Teacher::class);
 
-        // Get the authenticated teacher.
+        // Get the authenticated user.
+        $authenticatedUser = $this->authService->user();
         $authenticatedTeacher = $this->authService->teacher();
 
         $validated = $request->safe()->only([
@@ -83,7 +84,7 @@ class TeacherController extends Controller
 
         $teacher = $this->teacherService->create($attributes);
 
-        TeacherCreated::dispatch($authenticatedTeacher, $teacher);
+        TeacherCreated::dispatch($authenticatedUser, $teacher);
 
         return response()->json(new TeacherResource($teacher), 201);
     }

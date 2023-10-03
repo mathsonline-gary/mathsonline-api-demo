@@ -4,61 +4,83 @@ namespace App\Policies;
 
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
+use Illuminate\Auth\Access\Response;
 
 class TeacherPolicy
 {
     /**
      * Determine whether the user can view any teachers.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user): Response
     {
-        return $user->isTeacher() &&
-            $user->asTeacher()->isAdmin();
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin()) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 
     /**
      * Determine whether the user can view the teacher.
      */
-    public function view(User $user, Teacher $teacher): bool
+    public function view(User $user, Teacher $teacher): Response
     {
-        return $user->isTeacher() &&
+        if ($user->isTeacher() &&
             $user->asTeacher()->isAdmin() &&
-            $user->asTeacher()->school_id === $teacher->school_id;
+            $user->asTeacher()->school_id === $teacher->school_id) {
+            return Response::allow();
+        }
+
+        return Response::denyAsNotFound();
     }
 
     /**
      * Determine whether the user can create teachers.
      */
-    public function create(User $user): bool
+    public function create(User $user): Response
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin();
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin()) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 
     /**
      * Determine whether the user can update the teacher.
      */
-    public function update(User $user, Teacher $teacher): bool
+    public function update(User $user, Teacher $teacher): Response
     {
         // User is a teacher, and is updating personal profile.
-        $condition1 = $user instanceof Teacher &&
-            $user->id === $teacher->id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->id === $teacher->id) {
+            return Response::allow();
+        }
 
         // User is an admin teacher, and is updating a teacher in the same school.
-        $condition2 = $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin() &&
+            $user->asTeacher()->school_id === $teacher->school_id) {
+            return Response::allow();
+        }
 
-        return $condition1 || $condition2;
+        return Response::denyAsNotFound();
     }
 
     /**
      * Determine whether the user can delete the teacher.
      */
-    public function delete(User $user, Teacher $teacher): bool
+    public function delete(User $user, Teacher $teacher): Response
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin() &&
+            $user->asTeacher()->school_id === $teacher->school_id &&
+            $user->asTeacher()->id !== $teacher->id) {
+            return Response::allow();
+        }
+
+        return Response::deny();
     }
 }

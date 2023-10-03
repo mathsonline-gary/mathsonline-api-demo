@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\TeacherApis\Teachers;
+namespace Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
