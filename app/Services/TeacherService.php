@@ -140,6 +140,9 @@ class TeacherService
 
             // Delete the teacher.
             $teacher->delete();
+
+            // Delete the user.
+            $teacher->user()->delete();
         });
     }
 

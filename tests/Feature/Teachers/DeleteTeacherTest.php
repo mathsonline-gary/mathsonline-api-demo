@@ -5,7 +5,6 @@ namespace Feature\Teachers;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
-use App\Models\Users\Teacher;
 use App\Policies\TeacherPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,7 +22,7 @@ class DeleteTeacherTest extends TestCase
     {
         $teacher = $this->fakeNonAdminTeacher();
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+        $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthenticated.
         $response->assertUnauthorized();
@@ -39,33 +38,77 @@ class DeleteTeacherTest extends TestCase
     {
         $school = $this->fakeTraditionalSchool();
 
-        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher($school);
         $teacher = $this->fakeNonAdminTeacher($school);
 
-        $activityCount = Activity::count();
+        $this->actingAsTeacher($adminTeacher);
 
-        // Set the $teacher as the owner of $classroom1, and the secondary teacher of $classroom2.
-        $classroom1 = $this->fakeClassroom($teacherAdmin);
-        $classroom2 = $this->fakeClassroom($teacher);
-        $this->attachSecondaryTeachersToClassroom($classroom1, [$teacher->id]);
-
-        // Assert $teacher was set correctly
-        $this->assertDatabaseHas('teachers', ['id' => $teacher->id])
-            ->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => $teacher->id])
-            ->assertDatabaseHas('classroom_secondary_teacher', [
-                'classroom_id' => $classroom1->id,
-                'teacher_id' => $teacher->id,
-            ]);
-
-        $this->actingAsTeacher($teacherAdmin);
-
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+        $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the response returns no content.
         $response->assertNoContent();
 
         // Assert that $teacher is soft-deleted.
         $this->assertSoftDeleted('teachers', ['id' => $teacher->id]);
+        $this->assertSoftDeleted('users', ['id' => $teacher->asUser()->id]);
+    }
+
+    /**
+     * Operation test.
+     *
+     * @see TeacherPolicy::delete()
+     */
+    public function test_it_logs_deleted_teacher_activity(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
+
+        $activityCount = Activity::count();
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
+
+        // Assert that the activity is logged correctly.
+        $this->assertDatabaseCount('activities', $activityCount + 1);
+        $activity = Activity::latest('id')->first();
+        $teacher->refresh();
+        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
+        $this->assertEquals('deleted teacher', $activity->type);
+        $this->assertEquals($teacher->deleted_at, $activity->acted_at);
+        $this->assertArrayHasKey('teacher_id', $activity->data);
+        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
+    }
+
+    /**
+     * Operation test.
+     *
+     * @see TeacherPolicy::delete()
+     */
+    public function test_it_detaches_classrooms_from_the_teacher(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $teacher = $this->fakeNonAdminTeacher($school);
+
+        // Set the $teacher as the owner of $classroom1, and the secondary teacher of $classroom2.
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($teacher);
+        $this->attachSecondaryTeachersToClassroom($classroom1, [$teacher->id]);
+
+        // Assert $teacher was set correctly
+        $this->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => $teacher->id])
+            ->assertDatabaseHas('classroom_secondary_teacher', [
+                'classroom_id' => $classroom1->id,
+                'teacher_id' => $teacher->id,
+            ]);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that $teacher is removed as the owner of $classroom2, and as a secondary teacher of $classroom1.
         $this->assertDatabaseHas('classrooms', ['id' => $classroom2->id, 'owner_id' => null])
@@ -74,17 +117,6 @@ class DeleteTeacherTest extends TestCase
                 'classroom_id' => $classroom1->id,
                 'teacher_id' => $teacher->id,
             ]);
-
-        // Assert that the activity is logged correctly.
-        $this->assertDatabaseCount('activities', $activityCount + 1);
-        $activity = Activity::latest('id')->first();
-        $teacher->refresh();
-        $this->assertEquals(Teacher::class, $activity->actable_type);
-        $this->assertEquals($teacherAdmin->id, $activity->actable_id);
-        $this->assertEquals('deleted teacher', $activity->type);
-        $this->assertEquals($teacher->deleted_at, $activity->acted_at);
-        $this->assertArrayHasKey('teacher_id', $activity->data);
-        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
     }
 
     /**
@@ -105,7 +137,7 @@ class DeleteTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+        $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthorised.
         $response->assertForbidden();
@@ -128,7 +160,7 @@ class DeleteTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+        $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthorised.
         $response->assertForbidden();
@@ -152,7 +184,7 @@ class DeleteTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.teachers.destroy', $teacher));
+        $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is unauthorised
         $response->assertForbidden();

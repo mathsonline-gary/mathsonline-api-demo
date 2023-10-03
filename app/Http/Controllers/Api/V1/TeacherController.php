@@ -133,7 +133,7 @@ class TeacherController extends Controller
 
         $this->teacherService->delete($teacher);
 
-        TeacherDeleted::dispatch($this->authService->teacher(), $teacher);
+        TeacherDeleted::dispatch($this->authService->user(), $teacher);
 
         return response()->noContent();
     }
