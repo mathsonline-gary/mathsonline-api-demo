@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\HasCredentials;
+use App\Concerns\Authenticatable;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Member extends Model
 {
     use HasFactory,
-        HasCredentials;
+        Authenticatable;
 
     protected $fillable = [
         'market_id',

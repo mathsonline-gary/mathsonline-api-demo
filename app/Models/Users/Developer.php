@@ -2,14 +2,14 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\HasCredentials;
+use App\Concerns\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Developer extends Model
 {
     use HasFactory,
-        HasCredentials;
+        Authenticatable;
 
     protected $fillable = [
         'username',

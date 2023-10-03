@@ -2,7 +2,7 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\HasCredentials;
+use App\Concerns\Authenticatable;
 use App\Models\Classroom;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,7 +17,7 @@ class Teacher extends Model
 {
     use HasFactory,
         SoftDeletes,
-        HasCredentials;
+        Authenticatable;
 
     protected $fillable = [
         'username',
@@ -32,16 +32,6 @@ class Teacher extends Model
     protected $casts = [
         'is_admin' => 'bool',
     ];
-
-    /**
-     * Get the authentication credentials of the teacher.
-     *
-     * @return BelongsTo
-     */
-    public function credentials(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
 
     /**
      * Identify if the teacher has the administrator access.

@@ -36,7 +36,8 @@ class TeacherFactory extends Factory
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'title' => fake()->title(),
-            'position' => fake()->randomElement($positions)
+            'position' => fake()->randomElement($positions),
+            'is_admin' => fake()->boolean(),
         ];
     }
 
@@ -46,11 +47,11 @@ class TeacherFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Teacher $teacher) {
-            $teacher->credentials->update([
+            $teacher->asUser()->update([
                 'login' => $teacher->username,
             ]);
         })->afterCreating(function (Teacher $teacher) {
-            $teacher->credentials->update([
+            $teacher->asUser()->update([
                 'login' => $teacher->username,
             ]);
         });

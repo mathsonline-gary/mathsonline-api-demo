@@ -2,14 +2,14 @@
 
 namespace App\Models\Users;
 
-use App\Concerns\HasCredentials;
+use App\Concerns\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Admin extends Model
 {
     use HasFactory,
-        HasCredentials;
+        Authenticatable;
 
     protected $fillable = [
         'market_id',
