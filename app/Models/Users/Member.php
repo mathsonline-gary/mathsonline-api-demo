@@ -2,13 +2,16 @@
 
 namespace App\Models\Users;
 
+use App\Concerns\BelongsToUser;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Member extends User
+class Member extends Model
 {
-    use HasFactory;
+    use HasFactory,
+        BelongsToUser;
 
     protected $fillable = [
         'market_id',
@@ -16,11 +19,6 @@ class Member extends User
         'email',
         'first_name',
         'last_name',
-        'password',
-    ];
-
-    protected $hidden = [
-        'password',
     ];
 
     protected $casts = [

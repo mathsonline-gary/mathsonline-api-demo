@@ -1,90 +1,33 @@
 <?php
 
-use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
-use App\Http\Controllers\Api\Teachers\V1\ClassroomGroupController;
-use App\Http\Controllers\Api\Teachers\V1\ClassroomSecondaryTeacherController;
-use App\Http\Controllers\Api\Teachers\V1\StudentController;
-use App\Http\Controllers\Api\Teachers\V1\TeacherController;
-use App\Http\Controllers\Web\Teachers\AuthController;
+use App\Http\Controllers\Api\V1\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Teacher Routes
+| API Routes - Teachers
 |--------------------------------------------------------------------------
 |
-| API routes for teachers.
+| Here is where you can register API routes for teacher module.
 |
 */
 
-Route::prefix('/teachers/v1')
-    ->name('api.teachers.v1.')
+// Teacher module routes.
+Route::prefix('/teachers')
+    ->name('teachers.')
     ->group(function () {
-        Route::get('/me', [AuthController::class, 'me'])
-            ->name('me');
+        Route::get('/', [TeacherController::class, 'index'])
+            ->name('index');
 
-        // Teacher module routes.
-        Route::get('/teachers', [TeacherController::class, 'index'])
-            ->name('teachers.index');
+        Route::get('/{teacher}', [TeacherController::class, 'show'])
+            ->name('show');
 
-        Route::get('/teachers/{teacher}', [TeacherController::class, 'show'])
-            ->name('teachers.show');
+        Route::post('/', [TeacherController::class, 'store'])
+            ->name('store');
 
-        Route::post('/teachers', [TeacherController::class, 'store'])
-            ->name('teachers.store');
+        Route::put('/{teacher}', [TeacherController::class, 'update'])
+            ->name('update');
 
-        Route::put('/teachers/{teacher}', [TeacherController::class, 'update'])
-            ->name('teachers.update');
-
-        Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy'])
-            ->name('teachers.destroy');
-
-        // Classroom module routes.
-        Route::get('/classrooms', [ClassroomController::class, 'index'])
-            ->name('classrooms.index');
-
-        Route::get('/classrooms/{classroom}', [ClassroomController::class, 'show'])
-            ->name('classrooms.show');
-
-        Route::post('/classrooms', [ClassroomController::class, 'store'])
-            ->name('classrooms.store');
-
-        Route::put('/classrooms/{classroom}', [ClassroomController::class, 'update'])
-            ->name('classrooms.update');
-
-        Route::delete('/classrooms/{classroom}', [ClassroomController::class, 'destroy'])
-            ->name('classrooms.destroy');
-
-        // Classroom group routes.
-        Route::post('/classrooms/{classroom}/groups', [ClassroomGroupController::class, 'store'])
-            ->name('classrooms.groups.store');
-
-        Route::put('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
-            ->name('classrooms.groups.update');
-
-        Route::delete('/classrooms/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
-            ->name('classrooms.groups.destroy');
-
-        // Classroom secondary teacher routes.
-        Route::post('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'store'])
-            ->name('classrooms.secondary-teachers.store');
-
-        Route::delete('/classrooms/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])
-            ->name('classrooms.secondary-teachers.destroy');
-
-        // Student routes.
-        Route::get('/students', [StudentController::class, 'index'])
-            ->name('students.index');
-
-        Route::get('/students/{student}', [StudentController::class, 'show'])
-            ->name('students.show');
-
-        Route::post('/students', [StudentController::class, 'store'])
-            ->name('students.store');
-
-        Route::put('/students/{student}', [StudentController::class, 'update'])
-            ->name('students.update');
-
-        Route::delete('/students/{student}', [StudentController::class, 'destroy'])
-            ->name('students.destroy');
+        Route::delete('/{teacher}', [TeacherController::class, 'destroy'])
+            ->name('destroy');
     });

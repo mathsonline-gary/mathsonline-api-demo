@@ -18,7 +18,7 @@ class School extends Model
     protected $fillable = [
         'market_id',
         'name',
-        'type',
+        'type_id',
         'email',
         'phone',
         'fax',
@@ -30,8 +30,12 @@ class School extends Model
         'address_country',
     ];
 
-    public const TYPE_TRADITIONAL_SCHOOL = '1';
-    public const TYPE_HOMESCHOOL = '2';
+    protected $casts = [
+        'type_id' => 'int',
+    ];
+
+    public const TYPE_TRADITIONAL_SCHOOL = 1;
+    public const TYPE_HOMESCHOOL = 2;
 
     /**
      * Get the owner of the school (homeschool).
@@ -71,7 +75,7 @@ class School extends Model
      */
     public function scopeTraditionalSchools(Builder $query): Builder
     {
-        return $query->where('type', School::TYPE_TRADITIONAL_SCHOOL);
+        return $query->where('type_id', School::TYPE_TRADITIONAL_SCHOOL);
     }
 
     /**
@@ -82,6 +86,6 @@ class School extends Model
      */
     public function scopeHomeschools(Builder $query): Builder
     {
-        return $query->where('type', School::TYPE_HOMESCHOOL);
+        return $query->where('type_id', School::TYPE_HOMESCHOOL);
     }
 }

@@ -12,24 +12,18 @@ return new class extends Migration {
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('user_id')
+                ->constrained('users');
             $table->foreignId('market_id')
                 ->constrained('markets');
-
             $table->string('username')
                 ->unique();
-
             $table->string('email')
                 ->nullable();
-
             $table->string('first_name')
                 ->nullable();
-
             $table->string('last_name')
                 ->nullable();
-
-            $table->string('password');
-
             $table->timestamps();
         });
     }

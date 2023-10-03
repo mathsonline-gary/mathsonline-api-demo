@@ -3,72 +3,201 @@
 namespace App\Models\Users;
 
 use App\Models\Activity;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable;
+    use HasFactory,
+        HasApiTokens,
+        Notifiable,
+        SoftDeletes;
+
+    protected $fillable = [
+        'login',
+        'password',
+        'type_id',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    protected $casts = [
+        'type_id' => 'int',
+    ];
+
+    public $timestamps = false;
+
+    public const TYPE_STUDENT = 1;
+    public const TYPE_TEACHER = 2;
+    public const TYPE_MEMBER = 3;
+    public const TYPE_ADMIN = 4;
+    public const TYPE_DEVELOPER = 5;
 
     /**
      * Get all the user's activities.
      *
-     * @return MorphMany
+     * @return HasMany
      */
-    public function activities(): MorphMany
+    public function activities(): HasMany
     {
-        return $this->morphMany(Activity::class, 'actable');
+        return $this->hasMany(Activity::class);
+    }
+
+    /**
+     * Indicate the user to be a teacher.
+     *
+     * @return HasOne
+     */
+    public function teacher(): HasOne
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
+    /**
+     * Indicate the user to be a student.
+     *
+     * @return HasOne
+     */
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    /**
+     * Indicate the user to be a member.
+     *
+     * @return HasOne
+     */
+    public function member(): HasOne
+    {
+        return $this->hasOne(Member::class);
+    }
+
+    /**
+     * Indicate the user to be an administrator.
+     *
+     * @return HasOne
+     */
+    public function admin(): HasOne
+    {
+        return $this->hasOne(Admin::class);
+    }
+
+    /**
+     * Indicate the user to be a developer.
+     *
+     * @return HasOne
+     */
+    public function developer(): HasOne
+    {
+        return $this->hasOne(Developer::class);
+    }
+
+
+    /**
+     * Determine whether the user is a teacher.
+     *
+     * @return bool
+     */
+    public function isTeacher(): bool
+    {
+        return $this->type_id === self::TYPE_TEACHER && $this->teacher !== null;
     }
 
     /**
      * Get the user as a teacher.
      *
-     * @return Teacher|null
+     * @return Teacher
      */
-    public function asTeacher(): ?Teacher
+    public function asTeacher(): Teacher
     {
-        return $this instanceof Teacher ? $this : null;
+        return $this->teacher;
+    }
+
+    /**
+     * Determine whether the user is a student.
+     *
+     * @return bool
+     */
+    public function isStudent(): bool
+    {
+        return $this->type_id === self::TYPE_STUDENT && $this->student !== null;
     }
 
     /**
      * Get the user as a student.
      *
-     * @return Student|null
+     * @return Student
      */
-    public function asStudent(): ?Student
+    public function asStudent(): Student
     {
-        return $this instanceof Student ? $this : null;
+        return $this->student;
+    }
+
+    /**
+     * Determine whether the user is a member.
+     *
+     * @return bool
+     */
+    public function isMember(): bool
+    {
+        return $this->type_id === self::TYPE_MEMBER && $this->member !== null;
     }
 
     /**
      * Get the user as a member.
      *
-     * @return Member|null
+     * @return Member
      */
-    public function asMember(): ?Member
+    public function asMember(): Member
     {
-        return $this instanceof Member ? $this : null;
+        return $this->member;
     }
 
     /**
-     * Get the user as an admin.
+     * Determine whether the user is an administrator.
      *
-     * @return Admin|null
+     * @return bool
      */
-    public function asAdmin(): ?Admin
+    public function isAdmin(): bool
     {
-        return $this instanceof Admin ? $this : null;
+        return $this->type_id === self::TYPE_ADMIN && $this->admin !== null;
     }
 
     /**
-     * Get the user as an developer.
+     * Get the user as an administrator.
      *
-     * @return Developer|null
+     * @return Admin
      */
-    public function asDeveloper(): ?Developer
+    public function asAdmin(): Admin
     {
-        return $this instanceof Developer ? $this : null;
+        return $this->admin;
+    }
+
+    /**
+     * Determine whether the user is a developer.
+     *
+     * @return bool
+     */
+    public function isDeveloper(): bool
+    {
+        return $this->type_id === self::TYPE_DEVELOPER && $this->developer !== null;
+    }
+
+    /**
+     * Get the user as a developer.
+     *
+     * @return Developer
+     */
+    public function asDeveloper(): Developer
+    {
+        return $this->developer;
     }
 }

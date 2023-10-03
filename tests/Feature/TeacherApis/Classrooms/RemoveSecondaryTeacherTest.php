@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\TeacherApis\Classrooms;
 
-use App\Http\Controllers\Api\Teachers\V1\ClassroomSecondaryTeacherController;
+use App\Http\Controllers\Api\V1\ClassroomSecondaryTeacherController;
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

@@ -17,18 +17,19 @@ class Classroom extends Model
     protected $fillable = [
         'school_id',
         'owner_id',
-        'type',
+        'type_id',
         'name',
     ];
 
     protected $casts = [
         'school_id' => 'int',
         'owner_id' => 'int',
+        'type_id' => 'int',
     ];
 
-    public const TYPE_TRADITIONAL_CLASSROOM = '1';
+    public const TYPE_TRADITIONAL_CLASSROOM = 1;
 
-    public const TYPE_HOMESCHOOL_CLASSROOM = '2';
+    public const TYPE_HOMESCHOOL_CLASSROOM = 2;
 
     // The max limit of the number of classroom groups.
     public const MAX_CUSTOM_GROUP_COUNT = 8;

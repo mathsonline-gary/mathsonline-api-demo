@@ -4,6 +4,7 @@ namespace Database\Factories\Users;
 
 use App\Models\School;
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -29,14 +30,31 @@ class TeacherFactory extends Factory
         ];
 
         return [
+            'user_id' => User::factory()->teacher()->create()->id,
             'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'title' => fake()->title(),
-            'position' => fake()->randomElement($positions)
+            'position' => fake()->randomElement($positions),
+            'is_admin' => fake()->boolean(),
         ];
+    }
+
+    /**
+     * Configure the model factory: synchronize the username with the login identifier.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (Teacher $teacher) {
+            $teacher->asUser()->update([
+                'login' => $teacher->username,
+            ]);
+        })->afterCreating(function (Teacher $teacher) {
+            $teacher->asUser()->update([
+                'login' => $teacher->username,
+            ]);
+        });
     }
 
     /**

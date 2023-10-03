@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Activity extends Model
 {
@@ -32,14 +31,4 @@ class Activity extends Model
     ];
 
     public $timestamps = false;
-
-    /**
-     * Get the actable model that the activity belongs to.
-     *
-     * @return MorphTo
-     */
-    public function actable(): MorphTo
-    {
-        return $this->morphTo('actable');
-    }
 }

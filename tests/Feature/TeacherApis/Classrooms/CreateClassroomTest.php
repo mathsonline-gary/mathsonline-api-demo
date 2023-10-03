@@ -3,8 +3,7 @@
 namespace Tests\Feature\TeacherApis\Classrooms;
 
 use App\Events\Classrooms\ClassroomCreated;
-use App\Http\Controllers\Api\Teachers\V1\ClassroomController;
-use Database\Seeders\MarketSeeder;
+use App\Http\Controllers\Api\V1\ClassroomController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
