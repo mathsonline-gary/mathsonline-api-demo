@@ -6,8 +6,8 @@ use App\Events\Teachers\TeacherCreated;
 use App\Events\Teachers\TeacherDeleted;
 use App\Events\Teachers\TeacherUpdated;
 use App\Http\Controllers\Api\Controller;
-use App\Http\Requests\TeacherRequests\StoreTeacherRequest;
-use App\Http\Requests\TeacherRequests\UpdateTeacherRequest;
+use App\Http\Requests\Teacher\StoreTeacherRequest;
+use App\Http\Requests\Teacher\UpdateTeacherRequest;
 use App\Http\Resources\TeacherResource;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
@@ -132,7 +132,7 @@ class TeacherController extends Controller
 
         $this->teacherService->delete($teacher);
 
-        TeacherDeleted::dispatch($this->authService->teacher(), $teacher);
+        TeacherDeleted::dispatch($this->authService->user(), $teacher);
 
         return response()->noContent();
     }

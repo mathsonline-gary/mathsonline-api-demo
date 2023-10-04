@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,9 +23,8 @@ Route::middleware(['auth:sanctum'])
         Route::prefix('/auth')
             ->name('auth.')
             ->group(function () {
-                Route::get('/me', function () {
-                    return auth()->user();
-                });
+                Route::get('/me', [AuthenticatedSessionController::class, 'show'])
+                    ->name('me');
             });
 
         // Teacher module routes.

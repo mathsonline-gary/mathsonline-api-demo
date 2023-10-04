@@ -26,6 +26,7 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
+        'oauth_google_id',
     ];
 
     protected $casts = [
@@ -47,7 +48,7 @@ class User extends Authenticatable
      */
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class, 'actor_id');
     }
 
     /**

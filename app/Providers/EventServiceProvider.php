@@ -17,6 +17,8 @@ use App\Listeners\LogActivity;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use SocialiteProviders\Google\GoogleExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -86,6 +88,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         // --------------------------------------------------------------------------------
 
+        // Socialite events mappings
+        SocialiteWasCalled::class => [
+            GoogleExtendSocialite::class . '@handle',
+        ],
     ];
 
     /**

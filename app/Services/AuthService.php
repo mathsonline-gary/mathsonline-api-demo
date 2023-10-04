@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\Auth\LoggedIn;
-use App\Events\Auth\LoggedOut;
-use App\Http\Requests\AuthRequests\LoginRequest;
 use App\Models\Users\Admin;
 use App\Models\Users\Developer;
 use App\Models\Users\Member;
@@ -13,48 +10,14 @@ use App\Models\Users\Teacher;
 use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
-    /**
-     * Login a user by valid credentials.
-     *
-     * @param LoginRequest $request
-     * @return void
-     */
-    public function login(LoginRequest $request): void
-    {
-        $request->authenticate();
-
-        $request->session()->regenerate();
-
-        LoggedIn::dispatch($this->user());
-    }
-
-    /**
-     * Logout current authenticated user.
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function logout(Request $request): void
-    {
-        $user = $this->user();
-
-        Auth::logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        LoggedOut::dispatch($user);
-    }
-
     /**
      * Send password reset link.
      *
