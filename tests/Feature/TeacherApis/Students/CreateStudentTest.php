@@ -4,7 +4,7 @@ namespace Tests\Feature\TeacherApis\Students;
 
 use App\Http\Controllers\Api\V1\StudentController;
 use App\Http\Middleware\SetAuthenticationDefaults;
-use App\Http\Requests\StudentRequests\StoreStudentRequest;
+use App\Http\Requests\Student\StoreStudentRequest;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;

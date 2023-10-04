@@ -36,11 +36,11 @@ class StudentFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Student $student) {
-            $student->credentials->update([
+            $student->asUser()->update([
                 'login' => $student->username,
             ]);
         })->afterCreating(function (Student $student) {
-            $student->credentials->update([
+            $student->asUser()->update([
                 'login' => $student->username,
             ]);
         });

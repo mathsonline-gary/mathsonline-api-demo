@@ -23,6 +23,10 @@ return new class extends Migration {
                 User::TYPE_ADMIN,
                 User::TYPE_DEVELOPER,
             ])->comment('The type of the user. 1 = student, 2 = teacher, 3 = member, 4 = admin, 5 = developer.');
+            $table->string('oauth_google_id')
+                ->nullable()
+                ->unique()
+                ->comment('The Google ID of the user for OAuth.');
             $table->timestamp('deleted_at')
                 ->nullable();
         });
