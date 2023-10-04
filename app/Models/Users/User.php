@@ -26,6 +26,7 @@ class User extends Authenticatable
 
     protected $hidden = [
         'password',
+        'oauth_google_id',
     ];
 
     protected $casts = [

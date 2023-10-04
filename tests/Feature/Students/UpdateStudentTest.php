@@ -3,7 +3,7 @@
 namespace Feature\Students;
 
 use App\Http\Controllers\Api\V1\StudentController;
-use App\Http\Requests\StudentRequests\UpdateStudentRequest;
+use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;

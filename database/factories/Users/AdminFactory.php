@@ -37,11 +37,11 @@ class AdminFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Admin $admin) {
-            $admin->credentials->update([
+            $admin->asUser()->update([
                 'login' => $admin->username,
             ]);
         })->afterCreating(function (Admin $admin) {
-            $admin->credentials->update([
+            $admin->asUser()->update([
                 'login' => $admin->username,
             ]);
         });

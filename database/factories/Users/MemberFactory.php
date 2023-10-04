@@ -35,11 +35,11 @@ class MemberFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Member $member) {
-            $member->credentials->update([
+            $member->asUser()->update([
                 'login' => $member->email,
             ]);
         })->afterCreating(function (Member $member) {
-            $member->credentials->update([
+            $member->asUser()->update([
                 'login' => $member->email,
             ]);
         });

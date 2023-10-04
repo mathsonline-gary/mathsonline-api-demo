@@ -35,11 +35,11 @@ class DeveloperFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Developer $developer) {
-            $developer->credentials->update([
+            $developer->asUser()->update([
                 'login' => $developer->username,
             ]);
         })->afterCreating(function (Developer $developer) {
-            $developer->credentials->update([
+            $developer->asUser()->update([
                 'login' => $developer->username,
             ]);
         });

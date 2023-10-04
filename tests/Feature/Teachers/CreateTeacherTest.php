@@ -4,7 +4,7 @@ namespace Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Http\Middleware\SetAuthenticationDefaults;
-use App\Http\Requests\TeacherRequests\StoreTeacherRequest;
+use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Models\Activity;
 use App\Models\Users\Teacher;
 use App\Policies\TeacherPolicy;
