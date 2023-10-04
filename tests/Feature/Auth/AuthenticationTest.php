@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -56,6 +57,29 @@ class AuthenticationTest extends TestCase
     }
 
     /**
+     * Operation test.
+     *
+     * @see AuthenticatedSessionController::store()
+     * @see LoginRequest::authenticate()
+     */
+    public function test_a_teacher_cannot_login_with_invalid_type_id(): void
+    {
+        $teacher = $this->fakeTeacher();
+
+        $this->assertGuest();
+
+        $response = $this->postJson(route('login'), [
+            'login' => $teacher->asUser()->login,
+            'password' => 'password',
+            'type_id' => 1,
+        ]);
+
+        $response->assertInvalid(['login' => __('auth.failed')]);
+
+        $this->assertGuest();
+    }
+
+    /**
      * Authentication test.
      *
      * @see RedirectIfAuthenticated::handle()
@@ -101,7 +125,70 @@ class AuthenticationTest extends TestCase
             'type_id' => 2,
         ]);
 
-        $response->assertUnprocessable();
+        $response->assertInvalid(['login' => __('auth.failed')]);
+
+        $this->assertGuest();
+    }
+
+    /**
+     * Validation test.
+     *
+     * @see LoginRequest::rules()
+     */
+    public function test_login_field_is_required()
+    {
+        $this->fakeTeacher();
+
+        $this->assertGuest();
+
+        $response = $this->postJson(route('login'), [
+            'password' => 'password',
+            'type_id' => 2,
+        ]);
+
+        $response->assertInvalid(['login' => __('validation.required', ['attribute' => 'login'])]);
+
+        $this->assertGuest();
+    }
+
+    /**
+     * Validation test.
+     *
+     * @see LoginRequest::rules()
+     */
+    public function test_password_field_is_required()
+    {
+        $teacher = $this->fakeTeacher();
+
+        $this->assertGuest();
+
+        $response = $this->postJson(route('login'), [
+            'login' => $teacher->asUser()->login,
+            'type_id' => 2,
+        ]);
+
+        $response->assertInvalid(['password' => __('validation.required', ['attribute' => 'password'])]);
+
+        $this->assertGuest();
+    }
+
+    /**
+     * Validation test.
+     *
+     * @see LoginRequest::rules()
+     */
+    public function test_type_id_field_is_required()
+    {
+        $teacher = $this->fakeTeacher();
+
+        $this->assertGuest();
+
+        $response = $this->postJson(route('login'), [
+            'login' => $teacher->asUser()->login,
+            'password' => 'password',
+        ]);
+
+        $response->assertInvalid(['type_id' => __('validation.required', ['attribute' => 'type id'])]);
 
         $this->assertGuest();
     }
