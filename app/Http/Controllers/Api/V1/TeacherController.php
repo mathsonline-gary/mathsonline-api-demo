@@ -65,10 +65,6 @@ class TeacherController extends Controller
         // Authorize the request.
         $this->authorize('create', Teacher::class);
 
-        // Get the authenticated user.
-        $authenticatedUser = $this->authService->user();
-        $authenticatedTeacher = $this->authService->teacher();
-
         $validated = $request->safe()->only([
             'username',
             'email',
@@ -80,12 +76,16 @@ class TeacherController extends Controller
             'is_admin',
         ]);
 
-        $attributes = [
-            ...$validated,
-            'school_id' => $authenticatedTeacher->school_id,
-        ];
+        // Get the authenticated user.
+        $authenticatedUser = $request->user();
 
-        $teacher = $this->teacherService->create($attributes);
+        if ($authenticatedUser->isTeacher()) {
+            // If the authenticated user is a teacher, only allow them to create teachers in the same school.
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
+            $validated['school_id'] = $authenticatedTeacher->school_id;
+        }
+
+        $teacher = $this->teacherService->create($validated);
 
         TeacherCreated::dispatch($authenticatedUser, $teacher);
 

@@ -56,7 +56,7 @@ class CreateTeacherTest extends TestCase
     }
 
     /**
-     * Authorization & Operation test.
+     * Authorization test.
      *
      * @see TeacherPolicy::create()
      * @see TeacherController::store()
@@ -75,42 +75,6 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated();
-
-        // Assert that the response has correct data of the new teacher.
-        $response->assertJsonFragment([
-            'school_id' => $school->id,
-            'username' => $this->payload['username'],
-            'email' => $this->payload['email'],
-            'first_name' => $this->payload['first_name'],
-            'last_name' => $this->payload['last_name'],
-            'position' => $this->payload['position'],
-            'title' => $this->payload['title'],
-            'is_admin' => $this->payload['is_admin'],
-        ])->assertJsonMissing(['password']);
-
-        // Assert that the teacher was created in the database.
-        $this->assertDatabaseCount('teachers', $teachersCount + 1);
-
-        // Assert that the teacher was created in the database with correct data.
-        $teacher = Teacher::latest('id')->first();
-        $this->assertEquals($school->id, $teacher->school_id);
-        $this->assertEquals($this->payload['username'], $teacher->username);
-        $this->assertEquals($this->payload['email'], $teacher->email);
-        $this->assertEquals($this->payload['first_name'], $teacher->first_name);
-        $this->assertEquals($this->payload['last_name'], $teacher->last_name);
-        $this->assertEquals($this->payload['position'], $teacher->position);
-        $this->assertEquals($this->payload['title'], $teacher->title);
-        $this->assertEquals($this->payload['is_admin'], $teacher->is_admin);
-        $this->assertTrue(Hash::check($this->payload['password'], $teacher->asUser()->password));
-
-        // Assert that the activity was logged.
-        $this->assertDatabaseCount('activities', $activitiesCount + 1);
-        $activity = Activity::latest('id')->first();
-        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals('created teacher', $activity->type);
-        $this->assertArrayHasKey('teacher_id', $activity->data);
-        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
-        $this->assertEquals($teacher->created_at, $activity->acted_at);
     }
 
     /**
@@ -126,6 +90,104 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
+    }
+
+    /**
+     * Operational test.
+     *
+     * @see TeacherController::store()
+     */
+    public function test_it_returns_expected_teacher_attributes()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
+
+        $response->assertCreated();
+
+        // Assert that the response has correct data of the new teacher.
+        $response->assertJsonFragment([
+            'school_id' => $school->id,
+            'username' => $this->payload['username'],
+            'email' => $this->payload['email'],
+            'first_name' => $this->payload['first_name'],
+            'last_name' => $this->payload['last_name'],
+            'position' => $this->payload['position'],
+            'title' => $this->payload['title'],
+            'is_admin' => $this->payload['is_admin'],
+        ])->assertJsonMissing(['password']);
+    }
+
+    /**
+     * Operational test.
+     *
+     * @see TeacherController::store()
+     */
+    public function test_it_create_the_teacher_correctly()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $this->assertDatabaseCount('teachers', 1);
+        $this->assertDatabaseCount('users', 1);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
+
+        $response->assertCreated();
+
+        // Assert that the new teacher was created in the database.
+        $this->assertDatabaseCount('teachers', 2);
+        $this->assertDatabaseCount('users', 2);
+
+        // Assert that the new teacher was created in the database with correct data.
+        $teacher = Teacher::latest('id')->first();
+        $this->assertEquals($school->id, $teacher->school_id);
+        $this->assertEquals($this->payload['username'], $teacher->username);
+        $this->assertEquals($this->payload['email'], $teacher->email);
+        $this->assertEquals($this->payload['first_name'], $teacher->first_name);
+        $this->assertEquals($this->payload['last_name'], $teacher->last_name);
+        $this->assertEquals($this->payload['position'], $teacher->position);
+        $this->assertEquals($this->payload['title'], $teacher->title);
+        $this->assertEquals($this->payload['is_admin'], $teacher->is_admin);
+        $this->assertEquals($this->payload['username'], $teacher->asUser()->login);
+        $this->assertTrue(Hash::check($this->payload['password'], $teacher->asUser()->password));
+    }
+
+    /**
+     * Operational test.
+     *
+     * @see TeacherController::store()
+     */
+    public function test_it_logs_created_teacher_activity()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $this->assertDatabaseCount('activities', 0);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
+
+        $response->assertCreated();
+
+        // Assert that the activity was logged.
+        $this->assertDatabaseCount('activities', 1);
+
+        // Assert that the activity was logged with correct data.
+        $activity = Activity::first();
+        $teacher = Teacher::latest('id')->first();
+
+        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
+        $this->assertEquals('created teacher', $activity->type);
+        $this->assertArrayHasKey('teacher_id', $activity->data);
+        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
+        $this->assertEquals($teacher->created_at, $activity->acted_at);
     }
 
     /**
