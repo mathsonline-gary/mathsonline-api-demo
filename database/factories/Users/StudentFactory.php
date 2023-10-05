@@ -39,10 +39,16 @@ class StudentFactory extends Factory
             $student->asUser()->update([
                 'login' => $student->username,
             ]);
+            if ($student->deleted_at) {
+                $student->asUser()->delete();
+            }
         })->afterCreating(function (Student $student) {
             $student->asUser()->update([
                 'login' => $student->username,
             ]);
+            if ($student->deleted_at) {
+                $student->asUser()->delete();
+            }
         });
     }
 

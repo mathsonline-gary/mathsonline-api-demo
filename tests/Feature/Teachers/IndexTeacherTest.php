@@ -18,7 +18,23 @@ class IndexTeacherTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Operation test.
+     * Authentication test.
+     */
+    public function test_a_guest_cannot_get_the_list_of_teachers(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teachers = $this->fakeTeacher($school, 10);
+
+        $this->assertGuest();
+
+        $response = $this->getJson(route('api.v1.teachers.index'));
+
+        // Assert that the request is unauthorized.
+        $response->assertUnauthorized();
+    }
+
+    /**
+     * Authorization test.
      *
      * @see TeacherController::index()
      */
@@ -48,41 +64,7 @@ class IndexTeacherTest extends TestCase
     }
 
     /**
-     * Operation test.
-     *
-     * @see TeacherController::index()
-     */
-    public function test_it_returns_expected_attributes()
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacherAdmin = $this->fakeAdminTeacher($school);
-        $this->fakeTeacher($school, 10);
-
-        $this->actingAsTeacher($teacherAdmin);
-
-        $response = $this->getJson(route('api.v1.teachers.index'));
-
-        $response->assertOk();
-
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'is_admin',
-                    'school',
-                    'owned_classrooms',
-                    'secondary_classrooms',
-                ],
-            ]
-        ]);
-    }
-
-    /**
-     * Operation test.
+     * Authorization test.
      *
      * @see TeacherController::index()
      */
@@ -135,7 +117,104 @@ class IndexTeacherTest extends TestCase
      *
      * @see TeacherController::index()
      */
-    public function test_admin_teachers_can_fuzzy_search_teachers_by_names(): void
+    public function test_it_returns_limited_attributes_by_default()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $this->fakeTeacher($school, 10);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.v1.teachers.index'));
+
+        $response->assertOk();
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'is_admin',
+                ],
+            ]
+        ]);
+    }
+
+    /**
+     * Operation test.
+     */
+    public function test_it_returns_the_school_details_if_explicitly_requested()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $this->fakeTeacher($school, 10);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.v1.teachers.index', [
+            'with_school' => true,
+        ]));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'school' => [
+                            'id',
+                            'name',
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    /**
+     * Operation test.
+     */
+    public function test_it_returns_classrooms_details_if_explicitly_requested()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $this->fakeTeacher($school, 10);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.v1.teachers.index', [
+            'with_classrooms' => true,
+        ]));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'owned_classrooms' => [
+                            '*' => [
+                                'id',
+                                'name',
+                                'pass_grade',
+                            ],
+                        ],
+                        'secondary_classrooms' => [
+                            '*' => [
+                                'id',
+                                'name',
+                                'pass_grade',
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+    }
+
+    /**
+     * Operation test.
+     *
+     * @see TeacherController::index()
+     */
+    public function test_it_returns_fuzzy_search_results_by_teacher_names(): void
     {
         $school = $this->fakeTraditionalSchool();
 
@@ -143,21 +222,21 @@ class IndexTeacherTest extends TestCase
             'username' => 'gary',
             'first_name' => 'Gary',
             'last_name' => 'Zhang',
-            'email' => 'gary@test.com'
+            'email' => 'gary@test.com',
         ]);
 
         $teacher2 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'tom',
             'first_name' => 'Tom',
             'last_name' => 'Porter',
-            'email' => 'tom.porter@mathsonline.com.au'
+            'email' => 'tom.porter@mathsonline.com.au',
         ]);
 
         $teacher3 = $this->fakeNonAdminTeacher($school, 1, [
             'username' => 'mike',
             'first_name' => 'Tom',
             'last_name' => 'Smith',
-            'email' => 'mike.smith@mathsonline.com.au'
+            'email' => 'mike.smith@mathsonline.com.au',
         ]);
 
         $this->actingAsTeacher($teacher1);

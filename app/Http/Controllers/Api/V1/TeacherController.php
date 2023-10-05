@@ -31,6 +31,9 @@ class TeacherController extends Controller
         $options = [
             'key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
+            'with_school' => $request->boolean('with_school'),
+            'with_classrooms' => $request->boolean('with_classrooms'),
+            'per_page' => $request->integer('per_page', 20),
         ];
 
         if ($user = $this->authService->teacher()) {
@@ -43,14 +46,16 @@ class TeacherController extends Controller
         return TeacherResource::collection($teachers);
     }
 
-    public function show(Teacher $teacher)
+    public function show(Request $request, Teacher $teacher)
     {
         $this->authorize('view', $teacher);
 
-        $teacher = $this->teacherService->find($teacher->id, [
-            'with_school' => true,
-            'with_classrooms' => true,
-        ]);
+        $options = [
+            'with_school' => $request->boolean('with_school'),
+            'with_classrooms' => $request->boolean('with_classrooms'),
+        ];
+
+        $teacher = $this->teacherService->find($teacher->id, $options);
 
         return new TeacherResource($teacher);
     }

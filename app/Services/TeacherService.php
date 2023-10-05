@@ -55,7 +55,10 @@ class TeacherService
      * @param array{
      *     school_id?: int,
      *     key?: string,
-     *     pagination?: bool
+     *     pagination?: bool,
+     *     per_page?: int,
+     *     with_school?: bool,
+     *     with_classrooms?: bool
      * } $options
      * @return LengthAwarePaginator|Collection<Teacher>
      */
@@ -63,11 +66,12 @@ class TeacherService
     {
         $searchKey = $options['key'] ?? null;
 
-        $query = Teacher::with([
-            'school',
-            'ownedClassrooms',
-            'secondaryClassrooms',
-        ])
+        $query = Teacher::when($options['with_school'] ?? false, function (Builder $query) {
+            $query->with('school');
+        })
+            ->when($options['with_classrooms'] ?? false, function (Builder $query) {
+                $query->with(['ownedClassrooms', 'secondaryClassrooms']);
+            })
             ->when($options['school_id'] ?? false, function (Builder $query) use ($options) {
                 $query->where(['school_id' => $options['school_id']]);
             })
@@ -81,7 +85,7 @@ class TeacherService
             });
 
         return $options['pagination'] ?? true
-            ? $query->paginate()->withQueryString()
+            ? $query->paginate($options['per_page'] ?? 20)->withQueryString()
             : $query->get();
     }
 
