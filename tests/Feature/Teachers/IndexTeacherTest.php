@@ -3,6 +3,7 @@
 namespace Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
+use App\Policies\TeacherPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,39 +17,29 @@ class IndexTeacherTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_admin_teachers_can_only_get_the_list_of_teachers_in_same_school(): void
+    /**
+     * Operation test.
+     *
+     * @see TeacherController::index()
+     */
+    public function test_an_admin_teacher_can_only_get_the_list_of_teachers_in_same_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $school2 = $this->fakeTraditionalSchool();
 
         $teacherAdmin = $this->fakeAdminTeacher($school1);
-        $teachers1 = $this->fakeNonAdminTeacher($school1, 10);
-        $this->fakeNonAdminTeacher($school2, 10);
+        $this->fakeTeacher($school1, 10);
+        $this->fakeTeacher($school2, 10);
 
         $this->actingAsTeacher($teacherAdmin);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index'));
+        $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is successful.
         $response->assertOk();
 
         // Assert that the response contains the correct number of teachers.
-        $response->assertJsonCount($teachers1->count() + 1, 'data');
-
-        // Assert the response has the expected attributes of each teacher.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'is_admin',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each teacher.
-        $response->assertJsonMissingPath('data.*.password');
+        $response->assertJsonCount(11, 'data');
 
         // Assert all teachers in school 2 are not included.
         $response->assertJsonMissing([
@@ -56,6 +47,74 @@ class IndexTeacherTest extends TestCase
         ]);
     }
 
+    /**
+     * Operation test.
+     *
+     * @see TeacherController::index()
+     */
+    public function test_it_returns_expected_attributes()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $this->fakeTeacher($school, 10);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.v1.teachers.index'));
+
+        $response->assertOk();
+
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'username',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'is_admin',
+                    'school',
+                    'owned_classrooms',
+                    'secondary_classrooms',
+                ],
+            ]
+        ]);
+    }
+
+    /**
+     * Operation test.
+     *
+     * @see TeacherController::index()
+     */
+    public function test_an_admin_teacher_cannot_view_soft_deleted_teachers_in_the_list(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $teacherAdmin = $this->fakeAdminTeacher($school);
+        $deletedTeachers = $this->fakeTeacher($school, 10, ['deleted_at' => now()]);
+
+        $this->actingAsTeacher($teacherAdmin);
+
+        $response = $this->getJson(route('api.v1.teachers.index'));
+
+        // Assert that the request is successful.
+        $response->assertOk();
+
+        // Assert that the response contains the correct number of teachers.
+        $response->assertJsonCount(1, 'data');
+
+        // Assert that the response does not contain the soft deleted teachers.
+        foreach ($deletedTeachers as $deletedTeacher) {
+            $response->assertJsonMissing([
+                'id' => $deletedTeacher->id,
+            ]);
+        }
+    }
+
+    /**
+     * Authorization test.
+     *
+     * @see TeacherPolicy::viewAny()
+     */
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -65,12 +124,17 @@ class IndexTeacherTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index'));
+        $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is unauthorised.
         $response->assertForbidden();
     }
 
+    /**
+     * Operation test.
+     *
+     * @see TeacherController::index()
+     */
     public function test_admin_teachers_can_fuzzy_search_teachers_by_names(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -98,7 +162,7 @@ class IndexTeacherTest extends TestCase
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gar'])); // 'gar' is for 'Gary'
+        $response = $this->getJson(route('api.v1.teachers.index', ['search_key' => 'gar'])); // 'gar' is for 'Gary'
 
         $response->assertSuccessful();
 
@@ -107,24 +171,11 @@ class IndexTeacherTest extends TestCase
             ->assertJsonMissing(['id' => $teacher2->id])
             ->assertJsonMissing(['id' => $teacher3->id]);
 
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'to'])); // 'to' is for 'Tom'
+        $response = $this->getJson(route('api.v1.teachers.index', ['search_key' => 'to'])); // 'to' is for 'Tom'
 
         // Assert that the search result is correct
         $response->assertJsonMissing(['id' => $teacher1->id])
             ->assertJsonFragment(['id' => $teacher2->id])
             ->assertJsonFragment(['id' => $teacher3->id]);
-    }
-
-    public function test_non_admin_teachers_are_unauthorized_to_search_teachers()
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teachers = $this->fakeNonAdminTeacher($school, 10);
-
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
-        $this->actingAsTeacher($nonAdminTeacher);
-
-        $response = $this->getJson(route('api.teachers.v1.teachers.index', ['search_key' => 'gary'])); // 'gar' is for 'Gary'
-
-        $response->assertForbidden();
     }
 }

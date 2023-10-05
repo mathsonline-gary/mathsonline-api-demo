@@ -133,7 +133,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_username_is_unique()
+    public function test_username_field_is_unique()
     {
         $adminTeacher = $this->fakeAdminTeacher();
 
@@ -153,7 +153,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_username_is_required()
+    public function test_username_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -171,7 +171,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_username_is_trimmed()
+    public function test_username_field_is_trimmed()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -193,7 +193,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_username_length_validation()
+    public function test_username_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -215,7 +215,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_email_is_optional()
+    public function test_email_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -233,7 +233,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_email_is_nullable()
+    public function test_email_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -251,7 +251,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_email_is_validated_as_email_address()
+    public function test_email_field_is_validated_as_email_address()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -267,7 +267,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_email_length_validation()
+    public function test_email_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -289,7 +289,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_first_name_is_required()
+    public function test_first_name_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -305,7 +305,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_first_name_is_trimmed()
+    public function test_first_name_field_is_trimmed()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -323,7 +323,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_first_name_length_validation()
+    public function test_first_name_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -339,7 +339,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_last_name_is_required()
+    public function test_last_name_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -355,7 +355,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_last_name_is_trimmed()
+    public function test_last_name_field_is_trimmed()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -373,7 +373,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_last_name_length_validation()
+    public function test_last_name_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -389,7 +389,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_password_is_required()
+    public function test_password_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -405,7 +405,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_password_length_validation()
+    public function test_password_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -427,7 +427,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_title_is_optional()
+    public function test_title_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -445,7 +445,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_title_is_nullable()
+    public function test_title_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -463,7 +463,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_title_is_trimmed()
+    public function test_title_field_is_trimmed()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -481,7 +481,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_title_length_validation()
+    public function test_title_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -497,7 +497,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_position_is_optional()
+    public function test_position_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -515,7 +515,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_position_is_nullable()
+    public function test_position_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -533,7 +533,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_position_is_trimmed()
+    public function test_position_field_is_trimmed()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -551,7 +551,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_position_length_validation()
+    public function test_position_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 
@@ -567,7 +567,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_is_admin_is_required()
+    public function test_is_admin_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
 

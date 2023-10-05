@@ -64,6 +64,7 @@ class TeacherService
         $searchKey = $options['key'] ?? null;
 
         $query = Teacher::with([
+            'school',
             'ownedClassrooms',
             'secondaryClassrooms',
         ])

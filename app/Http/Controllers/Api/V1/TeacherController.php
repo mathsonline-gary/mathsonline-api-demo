@@ -33,11 +33,9 @@ class TeacherController extends Controller
             'pagination' => $request->boolean('pagination', true),
         ];
 
-        // Set options for teachers.
         if ($user = $this->authService->teacher()) {
-            $options[] = [
-                'school_id' => $user->school_id,
-            ];
+            // If the authenticated user is a teacher, only show teachers from the same school.
+            $options['school_id'] = $user->school_id;
         }
 
         $teachers = $this->teacherService->search($options);
