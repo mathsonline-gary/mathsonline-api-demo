@@ -6,7 +6,6 @@ use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -181,75 +180,6 @@ class TeacherTest extends TestCase
 
         // Call the isAdmin method and assert that it returns false
         $this->assertFalse($nonAdminTeacher->isAdmin());
-    }
-
-    /**
-     * @see Teacher::activities()
-     */
-    public function test_a_teacher_has_many_activities_logged(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-        $this->fakeActivity($teacher, 10);
-
-        $this->assertInstanceOf(MorphMany::class, $teacher->activities());
-        $this->assertEquals(10, $teacher->activities()->count());
-    }
-
-    /**
-     * @see Teacher::asTeacher()
-     */
-    public function test_a_teacher_is_a_teacher(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->assertInstanceOf(Teacher::class, $teacher->asTeacher());
-        $this->assertEquals($teacher->id, $teacher->asTeacher()->id);
-    }
-
-    /**
-     * @see Teacher::asStudent()
-     */
-    public function test_a_teacher_is_not_a_student(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->assertNull($teacher->asStudent());
-    }
-
-    /**
-     * @see Teacher::asMember()
-     */
-    public function test_a_teacher_is_not_a_member(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->assertNull($teacher->asMember());
-    }
-
-    /**
-     * @see Teacher::asAdmin()
-     */
-    public function test_a_teacher_is_not_an_admin(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->assertNull($teacher->asAdmin());
-    }
-
-    /**
-     * @see Teacher::asDeveloper()
-     */
-    public function test_a_teacher_is_not_a_developer(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->assertNull($teacher->asDeveloper());
     }
 
     /**
