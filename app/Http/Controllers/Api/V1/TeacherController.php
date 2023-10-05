@@ -109,23 +109,27 @@ class TeacherController extends Controller
             'is_admin',
         ]);
 
-        $authenticatedTeacher = $this->authService->teacher();
+        $authenticatedUser = $request->user();
 
-        // Prevent non-admin teachers from changing admin access.
-        if (!$authenticatedTeacher->isAdmin()) {
-            $validated = Arr::except($validated, 'is_admin');
-        }
+        if ($authenticatedUser->isTeacher()) {
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
 
-        // Prevent admin teachers from changing their own admin access.
-        if ($authenticatedTeacher->isAdmin() && $authenticatedTeacher->id === $teacher->id) {
-            $validated = Arr::except($validated, 'is_admin');
+            // Prevent non-admin teachers from changing admin access.
+            if (!$authenticatedTeacher->isAdmin()) {
+                $validated = Arr::except($validated, 'is_admin');
+            }
+
+            // Prevent admin teachers from changing their own admin access.
+            if ($authenticatedTeacher->isAdmin() && $authenticatedTeacher->id === $teacher->id) {
+                $validated = Arr::except($validated, 'is_admin');
+            }
         }
 
         $beforeAttributes = $teacher->getAttributes();
 
         $updatedTeacher = $this->teacherService->update($teacher, $validated);
 
-        TeacherUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedTeacher);
+        TeacherUpdated::dispatch($authenticatedUser, $beforeAttributes, $updatedTeacher);
 
         return response()->json(new TeacherResource($updatedTeacher));
     }

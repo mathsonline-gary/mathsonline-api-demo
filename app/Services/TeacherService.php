@@ -160,28 +160,38 @@ class TeacherService
      */
     public function update(Teacher $teacher, array $attributes): Teacher
     {
-        $fillableAttributes = Arr::only($attributes, [
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name',
-            'title',
-            'position',
-        ]);
+        return DB::transaction(function () use ($teacher, $attributes) {
+            // Update teacher attributes.
+            {
+                $fillableAttributes = Arr::only($attributes, [
+                    'username',
+                    'email',
+                    'first_name',
+                    'last_name',
+                    'title',
+                    'position',
+                ]);
 
-        if (isset($fillableAttributes['password'])) {
-            $fillableAttributes['password'] = Hash::make($fillableAttributes['password']);
-        }
+                // Update massive assignable attributes.
+                $teacher->fill($fillableAttributes);
 
-        // Update massive assignable attributes.
-        $teacher->fill($fillableAttributes);
+                // Safely update attribute "is_admin".
+                $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
 
-        // Safely update attribute "is_admin".
-        $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
+                $teacher->save();
+            }
 
-        $teacher->save();
+            // Update associated user credentials.
+            {
+                $user = $teacher->asUser();
 
-        return $teacher;
+                $user->login = $attributes['username'] ?? $user->login;
+                $user->password = isset($attributes['password']) ? Hash::make($attributes['password']) : $user->password;
+
+                $user->save();
+            }
+
+            return $teacher;
+        });
     }
 }

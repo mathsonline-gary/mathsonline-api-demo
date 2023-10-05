@@ -4,8 +4,8 @@ namespace App\Events\Teachers;
 
 use App\Enums\ActivityTypes;
 use App\Events\ActivityLoggableEvent;
-use App\Models\Users\Admin;
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -17,11 +17,11 @@ class TeacherUpdated extends ActivityLoggableEvent
     /**
      * Create a new event instance.
      *
-     * @param Teacher|Admin $actor The user who updated the teacher.
+     * @param User $actor The user who updated the teacher.
      * @param array $before Teacher's attributes before updated.
      * @param Teacher $updatedTeacher The updated teacher instance.
      */
-    public function __construct(Teacher|Admin $actor, array $before, Teacher $updatedTeacher)
+    public function __construct(User $actor, array $before, Teacher $updatedTeacher)
     {
         parent::__construct(
             actor: $actor,
