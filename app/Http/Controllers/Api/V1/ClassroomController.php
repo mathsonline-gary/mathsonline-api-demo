@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ClassroomType;
 use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
@@ -129,7 +130,7 @@ class ClassroomController extends Controller
             'groups',
         ]);
         $attributes['school_id'] = $authenticatedTeacher->school_id;
-        $attributes['type'] = Classroom::TYPE_TRADITIONAL_CLASSROOM;
+        $attributes['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
 
         // Create the classroom.
         $classroom = $this->classroomService->create($attributes);

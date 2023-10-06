@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ClassroomType;
 use App\Enums\SchoolType;
 use App\Models\Classroom;
 use App\Models\School;
@@ -36,9 +37,9 @@ class ClassroomFactory extends Factory
         return $this->state(function () use ($school) {
             return [
                 'school_id' => $school->id,
-                'type_id' => match ($school->type) {
-                    SchoolType::TRADITIONAL_SCHOOL => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-                    SchoolType::HOMESCHOOL => Classroom::TYPE_HOMESCHOOL_CLASSROOM,
+                'type' => match ($school->type) {
+                    SchoolType::TRADITIONAL_SCHOOL => ClassroomType::TRADITIONAL_CLASSROOM,
+                    SchoolType::HOMESCHOOL => ClassroomType::HOMESCHOOL_CLASSROOM,
                 }
             ];
         });

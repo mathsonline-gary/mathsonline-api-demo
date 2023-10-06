@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ClassroomType;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,19 +18,15 @@ class Classroom extends Model
     protected $fillable = [
         'school_id',
         'owner_id',
-        'type_id',
+        'type',
         'name',
     ];
 
     protected $casts = [
         'school_id' => 'int',
         'owner_id' => 'int',
-        'type_id' => 'int',
+        'type' => ClassroomType::class,
     ];
-
-    public const TYPE_TRADITIONAL_CLASSROOM = 1;
-
-    public const TYPE_HOMESCHOOL_CLASSROOM = 2;
 
     // The max limit of the number of classroom groups.
     public const MAX_CUSTOM_GROUP_COUNT = 8;
