@@ -43,7 +43,11 @@ class ClassroomPolicy
     public function create(User $user): bool
     {
         // The user is a teacher.
-        return $user instanceof Teacher;
+        if ($user->isTeacher()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ClassroomController;
+use App\Http\Controllers\Api\V1\ClassroomGroupController;
+use App\Http\Controllers\Api\V1\ClassroomSecondaryTeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
