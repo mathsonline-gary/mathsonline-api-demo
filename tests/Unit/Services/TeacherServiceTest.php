@@ -90,7 +90,7 @@ class TeacherServiceTest extends TestCase
     /**
      * @see TeacherService::search()
      */
-    public function test_it_fuzzy_search_teachers()
+    public function test_it_fuzzy_searches_teachers()
     {
         $school = $this->fakeTraditionalSchool();
 
@@ -167,12 +167,13 @@ class TeacherServiceTest extends TestCase
         $this->assertEquals($attributes['school_id'], $teacher->school_id);
         $this->assertEquals($attributes['username'], $teacher->username);
         $this->assertEquals($attributes['email'], $teacher->email);
-        $this->assertTrue(Hash::check('password123', $teacher->password));
         $this->assertEquals($attributes['first_name'], $teacher->first_name);
         $this->assertEquals($attributes['last_name'], $teacher->last_name);
         $this->assertEquals($attributes['title'], $teacher->title);
         $this->assertEquals($attributes['position'], $teacher->position);
         $this->assertFalse($teacher->is_admin);
+        $this->assertEquals($attributes['username'], $teacher->asUser()->login);
+        $this->assertTrue(Hash::check('password123', $teacher->asUser()->password));
     }
 
     /**
@@ -203,7 +204,6 @@ class TeacherServiceTest extends TestCase
         $this->assertEquals($teacher->school_id, $result->school_id);
         $this->assertEquals($attributes['username'], $result->username);
         $this->assertEquals($attributes['email'], $result->email);
-        $this->assertTrue(Hash::check($attributes['password'], $result->password));
         $this->assertEquals($attributes['first_name'], $result->first_name);
         $this->assertEquals($attributes['last_name'], $result->last_name);
         $this->assertEquals($attributes['title'], $result->title);
@@ -215,12 +215,13 @@ class TeacherServiceTest extends TestCase
         $this->assertEquals($teacher->school_id, $teacher->school_id);
         $this->assertEquals($attributes['username'], $teacher->username);
         $this->assertEquals($attributes['email'], $teacher->email);
-        $this->assertTrue(Hash::check($attributes['password'], $teacher->password));
         $this->assertEquals($attributes['first_name'], $teacher->first_name);
         $this->assertEquals($attributes['last_name'], $teacher->last_name);
         $this->assertEquals($attributes['title'], $teacher->title);
         $this->assertEquals($attributes['position'], $teacher->position);
         $this->assertFalse($teacher->is_admin);
+        $this->assertEquals($attributes['username'], $teacher->asUser()->login);
+        $this->assertTrue(Hash::check('password123', $teacher->asUser()->password));
     }
 
     /**

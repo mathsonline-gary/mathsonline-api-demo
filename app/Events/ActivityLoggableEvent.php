@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Listeners\LogActivity;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -24,15 +24,15 @@ abstract class ActivityLoggableEvent
      * Create a new event instance.
      *
      * @param User $actor The user who performed the action.
-     * @param ActivityTypes $activityType The type of the activity.
+     * @param ActivityType $activityType The type of the activity.
      * @param Carbon $actedAt The datetime when the action was performed.
      * @param array|null $data Additional data to be logged.
      */
     public function __construct(
-        public User          $actor,
-        public ActivityTypes $activityType,
-        public Carbon        $actedAt,
-        public ?array        $data = null,
+        public User         $actor,
+        public ActivityType $activityType,
+        public Carbon       $actedAt,
+        public ?array       $data = null,
 
     )
     {

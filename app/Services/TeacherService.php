@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,7 +55,10 @@ class TeacherService
      * @param array{
      *     school_id?: int,
      *     key?: string,
-     *     pagination?: bool
+     *     pagination?: bool,
+     *     per_page?: int,
+     *     with_school?: bool,
+     *     with_classrooms?: bool
      * } $options
      * @return LengthAwarePaginator|Collection<Teacher>
      */
@@ -62,10 +66,12 @@ class TeacherService
     {
         $searchKey = $options['key'] ?? null;
 
-        $query = Teacher::with([
-            'ownedClassrooms',
-            'secondaryClassrooms',
-        ])
+        $query = Teacher::when($options['with_school'] ?? false, function (Builder $query) {
+            $query->with('school');
+        })
+            ->when($options['with_classrooms'] ?? false, function (Builder $query) {
+                $query->with(['ownedClassrooms', 'secondaryClassrooms']);
+            })
             ->when($options['school_id'] ?? false, function (Builder $query) use ($options) {
                 $query->where(['school_id' => $options['school_id']]);
             })
@@ -79,7 +85,7 @@ class TeacherService
             });
 
         return $options['pagination'] ?? true
-            ? $query->paginate()->withQueryString()
+            ? $query->paginate($options['per_page'] ?? 20)->withQueryString()
             : $query->get();
     }
 
@@ -103,16 +109,22 @@ class TeacherService
             'is_admin',
         ]);
 
-        $teacher = new Teacher([
-            ...$attributes,
-            'password' => Hash::make($attributes['password']),
-        ]);
+        return DB::transaction(function () use ($attributes) {
+            // Create a user.
+            $user = User::create([
+                'login' => $attributes['username'],
+                'password' => Hash::make($attributes['password']),
+                'type_id' => User::TYPE_TEACHER,
+            ]);
 
-        $teacher->is_admin = $attributes['is_admin'];
+            $teacher = new Teacher($attributes);
 
-        $teacher->save();
+            $teacher->is_admin = $attributes['is_admin'];
 
-        return $teacher;
+            $user->teacher()->save($teacher);
+
+            return $teacher;
+        });
     }
 
     /**
@@ -133,6 +145,9 @@ class TeacherService
 
             // Delete the teacher.
             $teacher->delete();
+
+            // Delete the user.
+            $teacher->user()->delete();
         });
     }
 
@@ -145,28 +160,38 @@ class TeacherService
      */
     public function update(Teacher $teacher, array $attributes): Teacher
     {
-        $fillableAttributes = Arr::only($attributes, [
-            'username',
-            'email',
-            'password',
-            'first_name',
-            'last_name',
-            'title',
-            'position',
-        ]);
+        return DB::transaction(function () use ($teacher, $attributes) {
+            // Update teacher attributes.
+            {
+                $fillableAttributes = Arr::only($attributes, [
+                    'username',
+                    'email',
+                    'first_name',
+                    'last_name',
+                    'title',
+                    'position',
+                ]);
 
-        if (isset($fillableAttributes['password'])) {
-            $fillableAttributes['password'] = Hash::make($fillableAttributes['password']);
-        }
+                // Update massive assignable attributes.
+                $teacher->fill($fillableAttributes);
 
-        // Update massive assignable attributes.
-        $teacher->fill($fillableAttributes);
+                // Safely update attribute "is_admin".
+                $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
 
-        // Safely update attribute "is_admin".
-        $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
+                $teacher->save();
+            }
 
-        $teacher->save();
+            // Update associated user credentials.
+            {
+                $user = $teacher->asUser();
 
-        return $teacher;
+                $user->login = $attributes['username'] ?? $user->login;
+                $user->password = isset($attributes['password']) ? Hash::make($attributes['password']) : $user->password;
+
+                $user->save();
+            }
+
+            return $teacher;
+        });
     }
 }

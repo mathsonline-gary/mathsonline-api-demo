@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ActivityType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('actor_id')
                 ->constrained('users');
-            $table->string('type');
+            $table->enum('type', array_column(ActivityType::cases(), 'value'));
             $table->json('data')
                 ->nullable()
                 ->comment('JSON data associate with the activity.');

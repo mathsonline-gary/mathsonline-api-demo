@@ -12,8 +12,12 @@ class TeacherPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isTeacher() &&
-            $user->asTeacher()->isAdmin();
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -21,9 +25,13 @@ class TeacherPolicy
      */
     public function view(User $user, Teacher $teacher): bool
     {
-        return $user->isTeacher() &&
+        if ($user->isTeacher() &&
             $user->asTeacher()->isAdmin() &&
-            $user->asTeacher()->school_id === $teacher->school_id;
+            $user->asTeacher()->school_id === $teacher->school_id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -31,8 +39,12 @@ class TeacherPolicy
      */
     public function create(User $user): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin();
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -41,15 +53,19 @@ class TeacherPolicy
     public function update(User $user, Teacher $teacher): bool
     {
         // User is a teacher, and is updating personal profile.
-        $condition1 = $user instanceof Teacher &&
-            $user->id === $teacher->id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->id === $teacher->id) {
+            return true;
+        }
 
         // User is an admin teacher, and is updating a teacher in the same school.
-        $condition2 = $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin() &&
+            $user->asTeacher()->school_id === $teacher->school_id) {
+            return true;
+        }
 
-        return $condition1 || $condition2;
+        return false;
     }
 
     /**
@@ -57,8 +73,13 @@ class TeacherPolicy
      */
     public function delete(User $user, Teacher $teacher): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $teacher->school_id;
+        if ($user->isTeacher() &&
+            $user->asTeacher()->isAdmin() &&
+            $user->asTeacher()->school_id === $teacher->school_id &&
+            $user->asTeacher()->id !== $teacher->id) {
+            return true;
+        }
+
+        return false;
     }
 }

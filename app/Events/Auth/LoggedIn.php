@@ -2,7 +2,7 @@
 
 namespace App\Events\Auth;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -27,7 +27,7 @@ class LoggedIn extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityTypes::LOGGED_IN,
+            activityType: ActivityType::LOGGED_IN,
             actedAt: $loggedInAt,
         );
     }

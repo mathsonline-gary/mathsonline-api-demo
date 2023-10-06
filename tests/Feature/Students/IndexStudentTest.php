@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\TeacherApis\Students;
+namespace Feature\Students;
 
 use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

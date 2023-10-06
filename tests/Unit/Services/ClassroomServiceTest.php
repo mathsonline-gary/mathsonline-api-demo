@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Services;
 
+use App\Enums\ClassroomType;
 use App\Exceptions\DefaultClassroomGroupExistsException;
 use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -155,7 +155,7 @@ class ClassroomServiceTest extends TestCase
         $attributes = [
             'school_id' => $school->id,
             'owner_id' => $teacher->id,
-            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
+            'type' => ClassroomType::TRADITIONAL_CLASSROOM,
             'name' => 'Test Class',
             'pass_grade' => 80,
             'attempts' => 1,

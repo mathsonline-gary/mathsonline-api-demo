@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\Services;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Services\ActivityService;
 use Carbon\Carbon;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -37,7 +36,7 @@ class ActivityServiceTest extends TestCase
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
 
-        $type = ActivityTypes::LOGGED_IN;
+        $type = ActivityType::LOGGED_IN;
         $actedAt = Carbon::now();
         $data = ['key' => 'value'];
 

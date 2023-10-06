@@ -25,23 +25,6 @@ class AuthServiceTest extends TestCase
         $this->authService = new AuthService();
     }
 
-    public function test_it_can_login_a_teacher()
-    {
-        // TODO
-        $this->assertTrue(true);
-    }
-
-    public function test_it_can_logout_a_teacher()
-    {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school);
-
-        $this->actingAsTeacher($teacher);
-
-        // TODO
-        $this->assertTrue(true);
-    }
-
     /**
      * @see AuthService::teacher()
      */

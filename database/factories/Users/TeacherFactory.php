@@ -50,10 +50,16 @@ class TeacherFactory extends Factory
             $teacher->asUser()->update([
                 'login' => $teacher->username,
             ]);
+            if ($teacher->deleted_at) {
+                $teacher->asUser()->delete();
+            }
         })->afterCreating(function (Teacher $teacher) {
             $teacher->asUser()->update([
                 'login' => $teacher->username,
             ]);
+            if ($teacher->deleted_at) {
+                $teacher->asUser()->delete();
+            }
         });
     }
 

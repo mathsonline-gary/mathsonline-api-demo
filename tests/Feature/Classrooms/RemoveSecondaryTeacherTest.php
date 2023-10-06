@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\TeacherApis\Classrooms;
+namespace Feature\Classrooms;
 
 use App\Http\Controllers\Api\V1\ClassroomSecondaryTeacherController;
 use Database\Seeders\MarketSeeder;

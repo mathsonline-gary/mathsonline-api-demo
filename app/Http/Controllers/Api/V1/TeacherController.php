@@ -31,13 +31,14 @@ class TeacherController extends Controller
         $options = [
             'key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
+            'with_school' => $request->boolean('with_school'),
+            'with_classrooms' => $request->boolean('with_classrooms'),
+            'per_page' => $request->integer('per_page', 20),
         ];
 
-        // Set options for teachers.
         if ($user = $this->authService->teacher()) {
-            $options[] = [
-                'school_id' => $user->school_id,
-            ];
+            // If the authenticated user is a teacher, only show teachers from the same school.
+            $options['school_id'] = $user->school_id;
         }
 
         $teachers = $this->teacherService->search($options);
@@ -45,14 +46,16 @@ class TeacherController extends Controller
         return TeacherResource::collection($teachers);
     }
 
-    public function show(Teacher $teacher)
+    public function show(Request $request, Teacher $teacher)
     {
         $this->authorize('view', $teacher);
 
-        $teacher = $this->teacherService->find($teacher->id, [
-            'with_school' => true,
-            'with_classrooms' => true,
-        ]);
+        $options = [
+            'with_school' => $request->boolean('with_school'),
+            'with_classrooms' => $request->boolean('with_classrooms'),
+        ];
+
+        $teacher = $this->teacherService->find($teacher->id, $options);
 
         return new TeacherResource($teacher);
     }
@@ -61,9 +64,6 @@ class TeacherController extends Controller
     {
         // Authorize the request.
         $this->authorize('create', Teacher::class);
-
-        // Get the authenticated teacher.
-        $authenticatedTeacher = $this->authService->teacher();
 
         $validated = $request->safe()->only([
             'username',
@@ -76,14 +76,18 @@ class TeacherController extends Controller
             'is_admin',
         ]);
 
-        $attributes = [
-            ...$validated,
-            'school_id' => $authenticatedTeacher->school_id,
-        ];
+        // Get the authenticated user.
+        $authenticatedUser = $request->user();
 
-        $teacher = $this->teacherService->create($attributes);
+        if ($authenticatedUser->isTeacher()) {
+            // If the authenticated user is a teacher, only allow them to create teachers in the same school.
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
+            $validated['school_id'] = $authenticatedTeacher->school_id;
+        }
 
-        TeacherCreated::dispatch($authenticatedTeacher, $teacher);
+        $teacher = $this->teacherService->create($validated);
+
+        TeacherCreated::dispatch($authenticatedUser, $teacher);
 
         return response()->json(new TeacherResource($teacher), 201);
     }
@@ -105,23 +109,27 @@ class TeacherController extends Controller
             'is_admin',
         ]);
 
-        $authenticatedTeacher = $this->authService->teacher();
+        $authenticatedUser = $request->user();
 
-        // Prevent non-admin teachers from changing admin access.
-        if (!$authenticatedTeacher->isAdmin()) {
-            $validated = Arr::except($validated, 'is_admin');
-        }
+        if ($authenticatedUser->isTeacher()) {
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
 
-        // Prevent admin teachers from changing their own admin access.
-        if ($authenticatedTeacher->isAdmin() && $authenticatedTeacher->id === $teacher->id) {
-            $validated = Arr::except($validated, 'is_admin');
+            // Prevent non-admin teachers from changing admin access.
+            if (!$authenticatedTeacher->isAdmin()) {
+                $validated = Arr::except($validated, 'is_admin');
+            }
+
+            // Prevent admin teachers from changing their own admin access.
+            if ($authenticatedTeacher->isAdmin() && $authenticatedTeacher->id === $teacher->id) {
+                $validated = Arr::except($validated, 'is_admin');
+            }
         }
 
         $beforeAttributes = $teacher->getAttributes();
 
         $updatedTeacher = $this->teacherService->update($teacher, $validated);
 
-        TeacherUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedTeacher);
+        TeacherUpdated::dispatch($authenticatedUser, $beforeAttributes, $updatedTeacher);
 
         return response()->json(new TeacherResource($updatedTeacher));
     }

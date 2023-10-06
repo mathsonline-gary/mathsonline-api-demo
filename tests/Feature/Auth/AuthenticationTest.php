@@ -2,9 +2,12 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Activity;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,6 +35,30 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($teacher->asUser());
 
         $response->assertNoContent();
+    }
+
+    public function test_it_logs_logged_in_activity()
+    {
+        $teacher = $this->fakeTeacher();
+
+        $this->assertDatabaseCount('activities', 0);
+
+        $this->assertGuest();
+
+        $this->postJson(route('login'), [
+            'login' => $teacher->asUser()->login,
+            'password' => 'password',
+            'type_id' => 2,
+        ]);
+
+        $this->assertDatabaseCount('activities', 1);
+
+        // Assert that the activity is logged with the correct data.
+        $activity = Activity::first();
+        $this->assertEquals($teacher->asUser()->id, $activity->actor_id);
+        $this->assertEquals(ActivityType::LOGGED_IN, $activity->type);
+        $this->assertNull($activity->data);
+        $this->assertEqualsWithDelta(Carbon::now(), $activity->acted_at, 5);
     }
 
     /**
