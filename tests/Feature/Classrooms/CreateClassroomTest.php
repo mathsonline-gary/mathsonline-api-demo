@@ -51,7 +51,7 @@ class CreateClassroomTest extends TestCase
     /**
      * Authorization test.
      */
-    public function test_an_admin_teacher_can_create_classroom_for_a_teacher_in_the_same_school(): void
+    public function test_an_admin_teacher_can_create_a_classroom(): void
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -82,6 +82,7 @@ class CreateClassroomTest extends TestCase
         $this->actingAsTeacher($adminTeacher);
 
         $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->payload['year_id'] = $school1->market->years->random()->id;
 
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
@@ -100,6 +101,7 @@ class CreateClassroomTest extends TestCase
         $this->actingAsTeacher($nonAdminTeacher);
 
         $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
 
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
@@ -116,6 +118,7 @@ class CreateClassroomTest extends TestCase
         $this->actingAsTeacher($nonAdminTeacher1);
 
         $this->payload['owner_id'] = $nonAdminTeacher2->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
 
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
@@ -137,6 +140,7 @@ class CreateClassroomTest extends TestCase
         $this->actingAsTeacher($nonAdminTeacher1);
 
         $this->payload['owner_id'] = $nonAdminTeacher2->id;
+        $this->payload['year_id'] = $school1->market->years->random()->id;
 
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 

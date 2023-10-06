@@ -18,6 +18,7 @@ class Classroom extends Model
     protected $fillable = [
         'school_id',
         'owner_id',
+        'year_id',
         'type',
         'name',
     ];
@@ -25,6 +26,7 @@ class Classroom extends Model
     protected $casts = [
         'school_id' => 'int',
         'owner_id' => 'int',
+        'year_id' => 'int',
         'type' => ClassroomType::class,
     ];
 

@@ -7,6 +7,7 @@ use App\Events\Classrooms\ClassroomCreated;
 use App\Events\Classrooms\ClassroomDeleted;
 use App\Events\Classrooms\ClassroomUpdated;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\Classroom\StoreClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
@@ -56,87 +57,33 @@ class ClassroomController extends Controller
         return new ClassroomResource($classroom);
     }
 
-    public function store(Request $request)
+    public function store(StoreClassroomRequest $request)
     {
         // Authorize.
         $this->authorize('create', Classroom::class);
-
-        $authenticatedTeacher = $this->authService->teacher();
-
-        // Validate request.
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:32',
-            ],
-            'owner_id' => [
-                'required',
-                'int',
-                $authenticatedTeacher->isAdmin()
-                    ? Rule::exists('teachers', 'id')
-                    ->where('school_id', $authenticatedTeacher->school_id)  // Admin teacher can create classroom for any teacher in the school.
-                    : Rule::exists('teachers', 'id')
-                    ->where('id', $authenticatedTeacher->id),   // Non-admin teacher can only create classroom for himself.
-            ],
-            'pass_grade' => [
-                'required',
-                'int',
-                'min:0',
-                'max:100',
-            ],
-            'attempts' => [
-                'required',
-                'int',
-                'min:1',
-            ],
-            'secondary_teacher_ids' => ['array'],
-            'secondary_teacher_ids.*' => [
-                'required',
-                'int',
-                Rule::exists('teachers', 'id')
-                    ->where('school_id', $authenticatedTeacher->school_id), // Can only add secondary teacher in the same school.
-            ],
-            'groups' => [
-                'array',
-                'max:8'
-            ],
-            'groups.*.name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:255',
-            ],
-            'groups.*.pass_grade' => [
-                'required',
-                'int',
-                'min:0',
-                'max:100',
-            ],
-            'groups.*.attempts' => [
-                'required',
-                'int',
-                'min:1',
-            ],
-        ]);
+        $authenticatedUser = $request->user();
 
         // Construct attributes.
-        $attributes = Arr::only($validated, [
+        $attributes = $request->only([
             'name',
+            'year_id',
             'owner_id',
             'pass_grade',
             'attempts',
             'secondary_teacher_ids',
             'groups',
         ]);
-        $attributes['school_id'] = $authenticatedTeacher->school_id;
-        $attributes['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
+
+        if ($authenticatedTeacher = $authenticatedUser->asTeacher()) {
+            $attributes['school_id'] = $authenticatedTeacher->school_id;
+            $attributes['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
+        }
 
         // Create the classroom.
         $classroom = $this->classroomService->create($attributes);
 
         // Dispatch ClassroomCreated event.
-        ClassroomCreated::dispatch($authenticatedTeacher, $classroom);
+        ClassroomCreated::dispatch($authenticatedUser, $classroom);
 
         return response()->json(new ClassroomResource($classroom), 201);
     }

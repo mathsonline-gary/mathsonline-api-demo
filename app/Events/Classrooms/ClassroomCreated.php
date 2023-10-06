@@ -2,15 +2,16 @@
 
 namespace App\Events\Classrooms;
 
+use App\Enums\ActivityType;
+use App\Events\ActivityLoggableEvent;
 use App\Models\Classroom;
-use App\Models\Users\Admin;
-use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ClassroomCreated
+class ClassroomCreated extends ActivityLoggableEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -19,11 +20,16 @@ class ClassroomCreated
     /**
      * Create a new event instance.
      */
-    public function __construct(
-        public Teacher|Admin|null $creator,
-        public Classroom          $classroom,
-    )
+    public function __construct(User $creator, Classroom $classroom)
     {
-        $this->createdAt = $this->classroom->created_at;
+        parent::__construct(
+            actor: $creator,
+            activityType: ActivityType::CREATED_CLASSROOM,
+            actedAt: $classroom->created_at,
+            data: [
+                'classroom_id' => $classroom->id,
+                'classroom_groups' => $classroom->customClassroomGroups->pluck('id'),
+            ],
+        );
     }
 }

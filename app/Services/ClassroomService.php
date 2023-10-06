@@ -127,6 +127,7 @@ class ClassroomService
         $attributes = Arr::only($attributes, [
             'school_id',
             'owner_id',
+            'year_id',
             'type',
             'name',
             'pass_grade',
