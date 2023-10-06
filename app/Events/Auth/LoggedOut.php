@@ -2,7 +2,7 @@
 
 namespace App\Events\Auth;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -27,7 +27,7 @@ class LoggedOut extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $user,
-            activityType: ActivityTypes::LOGGED_OUT,
+            activityType: ActivityType::LOGGED_OUT,
             actedAt: $loggedOutAt,
         );
     }

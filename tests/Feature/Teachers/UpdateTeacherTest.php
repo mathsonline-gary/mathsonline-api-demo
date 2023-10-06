@@ -2,7 +2,7 @@
 
 namespace Feature\Teachers;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Models\Activity;
 use App\Policies\TeacherPolicy;
@@ -316,7 +316,7 @@ class UpdateTeacherTest extends TestCase
         // Assert that the activity was logged correctly.
         $activity = Activity::first();
         $this->assertEquals($adminTeacher->id, $activity->actor_id);
-        $this->assertEquals(ActivityTypes::UPDATED_TEACHER->value, $activity->type);
+        $this->assertEquals(ActivityType::UPDATED_TEACHER, $activity->type);
         $this->assertEquals($teacher->updated_at, $activity->acted_at);
         $this->assertArrayHasKey('before', $activity->data);
         $this->assertArrayHasKey('after', $activity->data);

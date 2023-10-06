@@ -2,7 +2,7 @@
 
 namespace App\Events\Teachers;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
@@ -25,7 +25,7 @@ class TeacherUpdated extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityTypes::UPDATED_TEACHER,
+            activityType: ActivityType::UPDATED_TEACHER,
             actedAt: $updatedTeacher->updated_at,
             data: [
                 'before' => $before,

@@ -2,7 +2,7 @@
 
 namespace App\Events\Students;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
@@ -28,7 +28,7 @@ class StudentCreated extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityTypes::CREATED_STUDENT,
+            activityType: ActivityType::CREATED_STUDENT,
             actedAt: $student->created_at,
             data: [
                 'student_id' => $student->id,

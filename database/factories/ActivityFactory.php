@@ -2,9 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Enums\ActivityTypes;
+use App\Enums\ActivityType;
 use App\Models\Activity;
-use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,7 +15,7 @@ class ActivityFactory extends Factory
     public function definition(): array
     {
         return [
-            'type' => fake()->randomElement(array_column(ActivityTypes::cases(), 'value')),
+            'type' => fake()->randomElement(array_column(ActivityType::cases(), 'value')),
             'data' => [
                 'key_1' => 'value_1',
                 'key_2' => [

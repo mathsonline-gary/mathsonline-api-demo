@@ -2,6 +2,7 @@
 
 namespace Feature\Teachers;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
@@ -184,7 +185,7 @@ class CreateTeacherTest extends TestCase
         $teacher = Teacher::latest('id')->first();
 
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals('created teacher', $activity->type);
+        $this->assertEquals(ActivityType::CREATED_TEACHER, $activity->type);
         $this->assertArrayHasKey('teacher_id', $activity->data);
         $this->assertEquals($teacher->id, $activity->data['teacher_id']);
         $this->assertEquals($teacher->created_at, $activity->acted_at);
