@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Services;
 
+use App\Enums\SchoolType;
 use App\Models\Market;
 use App\Models\School;
 use App\Services\SchoolService;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
@@ -38,7 +38,7 @@ class SchoolServiceTest extends TestCase
         $attributes = [
             'market_id' => Market::first()->id,
             'name' => 'Test School',
-            'type' => School::TYPE_TRADITIONAL_SCHOOL,
+            'type' => SchoolType::TRADITIONAL_SCHOOL,
             'email' => 'school@test.com',
             'phone' => '1234567890',
             'fax' => '9876543210',
