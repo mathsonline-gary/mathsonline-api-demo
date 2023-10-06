@@ -34,6 +34,8 @@ class CreateClassroomTest extends TestCase
             'name' => fake()->name,
             'pass_grade' => fake()->numberBetween(0, 100),
             'attempts' => fake()->numberBetween(1, 10),
+            'mastery_enabled' => fake()->boolean,
+            'self-rating_enabled' => fake()->boolean,
         ];
     }
 

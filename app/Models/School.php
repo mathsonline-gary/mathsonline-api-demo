@@ -9,6 +9,7 @@ use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -34,6 +35,16 @@ class School extends Model
     protected $casts = [
         'type' => SchoolType::class,
     ];
+
+    /**
+     * Get the market associated with the school.
+     *
+     * @return BelongsTo
+     */
+    public function market(): BelongsTo
+    {
+        return $this->belongsTo(Market::class);
+    }
 
     /**
      * Get the owner of the school (homeschool).

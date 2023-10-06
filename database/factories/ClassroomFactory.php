@@ -23,6 +23,10 @@ class ClassroomFactory extends Factory
     {
         return [
             'name' => 'Class ' . fake()->randomNumber(2),
+            'pass_grade' => fake()->numberBetween(60, 90),
+            'attempts' => fake()->numberBetween(1, 3),
+            'mastery_enabled' => fake()->boolean,
+            'self_rating_enabled' => fake()->boolean,
         ];
     }
 
@@ -40,7 +44,8 @@ class ClassroomFactory extends Factory
                 'type' => match ($school->type) {
                     SchoolType::TRADITIONAL_SCHOOL => ClassroomType::TRADITIONAL_CLASSROOM,
                     SchoolType::HOMESCHOOL => ClassroomType::HOMESCHOOL_CLASSROOM,
-                }
+                },
+                'year_id' => $school->market->years->random()->id,
             ];
         });
     }

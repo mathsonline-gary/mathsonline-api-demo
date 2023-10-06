@@ -17,8 +17,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MarketSeeder::class,
             SchoolSeeder::class,
+            TeacherSeeder::class,
+            StudentSeeder::class,
             AdminSeeder::class,
             DeveloperSeeder::class,
+            YearSeeder::class,
             ClassroomSeeder::class,
         ]);
     }

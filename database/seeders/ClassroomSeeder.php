@@ -14,10 +14,8 @@ class ClassroomSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed traditional classrooms.
-        $traditionalSchools = School::traditionalSchools()->get();
-
-        $traditionalSchools->each(function ($school) {
+        // Seed classrooms for each traditional school.
+        School::traditionalSchools()->each(function (School $school) {
             $teachers = $school->teachers;
             $students = $school->students;
 
@@ -28,17 +26,16 @@ class ClassroomSeeder extends Seeder
                 ->ownedBy($teachers->random())
                 ->create();
 
-            $classrooms->each(function ($classroom) use ($teachers, $students) {
+            $classrooms->each(function (Classroom $classroom) use ($teachers, $students) {
                 // Seed secondary teachers for each classroom.
-                /* @var $classroom Classroom */
-                $classroom->secondaryTeachers()->attach($teachers->random(3));
+                $classroom->secondaryTeachers()->attach($teachers->except($classroom->owner->id)->random(2));
 
                 // Seed the default classroom group.
                 $defaultClassroomGroup = ClassroomGroup::factory()
                     ->for($classroom)
                     ->default()
                     ->create([
-                        'name' => 'Classroom ' . $classroom->id . ' default group',
+                        'name' => 'Default group for Classroom ' . $classroom->id,
                     ]);
 
                 // Seed custom classroom groups.
@@ -48,14 +45,10 @@ class ClassroomSeeder extends Seeder
                     ->custom()
                     ->create();
 
-                // Seed students for each classroom and classroom group
-                $studentsInClass = $students->random(10);
-
-                $defaultClassroomGroup->students()->attach($studentsInClass);
-
-                $customClassroomGroups->each(function ($classroomGroup) use ($studentsInClass) {
-                    /* @var ClassroomGroup $classroomGroup */
-                    $classroomGroup->students()->attach($studentsInClass->random(5));
+                // Seed students for each classroom group
+                $defaultClassroomGroup->students()->attach($students->random(2));
+                $customClassroomGroups->each(function (ClassroomGroup $classroomGroup) use ($students) {
+                    $classroomGroup->students()->attach($students->random(5));
                 });
             });
         });

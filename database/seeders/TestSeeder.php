@@ -16,6 +16,7 @@ class TestSeeder extends Seeder
     {
         $this->call([
             MarketSeeder::class,
+            YearSeeder::class,
         ]);
     }
 }
