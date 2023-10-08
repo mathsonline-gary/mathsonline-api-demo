@@ -1,8 +1,9 @@
 <?php
 
-namespace Feature\Classrooms;
+namespace Tests\Feature\Classrooms;
 
 use App\Http\Controllers\Api\V1\ClassroomController;
+use App\Models\Classroom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -31,7 +32,7 @@ class CreateClassroomTest extends TestCase
             'pass_grade' => fake()->numberBetween(0, 100),
             'attempts' => fake()->numberBetween(1, 10),
             'mastery_enabled' => fake()->boolean,
-            'self-rating_enabled' => fake()->boolean,
+            'self_rating_enabled' => fake()->boolean,
         ];
     }
 
@@ -71,7 +72,77 @@ class CreateClassroomTest extends TestCase
     /**
      * Authorization test.
      */
-    public function test_an_admin_teacher_cannot_create_a_classroom_for_a_teacher_in_another_school(): void
+    public function test_a_non_admin_teachers_can_create_a_classroom_for_himself(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+        $this->actingAsTeacher($nonAdminTeacher);
+
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
+
+        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the response has a 201 “Created” status code.
+        $response->assertCreated();
+    }
+
+    public function test_it_creates_the_classroom_correctly()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+        $this->assertDatabaseCount('classrooms', 0);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
+
+        $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the classroom was created correctly.
+        $this->assertDatabaseCount('classrooms', 1);
+        $classroom = Classroom::first();
+        $this->assertEquals($school->id, $classroom->school_id);
+        $this->assertEquals($this->payload['name'], $classroom->name);
+        $this->assertEquals($nonAdminTeacher->id, $classroom->owner_id);
+        $this->assertEquals($this->payload['year_id'], $classroom->year_id);
+        $this->assertEquals($this->payload['pass_grade'], $classroom->pass_grade);
+        $this->assertEquals($this->payload['attempts'], $classroom->attempts);
+        $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
+        $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
+    }
+
+    public function test_it_assigns_secondary_teachers()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+        $this->assertDatabaseCount('classrooms', 0);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['owner_id'] = $adminTeacher->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
+        $this->payload['secondary_teacher_ids'] = [
+            $nonAdminTeacher1->id,
+            $nonAdminTeacher2->id,
+        ];
+
+        $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the classroom was created correctly.
+    }
+
+    /**
+     * Validation test.
+     */
+    public function test_it_does_not_allow_an_admin_teacher_to_create_a_classroom_for_a_teacher_from_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
@@ -91,25 +162,9 @@ class CreateClassroomTest extends TestCase
     }
 
     /**
-     * Authorization test.
+     * Validation test.
      */
-    public function test_a_non_admin_teachers_can_create_a_classroom_for_himself(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
-
-        $this->actingAsTeacher($nonAdminTeacher);
-
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
-        $this->payload['year_id'] = $school->market->years->random()->id;
-
-        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
-
-        // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated();
-    }
-
-    public function test_non_admin_teachers_cannot_create_classrooms_for_another_teacher_in_the_same_school(): void
+    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_the_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
@@ -127,9 +182,9 @@ class CreateClassroomTest extends TestCase
     }
 
     /**
-     * Authorization test.
+     * Validation test.
      */
-    public function test_a_non_admin_teachers_cannot_create_a_classroom_for_another_teacher_in_another_school(): void
+    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);

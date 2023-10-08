@@ -71,6 +71,8 @@ class ClassroomController extends Controller
             'pass_grade',
             'attempts',
             'secondary_teacher_ids',
+            'mastery_enabled',
+            'self_rating_enabled',
             'groups',
         ]);
 

@@ -42,6 +42,14 @@ class StoreClassroomRequest extends FormRequest
                 'int',
                 'min:1',
             ],
+            'mastery_enabled' => [
+                'required',
+                'boolean',
+            ],
+            'self_rating_enabled' => [
+                'required',
+                'boolean',
+            ],
             'secondary_teacher_ids' => ['array'],
             'secondary_teacher_ids.*' => [
                 'required',
