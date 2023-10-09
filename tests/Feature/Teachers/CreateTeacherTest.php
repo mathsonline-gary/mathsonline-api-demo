@@ -186,8 +186,8 @@ class CreateTeacherTest extends TestCase
 
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
         $this->assertEquals(ActivityType::CREATED_TEACHER, $activity->type);
-        $this->assertArrayHasKey('teacher_id', $activity->data);
-        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
+        $this->assertArrayHasKey('id', $activity->data);
+        $this->assertEquals($teacher->id, $activity->data['id']);
         $this->assertEquals($teacher->created_at, $activity->acted_at);
     }
 

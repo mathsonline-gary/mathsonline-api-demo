@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Classrooms;
+namespace App\Events\Classroom;
 
 use App\Models\Classroom;
 use App\Models\Users\Admin;

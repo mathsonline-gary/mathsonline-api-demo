@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Events\Students\StudentCreated;
-use App\Events\Students\StudentDeleted;
-use App\Events\Students\StudentUpdated;
+use App\Events\Student\StudentCreated;
+use App\Events\Student\StudentDeleted;
+use App\Events\Student\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;

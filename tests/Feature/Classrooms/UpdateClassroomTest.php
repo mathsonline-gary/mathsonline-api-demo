@@ -2,7 +2,7 @@
 
 namespace Feature\Classrooms;
 
-use App\Events\Classrooms\ClassroomUpdated;
+use App\Events\Classroom\ClassroomUpdated;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;

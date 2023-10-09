@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ClassroomType;
-use App\Events\Classrooms\ClassroomCreated;
-use App\Events\Classrooms\ClassroomDeleted;
-use App\Events\Classrooms\ClassroomUpdated;
+use App\Events\Classroom\ClassroomCreated;
+use App\Events\Classroom\ClassroomDeleted;
+use App\Events\Classroom\ClassroomGroupCreated;
+use App\Events\Classroom\ClassroomUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Classroom\StoreClassroomRequest;
 use App\Http\Resources\ClassroomResource;
@@ -15,6 +16,7 @@ use App\Services\ClassroomService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class ClassroomController extends Controller
@@ -81,13 +83,29 @@ class ClassroomController extends Controller
             $attributes['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
         }
 
-        // Create the classroom.
-        $classroom = $this->classroomService->create($attributes);
+        return DB::transaction(function () use ($attributes, $authenticatedUser) {
+            // Create the classroom.
+            $classroom = $this->classroomService->create($attributes);
 
-        // Dispatch ClassroomCreated event.
-        ClassroomCreated::dispatch($authenticatedUser, $classroom);
+            // Dispatch ClassroomCreated event.
+            ClassroomCreated::dispatch($authenticatedUser, $classroom);
 
-        return response()->json(new ClassroomResource($classroom), 201);
+            // Add custom groups if any.
+            if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
+                foreach ($attributes['groups'] as $group) {
+                    $classroomGroup = $this->classroomService->addCustomGroup($classroom, $group);
+
+                    ClassroomGroupCreated::dispatch($authenticatedUser, $classroomGroup);
+                }
+            }
+
+            // Add secondary teachers if it is passed.
+            if (isset($attributes['secondary_teacher_ids']) && count($attributes['secondary_teacher_ids']) > 0) {
+                $this->classroomService->assignSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
+            }
+
+            return response()->json(new ClassroomResource($classroom), 201);
+        });
     }
 
     public function update(Request $request, Classroom $classroom)

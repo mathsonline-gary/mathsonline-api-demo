@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Events\Teachers\TeacherCreated;
-use App\Events\Teachers\TeacherDeleted;
-use App\Events\Teachers\TeacherUpdated;
+use App\Events\Teacher\TeacherCreated;
+use App\Events\Teacher\TeacherDeleted;
+use App\Events\Teacher\TeacherUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;

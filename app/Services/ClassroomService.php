@@ -150,18 +150,6 @@ class ClassroomService
                 'attempts' => $attributes['attempts'],
             ]);
 
-            // Create custom groups if it is passed.
-            if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
-                foreach ($attributes['groups'] as $group) {
-                    $this->addCustomGroup($classroom, $group);
-                }
-            }
-
-            // Add secondary teachers if it is passed.
-            if (isset($attributes['secondary_teacher_ids']) && count($attributes['secondary_teacher_ids']) > 0) {
-                $this->addSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
-            }
-
             return $classroom;
         });
     }
@@ -233,7 +221,7 @@ class ClassroomService
      * @param bool $detaching Whether to detach the existing secondary teachers or not.
      * @return void
      */
-    public function addSecondaryTeachers(Classroom $classroom, array $teacherIds, bool $detaching = true): void
+    public function assignSecondaryTeachers(Classroom $classroom, array $teacherIds, bool $detaching = true): void
     {
         $detaching
             ? $classroom->secondaryTeachers()->sync($teacherIds)

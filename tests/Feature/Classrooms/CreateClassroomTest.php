@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Classrooms;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
+use App\Models\Activity;
 use App\Models\Classroom;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -110,8 +112,6 @@ class CreateClassroomTest extends TestCase
         $this->assertEquals($this->payload['name'], $classroom->name);
         $this->assertEquals($nonAdminTeacher->id, $classroom->owner_id);
         $this->assertEquals($this->payload['year_id'], $classroom->year_id);
-        $this->assertEquals($this->payload['pass_grade'], $classroom->pass_grade);
-        $this->assertEquals($this->payload['attempts'], $classroom->attempts);
         $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
         $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
     }
@@ -122,8 +122,6 @@ class CreateClassroomTest extends TestCase
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
-
-        $this->assertDatabaseCount('classrooms', 0);
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -136,7 +134,44 @@ class CreateClassroomTest extends TestCase
 
         $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
-        // Assert that the classroom was created correctly.
+        // Assert that the secondary teachers were assigned correctly.
+        $classroom = Classroom::first();
+        $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher1));
+        $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher2));
+    }
+
+    public function test_it_add_classroom_groups()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $this->actingAsTeacher($adminTeacher);
+        $this->payload['owner_id'] = $adminTeacher->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
+        $this->payload['groups'] = [
+            [
+                'name' => $this->faker->name,
+                'pass_grade' => $this->faker->numberBetween(0, 100),
+                'attempts' => $this->faker->numberBetween(1, 10),
+            ],
+            [
+                'name' => $this->faker->name,
+                'pass_grade' => $this->faker->numberBetween(0, 100),
+                'attempts' => $this->faker->numberBetween(1, 10),
+            ],
+        ];
+
+        $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the classroom groups were added correctly.
+        $this->assertDatabaseCount('classroom_groups', 3); // 1 default + 2 custom (from the payload)
+        $classroom = Classroom::first();
+        $this->assertEquals(1, $classroom->defaultClassroomGroup()->count());
+        $this->assertEquals(2, $classroom->customClassroomGroups()->count());
+
+        // Assert that the created classroom group activities were added correctly.
+        $activities = Activity::where('type', ActivityType::CREATED_CLASSROOM_GROUP)->get();
+        $this->assertEquals(2, $activities->count());
     }
 
     /**

@@ -29,14 +29,6 @@ return new class extends Migration {
 
             $table->string('name');
 
-            $table->unsignedTinyInteger('pass_grade')
-                ->default(90)
-                ->comment('The minimum grade required to pass the questions in the classroom.');
-
-            $table->unsignedTinyInteger('attempts')
-                ->default(1)
-                ->comment('Attempts before solutions are available. Only applicable to worksheets.');
-
             $table->boolean('mastery_enabled')
                 ->default(false)
                 ->comment('Whether to enable mastery to encourage students to master the lessons by doing more questions.');

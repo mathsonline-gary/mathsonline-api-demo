@@ -33,7 +33,7 @@ class ClassroomSecondaryTeacherController extends Controller
             ], 422);
         }
 
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher->id], false);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher->id], false);
 
         return response()->json([
             'message' => 'Secondary teacher added successfully.',

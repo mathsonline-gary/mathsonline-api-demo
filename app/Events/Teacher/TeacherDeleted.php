@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Teachers;
+namespace App\Events\Teacher;
 
 use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
@@ -10,19 +10,17 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TeacherCreated extends ActivityLoggableEvent
+class TeacherDeleted extends ActivityLoggableEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct(User $creator, Teacher $teacher)
+    public function __construct(User $actor, Teacher $teacher,
+    )
     {
         parent::__construct(
-            actor: $creator,
-            activityType: ActivityType::CREATED_TEACHER,
-            actedAt: $teacher->created_at,
+            actor: $actor,
+            activityType: ActivityType::DELETED_TEACHER,
+            actedAt: $teacher->deleted_at,
             data: [
                 'teacher_id' => $teacher->id,
             ],

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Classrooms;
+namespace App\Events\Classroom;
 
 use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
@@ -27,8 +27,7 @@ class ClassroomCreated extends ActivityLoggableEvent
             activityType: ActivityType::CREATED_CLASSROOM,
             actedAt: $classroom->created_at,
             data: [
-                'classroom_id' => $classroom->id,
-                'classroom_groups' => $classroom->customClassroomGroups->pluck('id'),
+                'id' => $classroom->id,
             ],
         );
     }

@@ -92,6 +92,8 @@ class StoreClassroomRequest extends FormRequest
 
             $rules['secondary_teacher_ids.*'][] = Rule::exists('teachers', 'id')
                 ->where('school_id', $teacher->school_id); // Can only add secondary teacher from the same school.
+
+            $rules['secondary_teacher_ids.*'][] = Rule::notIn([$this->integer('owner_id')]); // Secondary teacher cannot be the owner.
         }
 
         return $rules;

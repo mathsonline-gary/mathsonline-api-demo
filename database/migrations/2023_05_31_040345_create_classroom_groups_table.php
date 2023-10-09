@@ -24,8 +24,8 @@ return new class extends Migration {
 
             $table->unsignedInteger('attempts')
                 ->default(1)
-                ->comment('The maximum number of attempts that the student in this classroom to pass tasks.');
-            
+                ->comment('The maximum number of attempts before solutions are available. Only applicable to worksheets.');
+
             $table->boolean('is_default')
                 ->comment('Indicates whether this classroom group is the default group for the class, including all students in the class.');
 

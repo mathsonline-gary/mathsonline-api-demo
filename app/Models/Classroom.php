@@ -21,8 +21,6 @@ class Classroom extends Model
         'year_id',
         'type',
         'name',
-        'pass_grade',
-        'attempts',
         'mastery_enabled',
         'self_rating_enabled',
     ];
@@ -32,8 +30,6 @@ class Classroom extends Model
         'owner_id' => 'int',
         'year_id' => 'int',
         'type' => ClassroomType::class,
-        'pass_grade' => 'int',
-        'attempts' => 'int',
         'mastery_enabled' => 'bool',
         'self_rating_enabled' => 'bool',
     ];

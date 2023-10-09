@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Students;
+namespace App\Events\Student;
 
 use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
