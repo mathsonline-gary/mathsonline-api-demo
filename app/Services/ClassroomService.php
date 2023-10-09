@@ -23,6 +23,7 @@ class ClassroomService
      *     search_key?: string,
      *     owner_id?: int|string,
      *     pagination?: bool,
+     *     per_page?: int,
      *     with_school?: bool,
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
@@ -56,8 +57,8 @@ class ClassroomService
             ->when(isset($options['owner_id']), function (Builder $query) use ($options) {
                 $query->where('owner_id', $options['owner_id']);
             })
-            ->when($options['pagination'] ?? true, function (Builder $query) {
-                return $query->paginate()->withQueryString();
+            ->when($options['pagination'] ?? true, function (Builder $query) use ($options) {
+                return $query->paginate($options['per_page'] ?? 20)->withQueryString();
             }, function (Builder $query) {
                 return $query->get();
             });
