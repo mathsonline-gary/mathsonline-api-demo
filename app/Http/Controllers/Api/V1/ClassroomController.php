@@ -33,16 +33,22 @@ class ClassroomController extends Controller
     {
         $this->authorize('viewAny', Classroom::class);
 
-        $authenticatedTeacher = $this->authService->teacher();
+        $authenticatedUser = $request->user();
 
         $options = [
-            'school_id' => $authenticatedTeacher->school_id,
-            'key' => $request->input('search_key'),
+            'search_key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
+            'with_owner' => $request->boolean('with_owner'),
+            'with_secondary_teachers' => $request->boolean('with_secondary_teachers'),
+            'with_groups' => $request->boolean('with_groups'),
         ];
 
-        if (!$authenticatedTeacher->isAdmin()) {
-            $options['owner_id'] = $authenticatedTeacher->id;
+        if ($authenticatedTeacher = $authenticatedUser->asTeacher()) {
+            $options['school_id'] = $authenticatedTeacher->school_id;
+
+            if (!$authenticatedTeacher->isAdmin()) {
+                $options['owner_id'] = $authenticatedTeacher->id;
+            }
         }
 
         $classrooms = $this->classroomService->search($options);

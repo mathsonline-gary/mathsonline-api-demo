@@ -20,31 +20,31 @@ class ClassroomService
      *
      * @param array{
      *     school_id?: int,
-     *     key?: string,
+     *     search_key?: string,
      *     owner_id?: int|string,
      *     pagination?: bool,
      *     with_school?: bool,
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
-     *     with_custom_groups?: bool,
+     *     with_groups?: bool,
      * } $options
      * @return Collection|LengthAwarePaginator
      */
     public function search(array $options = []): Collection|LengthAwarePaginator
     {
-        $searchKey = $options['key'] ?? null;
+        $searchKey = $options['search_key'] ?? null;
 
         return Classroom::with('defaultClassroomGroup')
             ->when($options['with_school'] ?? false, function (Builder $query) {
                 $query->with('school');
             })
-            ->when($options['with_owner'] ?? true, function (Builder $query) {
+            ->when($options['with_owner'] ?? false, function (Builder $query) {
                 $query->with('owner');
             })
-            ->when($options['with_secondary_teachers'] ?? true, function (Builder $query) {
+            ->when($options['with_secondary_teachers'] ?? false, function (Builder $query) {
                 $query->with('secondaryTeachers');
             })
-            ->when($options['with_custom_groups'] ?? false, function (Builder $query) {
+            ->when($options['with_groups'] ?? false, function (Builder $query) {
                 $query->with('customClassroomGroups');
             })
             ->when(isset($options['school_id']), function (Builder $query) use ($options) {
