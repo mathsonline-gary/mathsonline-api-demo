@@ -38,6 +38,7 @@ return new class extends Migration {
                 ->comment('Whether to enable self-rating emojis to let students rate their understanding for each lesson. The self-rating has no effect on student grades.');
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

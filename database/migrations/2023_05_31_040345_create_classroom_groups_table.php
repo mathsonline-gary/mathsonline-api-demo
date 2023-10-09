@@ -30,6 +30,8 @@ return new class extends Migration {
                 ->comment('Indicates whether this classroom group is the default group for the class, including all students in the class.');
 
             $table->timestamps();
+
+            $table->softDeletes();
         });
     }
 

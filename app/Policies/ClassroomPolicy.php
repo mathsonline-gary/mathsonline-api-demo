@@ -73,17 +73,19 @@ class ClassroomPolicy
      */
     public function delete(User $user, Classroom $classroom): bool
     {
-        // The user is an admin teacher, and deleting the classroom in his school.
-        $condition1 = $user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $classroom->school_id;
+        if ($teacher = $user->asTeacher()) {
+            // The user is an admin teacher, and deleting the classroom in his school.
+            if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
+                return true;
+            }
 
-        // The user is a non-admin teacher, and deleting the classroom that he owns.
-        $condition2 = $user instanceof Teacher &&
-            !$user->isAdmin() &&
-            $classroom->owner_id === $user->id;
+            // The user is a non-admin teacher, and deleting the classroom that he owns.
+            if (!$teacher->isAdmin() && $teacher->id === $classroom->owner_id) {
+                return true;
+            }
+        }
 
-        return $condition1 || $condition2;
+        return false;
     }
 
     public function addSecondaryTeacher(User $user, Classroom $classroom, Teacher $teacher): Response|bool

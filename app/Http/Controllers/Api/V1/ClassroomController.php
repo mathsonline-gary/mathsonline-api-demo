@@ -157,13 +157,13 @@ class ClassroomController extends Controller
         return response()->json(new ClassroomResource($updatedClassroom));
     }
 
-    public function destroy(Classroom $classroom)
+    public function destroy(Request $request, Classroom $classroom)
     {
         $this->authorize('delete', $classroom);
 
         $this->classroomService->delete($classroom);
 
-        ClassroomDeleted::dispatch($this->authService->teacher(), $classroom);
+        ClassroomDeleted::dispatch($request->user(), $classroom);
 
         return response()->noContent();
     }

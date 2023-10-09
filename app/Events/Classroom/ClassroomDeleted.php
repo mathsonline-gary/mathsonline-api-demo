@@ -2,25 +2,27 @@
 
 namespace App\Events\Classroom;
 
+use App\Enums\ActivityType;
+use App\Events\ActivityLoggableEvent;
 use App\Models\Classroom;
-use App\Models\Users\Admin;
-use App\Models\Users\Teacher;
-use Carbon\Carbon;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ClassroomDeleted
+class ClassroomDeleted extends ActivityLoggableEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Carbon $deletedAt;
-
-    public function __construct(
-        public Teacher|Admin|null $actor,
-        public Classroom          $classroom,
-    )
+    public function __construct(User $actor, Classroom $classroom)
     {
-        $this->deletedAt = Carbon::now();
+        parent::__construct(
+            actor: $actor,
+            activityType: ActivityType::DELETED_CLASSROOM,
+            actedAt: $classroom->deleted_at,
+            data: [
+                'id' => $classroom->id,
+            ],
+        );
     }
 }
