@@ -61,7 +61,11 @@ class ClassroomController extends Controller
     {
         $this->authorize('view', $classroom);
 
-        $classroom = $this->classroomService->find($classroom->id);
+        $classroom = $this->classroomService->find($classroom->id, [
+            'with_owner' => true,
+            'with_secondary_teachers' => true,
+            'with_custom_groups' => true,
+        ]);
 
         return new ClassroomResource($classroom);
     }

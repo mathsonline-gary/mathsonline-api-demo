@@ -85,21 +85,21 @@ class ClassroomService
             return $query->find($id);
         });
 
-        if ($options['with_school'] ?? true) {
+        if ($options['with_school'] ?? false) {
             $classroom->load('school');
         }
 
-        if ($options['with_owner'] ?? true) {
+        if ($options['with_owner'] ?? false) {
             $classroom->load('owner');
         }
 
-        if ($options['with_secondary_teachers'] ?? true) {
+        if ($options['with_secondary_teachers'] ?? false) {
             $classroom->load(['secondaryTeachers' => function (BelongsToMany $query) use ($classroom) {
                 $query->where('school_id', $classroom->school_id);
             }]);
         }
 
-        if ($options['with_custom_groups'] ?? true) {
+        if ($options['with_custom_groups'] ?? false) {
             $classroom->load('customClassroomGroups');
         }
 

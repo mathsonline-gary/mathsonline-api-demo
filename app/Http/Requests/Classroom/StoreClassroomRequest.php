@@ -54,6 +54,7 @@ class StoreClassroomRequest extends FormRequest
             'secondary_teacher_ids.*' => [
                 'required',
                 'int',
+                'distinct',
             ],
             'groups' => [
                 'array',
