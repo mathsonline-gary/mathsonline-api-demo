@@ -9,15 +9,14 @@ use App\Events\Classroom\ClassroomGroupCreated;
 use App\Events\Classroom\ClassroomUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Classroom\StoreClassroomRequest;
+use App\Http\Requests\Classroom\UpdateClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
 use App\Services\ClassroomService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class ClassroomController extends Controller
 {
@@ -115,57 +114,36 @@ class ClassroomController extends Controller
                 $this->classroomService->assignSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
             }
 
-            return response()->json(new ClassroomResource($classroom), 201);
+            return response()->json([
+                'message' => 'The classroom was created successfully.',
+                'data' => new ClassroomResource($classroom),
+            ], 201);
         });
     }
 
-    public function update(Request $request, Classroom $classroom)
+    public function update(UpdateClassroomRequest $request, Classroom $classroom)
     {
         // Authorize request.
         $this->authorize('update', $classroom);
 
-        $authenticatedTeacher = $this->authService->teacher();
-
-        // Validate request.
-        $validated = $request->validate([
-            'name' => [
-                'string',
-                'max:32',
-            ],
-            'owner_id' => [
-                'int',
-                $authenticatedTeacher->isAdmin()
-                    ? Rule::exists('teachers', 'id')
-                    ->where('school_id', $classroom->school_id) // Admin teacher can update owner to a teacher in the same school.
-                    : Rule::exists('teachers', 'id')
-                    ->where('id', $authenticatedTeacher->id),   // Non-admin teacher can only arrange the owner to himself.
-            ],
-            'pass_grade' => [
-                'int',
-                'min:0',
-                'max:100',
-            ],
-            'attempts' => [
-                'int',
-                'min:1',
-            ],
-        ]);
-
-        // Get valid request data.
-        $attributes = Arr::only($validated, [
+        $validated = $request->safe()->only([
             'name',
+            'year_id',
             'owner_id',
             'pass_grade',
             'attempts',
+            'mastery_enabled',
+            'self_rating_enabled',
         ]);
 
-        $beforeAttributes = $classroom->getAttributes();
+        $updatedClassroom = $this->classroomService->update($classroom, $validated);
 
-        $updatedClassroom = $this->classroomService->update($classroom, $attributes);
+        ClassroomUpdated::dispatch($request->user(), $validated, $updatedClassroom);
 
-        ClassroomUpdated::dispatch($authenticatedTeacher, $beforeAttributes, $updatedClassroom);
-
-        return response()->json(new ClassroomResource($updatedClassroom));
+        return response()->json([
+            'message' => 'The classroom was updated successfully.',
+            'data' => new ClassroomResource($updatedClassroom->load('owner')),
+        ]);
     }
 
     public function destroy(Request $request, Classroom $classroom)
@@ -176,6 +154,8 @@ class ClassroomController extends Controller
 
         ClassroomDeleted::dispatch($request->user(), $classroom);
 
-        return response()->noContent();
+        return response()->json([
+            'message' => 'The classroom was deleted successfully.',
+        ]);
     }
 }

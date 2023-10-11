@@ -2,27 +2,33 @@
 
 namespace App\Events\Classroom;
 
+use App\Enums\ActivityType;
+use App\Events\ActivityLoggableEvent;
 use App\Models\Classroom;
-use App\Models\Users\Admin;
-use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ClassroomUpdated
+class ClassroomUpdated extends ActivityLoggableEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @param Teacher|Admin|null $actor The user who update the classroom.
-     * @param array $before Classroom attributes before updated.
-     * @param Classroom $after Updated classroom attributes.
+     * @param User $actor The user who update the classroom.
+     * @param array $request The request payload.
+     * @param Classroom $updatedClassroom The updated classroom.
      */
-    public function __construct(
-        public Teacher|Admin|null $actor,
-        public array              $before,
-        public Classroom          $after,
-    )
+    public function __construct(User $actor, array $request, Classroom $updatedClassroom)
     {
+        parent::__construct(
+            actor: $actor,
+            activityType: ActivityType::UPDATED_CLASSROOM,
+            actedAt: $updatedClassroom->updated_at,
+            data: [
+                'id' => $updatedClassroom->id,
+                'request' => $request,
+            ],
+        );
     }
 }

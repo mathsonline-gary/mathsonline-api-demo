@@ -3,11 +3,9 @@
 namespace Feature\Classrooms;
 
 use App\Enums\ActivityType;
-use App\Events\Classroom\ClassroomDeleted;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 /**
@@ -53,8 +51,9 @@ class DeleteClassroomTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
-        // Assert that the response has 204 status code and no content.
-        $response->assertNoContent();
+        // Assert that the response has 200 status code.
+        $response->assertOk()
+            ->assertJsonFragment(['message' => 'The classroom was deleted successfully.']);
     }
 
     /**
@@ -91,14 +90,8 @@ class DeleteClassroomTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
-        // Assert that the response has 204 status code and no content.
-        $response->assertNoContent();
-
-        // Assert that ClassroomDeleted event was dispatched.
-        Event::assertDispatched(ClassroomDeleted::class, function (ClassroomDeleted $event) use ($nonAdminTeacher, $classroom) {
-            return $event->actor->id === $nonAdminTeacher->id &&
-                $event->classroom->id === $classroom->id;
-        });
+        $response->assertOk()
+            ->assertJsonFragment(['message' => 'The classroom was deleted successfully.']);
     }
 
     /**

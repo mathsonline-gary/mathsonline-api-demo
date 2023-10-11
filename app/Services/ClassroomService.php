@@ -253,8 +253,11 @@ class ClassroomService
         DB::transaction(function () use ($classroom, $attributes) {
             // Update classroom.
             $classroom->update(Arr::only($attributes, [
-                'name',
+                'year_id',
                 'owner_id',
+                'name',
+                'mastery_enabled',
+                'self_rating_enabled',
             ]));
 
             // Update default group.
