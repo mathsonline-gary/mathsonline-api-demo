@@ -91,4 +91,20 @@ class ClassroomPolicy
 
         return false;
     }
+
+    /**
+     * Determine whether the user can add secondary teachers to the classroom.
+     */
+    public function addSecondaryTeacher(User $user, Classroom $classroom): bool
+    {
+        // The user is a teacher.
+        if ($teacher = $user->asTeacher()) {
+            // The user is an admin teacher, and managing a classroom in his school.
+            if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

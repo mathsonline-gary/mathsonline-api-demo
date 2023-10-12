@@ -43,7 +43,7 @@ Route::prefix('classrooms')
             ->name('groups.destroy');
 
         // Classroom secondary teacher routes.
-        Route::post('/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'store'])
+        Route::post('/{classroom}/secondary-teachers', [ClassroomSecondaryTeacherController::class, 'store'])
             ->name('secondary-teachers.store');
 
         Route::delete('/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])

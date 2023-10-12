@@ -3,41 +3,52 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\Classroom\AddSecondaryTeacherRequest;
 use App\Models\Classroom;
 use App\Models\Users\Teacher;
 use App\Services\ClassroomService;
+use App\Services\TeacherService;
 
 class ClassroomSecondaryTeacherController extends Controller
 {
     public function __construct(
-        public ClassroomService $classroomService,
+        protected ClassroomService $classroomService,
+        protected TeacherService   $teacherService,
     )
     {
     }
 
-    public function store(Classroom $classroom, Teacher $teacher)
+    public function store(AddSecondaryTeacherRequest $request, Classroom $classroom)
     {
-        $this->authorize('addSecondaryTeacher', [$classroom, $teacher]);
+        $this->authorize('addSecondaryTeacher', $classroom);
+
+        $teacher = $this->teacherService->find($request->integer('teacher_id'));
 
         // Validate whether the teacher is already the secondary teacher of the classroom.
         if ($teacher->isSecondaryTeacherOfClassroom($classroom)) {
-            return response()->json([
-                'message' => 'The teacher is already the secondary teacher of the classroom.',
-            ], 422);
+            return $this->errorResponse(
+                null,
+                'The teacher is already the secondary teacher of the classroom.',
+                422,
+            );
         }
 
         // Validate whether the teacher is already the owner of the classroom.
         if ($teacher->isOwnerOfClassroom($classroom)) {
-            return response()->json([
-                'message' => 'The teacher is the owner of the classroom.',
-            ], 422);
+            return $this->errorResponse(
+                null,
+                'The teacher is the owner of the classroom.',
+                422,
+            );
         }
 
         $this->classroomService->assignSecondaryTeachers($classroom, [$teacher->id], false);
 
-        return response()->json([
-            'message' => 'Secondary teacher added successfully.',
-        ], 201);
+        return $this->successResponse(
+            null,
+            'The teacher was added as the secondary teacher of the classroom successfully.',
+            201,
+        );
     }
 
     public function destroy(Classroom $classroom, Teacher $teacher)
