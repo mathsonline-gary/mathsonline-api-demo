@@ -109,4 +109,32 @@ class ClassroomPolicy
 
         return false;
     }
+
+    /**
+     * Determine whether the user can remove secondary teachers from the classroom.
+     */
+    public function removeSecondaryTeacher(User $user, Classroom $classroom, User $targetUser): bool
+    {
+        // The user is a teacher.
+        if ($teacher = $user->asTeacher()) {
+            // Condition: 1. The user is an admin teacher
+            //            2. The classroom is a traditional classroom
+            //            3. The classroom is in the same school as the teacher
+            if ($teacher->isAdmin() &&
+                $classroom->isTraditionalClassroom() &&
+                $teacher->school_id === $classroom->school_id
+            ) {
+                $targetTeacher = $targetUser->asTeacher();
+
+                if ($targetTeacher &&
+                    $targetTeacher->school_id === $teacher->school_id &&
+                    $targetTeacher->isSecondaryTeacherOfClassroom($classroom)
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

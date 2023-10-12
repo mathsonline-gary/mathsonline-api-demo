@@ -25,7 +25,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher->id]
+            ['user_id' => $nonAdminTeacher->id]
         );
 
         // Assert that the request is unauthorized.
@@ -48,7 +48,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher->id]
+            ['user_id' => $nonAdminTeacher->user_id]
         );
 
         // Assert that the request is successful.
@@ -72,7 +72,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher1->id]
+            ['user_id' => $nonAdminTeacher1->user_id]
         );
 
         // Assert that the request is unauthorized.
@@ -95,7 +95,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher->id]
+            ['user_id' => $nonAdminTeacher->user_id]
         );
 
         $response->assertUnprocessable();
@@ -120,7 +120,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher->id]
+            ['user_id' => $nonAdminTeacher->user_id]
         );
 
         // Assert that the response status code is 422.
@@ -142,7 +142,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $adminTeacher->id]
+            ['user_id' => $adminTeacher->user_id]
         );
 
         // Assert that the response status code is 422.
@@ -164,7 +164,7 @@ class AddSecondaryTeacherTest extends TestCase
 
         $response = $this->postJson(
             route('api.v1.classrooms.secondary-teachers.store', ['classroom' => $classroom->id]),
-            ['teacher_id' => $nonAdminTeacher2->id]
+            ['user_id' => $nonAdminTeacher2->user_id]
         );
 
         // Assert that the request is unauthorized.
