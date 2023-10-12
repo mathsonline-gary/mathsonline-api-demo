@@ -107,6 +107,7 @@ class Teacher extends Model
 
     /**
      * Indicate that if the teacher is a secondary teacher of the given classroom.
+     *
      * @param Classroom $classroom
      * @return bool
      */

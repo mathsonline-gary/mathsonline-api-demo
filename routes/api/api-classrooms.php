@@ -46,6 +46,6 @@ Route::prefix('classrooms')
         Route::post('/{classroom}/secondary-teachers', [ClassroomSecondaryTeacherController::class, 'store'])
             ->name('secondary-teachers.store');
 
-        Route::delete('/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])
+        Route::delete('/{classroom}/secondary-teachers/{user}', [ClassroomSecondaryTeacherController::class, 'destroy'])
             ->name('secondary-teachers.destroy');
     });

@@ -100,4 +100,24 @@ class Classroom extends Model
         return $this->hasMany(ClassroomGroup::class)
             ->where('is_default', false);
     }
+
+    /**
+     * Indicates whether the classroom is a traditional classroom.
+     *
+     * @return bool
+     */
+    public function isTraditionalClassroom(): bool
+    {
+        return $this->type === ClassroomType::TRADITIONAL_CLASSROOM;
+    }
+
+    /**
+     * Indicates whether the classroom is a homeschool classroom.
+     *
+     * @return bool
+     */
+    public function isHomeschoolClassroom(): bool
+    {
+        return $this->type === ClassroomType::HOMESCHOOL_CLASSROOM;
+    }
 }

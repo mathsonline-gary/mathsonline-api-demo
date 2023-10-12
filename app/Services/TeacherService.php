@@ -50,6 +50,26 @@ class TeacherService
     }
 
     /**
+     * Find a teacher record by user ID.
+     *
+     * @param int $userId
+     * @param array{
+     *     throwable?: bool,
+     * } $options
+     * @return Teacher|null
+     */
+    public function findByUserId(int $userId, array $options = []): ?Teacher
+    {
+        $query = Teacher::where('user_id', $userId);
+
+        return Teacher::when($options['throwable'] ?? true, function (Builder $query) use ($userId) {
+            return $query->where('user_id', $userId)->firstOrFail();
+        }, function (Builder $query) use ($userId) {
+            return $query->where('user_id', $userId)->first();
+        });
+    }
+
+    /**
      * Search teachers by options.
      *
      * @param array{

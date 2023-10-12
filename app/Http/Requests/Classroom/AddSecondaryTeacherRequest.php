@@ -17,17 +17,16 @@ class AddSecondaryTeacherRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'teacher_id' => [
+            'user_id' => [
                 'required',
                 'int',
-                'exists:teachers,id',
             ],
         ];
 
         // Set rules for teacher users.
         /** @var Teacher $teacher */
         if ($teacher = $this->user()->asTeacher()) {
-            $rules['teacher_id'][] = Rule::exists('teachers', 'id')
+            $rules['user_id'][] = Rule::exists('teachers', 'user_id')
                 ->where('school_id', $teacher->school_id); // Can only add secondary teacher from the same school.
         }
 

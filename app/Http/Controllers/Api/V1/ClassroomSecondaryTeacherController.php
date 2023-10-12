@@ -22,7 +22,7 @@ class ClassroomSecondaryTeacherController extends Controller
     {
         $this->authorize('addSecondaryTeacher', $classroom);
 
-        $teacher = $this->teacherService->find($request->integer('teacher_id'));
+        $teacher = $this->teacherService->findByUserId($request->integer('user_id'));
 
         // Validate whether the teacher is already the secondary teacher of the classroom.
         if ($teacher->isSecondaryTeacherOfClassroom($classroom)) {

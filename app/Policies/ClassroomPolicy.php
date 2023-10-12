@@ -99,8 +99,10 @@ class ClassroomPolicy
     {
         // The user is a teacher.
         if ($teacher = $user->asTeacher()) {
-            // The user is an admin teacher, and managing a classroom in his school.
-            if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
+            // The user is an admin teacher, and managing a traditional classroom in his school.
+            if ($teacher->isAdmin() &&
+                $classroom->isTraditionalClassroom() &&
+                $teacher->school_id === $classroom->school_id) {
                 return true;
             }
         }
