@@ -53,9 +53,8 @@ class UpdateClassroomTest extends TestCase
 
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
-        // Assert that the response has a 200 “OK” status code.
-        $response->assertOk()
-            ->assertJsonFragment(['message' => 'The classroom was updated successfully.']);
+        // Assert that the request is successful.
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -94,8 +93,7 @@ class UpdateClassroomTest extends TestCase
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk()
-            ->assertJsonFragment(['message' => 'The classroom was updated successfully.']);
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -137,7 +135,7 @@ class UpdateClassroomTest extends TestCase
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a "422" status code.
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
     }
 
     /**
@@ -159,7 +157,7 @@ class UpdateClassroomTest extends TestCase
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 422 status code.
-        $response->assertStatus(422);
+        $response->assertUnprocessable();
     }
 
     /**

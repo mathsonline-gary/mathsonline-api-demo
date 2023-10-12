@@ -53,7 +53,7 @@ class ClassroomController extends Controller
 
         $classrooms = $this->classroomService->search($options);
 
-        return ClassroomResource::collection($classrooms);
+        return $this->successResponse(ClassroomResource::collection($classrooms), 'Classrooms retrieved successfully.');
     }
 
     public function show(Classroom $classroom)
@@ -66,7 +66,7 @@ class ClassroomController extends Controller
             'with_custom_groups' => true,
         ]);
 
-        return new ClassroomResource($classroom);
+        return $this->successResponse(new ClassroomResource($classroom), 'Classroom retrieved successfully.');
     }
 
     public function store(StoreClassroomRequest $request)
@@ -114,10 +114,11 @@ class ClassroomController extends Controller
                 $this->classroomService->assignSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
             }
 
-            return response()->json([
-                'message' => 'The classroom was created successfully.',
-                'data' => new ClassroomResource($classroom),
-            ], 201);
+            return $this->successResponse(
+                new ClassroomResource($classroom),
+                'The classroom was created successfully.',
+                201,
+            );
         });
     }
 
@@ -140,10 +141,10 @@ class ClassroomController extends Controller
 
         ClassroomUpdated::dispatch($request->user(), $validated, $updatedClassroom);
 
-        return response()->json([
-            'message' => 'The classroom was updated successfully.',
-            'data' => new ClassroomResource($updatedClassroom->load('owner')),
-        ]);
+        return $this->successResponse(
+            new ClassroomResource($updatedClassroom->load('owner')),
+            'The classroom was updated successfully.',
+        );
     }
 
     public function destroy(Request $request, Classroom $classroom)
@@ -154,8 +155,6 @@ class ClassroomController extends Controller
 
         ClassroomDeleted::dispatch($request->user(), $classroom);
 
-        return response()->json([
-            'message' => 'The classroom was deleted successfully.',
-        ]);
+        return $this->successResponse(null, 'The classroom was deleted successfully.');
     }
 }
