@@ -13,6 +13,9 @@ class ShowClassroomTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Authorization test.
+     */
     public function test_a_guest_cannot_get_details_of_a_classroom()
     {
         $teacher = $this->fakeTeacher();
@@ -43,7 +46,7 @@ class ShowClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
 
         // Assert that the response returns the correct classroom.
         $response->assertJsonFragment(['id' => $classroom->id]);
@@ -83,7 +86,7 @@ class ShowClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
 
         // Assert that the response returns the correct classroom details.
         $response->assertJsonFragment(['id' => $classroom->id]);

@@ -36,7 +36,7 @@ class IndexClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assertions
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -53,9 +53,12 @@ class IndexClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assert a successful response.
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
+    /**
+     * Operation test.
+     */
     public function test_it_only_return_classrooms_in_the_same_school_to_the_teacher()
     {
         $school1 = $this->fakeTraditionalSchool();

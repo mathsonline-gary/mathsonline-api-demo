@@ -68,7 +68,7 @@ class CreateClassroomTest extends TestCase
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated();
+        $response->assertCreated()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -87,9 +87,76 @@ class CreateClassroomTest extends TestCase
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated();
+        $response->assertCreated()->assertJsonFragment(['success' => true]);
     }
 
+    /**
+     * Validation test.
+     */
+    public function test_it_does_not_allow_an_admin_teacher_to_create_a_classroom_for_a_teacher_from_another_school(): void
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school1);
+
+        $school2 = $this->fakeTraditionalSchool();
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school2);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->payload['year_id'] = $school1->market->years->random()->id;
+
+        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the response has a 422 status code.
+        $response->assertUnprocessable();
+    }
+
+    /**
+     * Validation test.
+     */
+    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_the_same_school(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+        $this->actingAsTeacher($nonAdminTeacher1);
+
+        $this->payload['owner_id'] = $nonAdminTeacher2->id;
+        $this->payload['year_id'] = $school->market->years->random()->id;
+
+        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the response has a 422 status code.
+        $response->assertUnprocessable();
+    }
+
+    /**
+     * Validation test.
+     */
+    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_another_school(): void
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
+
+        $school2 = $this->fakeTraditionalSchool();
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school2);
+
+        $this->actingAsTeacher($nonAdminTeacher1);
+
+        $this->payload['owner_id'] = $nonAdminTeacher2->id;
+        $this->payload['year_id'] = $school1->market->years->random()->id;
+
+        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the response has a 422 status code.
+        $response->assertUnprocessable();
+    }
+
+    /**
+     * Operational test.
+     */
     public function test_it_creates_the_classroom_correctly()
     {
         $school = $this->fakeTraditionalSchool();
@@ -116,6 +183,9 @@ class CreateClassroomTest extends TestCase
         $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
     }
 
+    /**
+     * Operational test.
+     */
     public function test_it_assigns_secondary_teachers()
     {
         $school = $this->fakeTraditionalSchool();
@@ -140,6 +210,9 @@ class CreateClassroomTest extends TestCase
         $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher2));
     }
 
+    /**
+     * Operational test.
+     */
     public function test_it_add_classroom_groups()
     {
         $school = $this->fakeTraditionalSchool();
@@ -172,69 +245,5 @@ class CreateClassroomTest extends TestCase
         // Assert that the created classroom group activities were added correctly.
         $activities = Activity::where('type', ActivityType::CREATED_CLASSROOM_GROUP)->get();
         $this->assertEquals(2, $activities->count());
-    }
-
-    /**
-     * Validation test.
-     */
-    public function test_it_does_not_allow_an_admin_teacher_to_create_a_classroom_for_a_teacher_from_another_school(): void
-    {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school1);
-
-        $school2 = $this->fakeTraditionalSchool();
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school2);
-
-        $this->actingAsTeacher($adminTeacher);
-
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
-        $this->payload['year_id'] = $school1->market->years->random()->id;
-
-        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
-
-        // Assert that the response has a 422 status code.
-        $response->assertStatus(422);
-    }
-
-    /**
-     * Validation test.
-     */
-    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_the_same_school(): void
-    {
-        $school = $this->fakeTraditionalSchool();
-        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
-        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
-
-        $this->actingAsTeacher($nonAdminTeacher1);
-
-        $this->payload['owner_id'] = $nonAdminTeacher2->id;
-        $this->payload['year_id'] = $school->market->years->random()->id;
-
-        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
-
-        // Assert that the response has a 422 status code.
-        $response->assertStatus(422);
-    }
-
-    /**
-     * Validation test.
-     */
-    public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_another_school(): void
-    {
-        $school1 = $this->fakeTraditionalSchool();
-        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
-
-        $school2 = $this->fakeTraditionalSchool();
-        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school2);
-
-        $this->actingAsTeacher($nonAdminTeacher1);
-
-        $this->payload['owner_id'] = $nonAdminTeacher2->id;
-        $this->payload['year_id'] = $school1->market->years->random()->id;
-
-        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
-
-        // Assert that the response has a 422 status code.
-        $response->assertStatus(422);
     }
 }

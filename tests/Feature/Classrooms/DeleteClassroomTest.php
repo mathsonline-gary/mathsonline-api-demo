@@ -15,11 +15,6 @@ class DeleteClassroomTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     /**
      * Authorization test.
      */
@@ -52,8 +47,7 @@ class DeleteClassroomTest extends TestCase
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
         // Assert that the response has 200 status code.
-        $response->assertOk()
-            ->assertJsonFragment(['message' => 'The classroom was deleted successfully.']);
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -90,8 +84,7 @@ class DeleteClassroomTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
-        $response->assertOk()
-            ->assertJsonFragment(['message' => 'The classroom was deleted successfully.']);
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
