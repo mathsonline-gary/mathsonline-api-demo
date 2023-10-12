@@ -53,7 +53,7 @@ class ClassroomController extends Controller
 
         $classrooms = $this->classroomService->search($options);
 
-        return $this->successResponse(ClassroomResource::collection($classrooms), 'Classrooms retrieved successfully.');
+        return $this->successResponse(ClassroomResource::collection($classrooms));
     }
 
     public function show(Classroom $classroom)
@@ -66,7 +66,7 @@ class ClassroomController extends Controller
             'with_custom_groups' => true,
         ]);
 
-        return $this->successResponse(new ClassroomResource($classroom), 'Classroom retrieved successfully.');
+        return $this->successResponse(new ClassroomResource($classroom));
     }
 
     public function store(StoreClassroomRequest $request)
@@ -116,7 +116,7 @@ class ClassroomController extends Controller
 
             return $this->successResponse(
                 new ClassroomResource($classroom),
-                'The classroom was created successfully.',
+                'The classroom is created successfully.',
                 201,
             );
         });
@@ -143,7 +143,7 @@ class ClassroomController extends Controller
 
         return $this->successResponse(
             new ClassroomResource($updatedClassroom->load('owner')),
-            'The classroom was updated successfully.',
+            'The classroom is updated successfully.',
         );
     }
 

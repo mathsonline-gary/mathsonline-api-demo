@@ -52,7 +52,7 @@ class IndexTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of teachers.
         $response->assertJsonCount(11, 'data');
@@ -79,7 +79,7 @@ class IndexTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of teachers.
         $response->assertJsonCount(1, 'data');
@@ -126,8 +126,6 @@ class IndexTeacherTest extends TestCase
         $this->actingAsTeacher($teacherAdmin);
 
         $response = $this->getJson(route('api.v1.teachers.index'));
-
-        $response->assertOk();
 
         $response->assertJsonStructure([
             'data' => [

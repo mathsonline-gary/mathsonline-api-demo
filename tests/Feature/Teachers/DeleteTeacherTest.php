@@ -44,8 +44,8 @@ class DeleteTeacherTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
-        // Assert that the response returns no content.
-        $response->assertNoContent();
+        // Assert that the request is successful.
+        $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -138,7 +138,8 @@ class DeleteTeacherTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
-        $response->assertNoContent();
+        // Assert that the request is successful.
+        $response->assertOk()->assertJsonFragment(['success' => true]);
 
         // Assert that $teacher is soft-deleted.
         $this->assertSoftDeleted('teachers', ['id' => $teacher->id]);
