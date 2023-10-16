@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Classrooms;
+namespace Tests\Feature\Classrooms;
 
 use App\Http\Controllers\Api\V1\ClassroomController;
 use Illuminate\Foundation\Testing\RefreshDatabase;

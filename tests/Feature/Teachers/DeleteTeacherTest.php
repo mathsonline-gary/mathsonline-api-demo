@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Teachers;
+namespace Tests\Feature\Teachers;
 
 use App\Enums\ActivityType;
 use App\Http\Middleware\SetAuthenticationDefaults;

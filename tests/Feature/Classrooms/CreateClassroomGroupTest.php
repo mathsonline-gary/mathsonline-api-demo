@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Classrooms;
+namespace Tests\Feature\Classrooms;
 
 use App\Http\Controllers\Api\V1\ClassroomGroupController;
 use App\Models\Classroom;

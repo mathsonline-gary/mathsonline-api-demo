@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Teachers;
+namespace Tests\Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Policies\TeacherPolicy;
