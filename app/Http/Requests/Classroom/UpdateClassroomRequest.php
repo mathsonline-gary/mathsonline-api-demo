@@ -42,6 +42,12 @@ class UpdateClassroomRequest extends FormRequest
             'self_rating_enabled' => [
                 'boolean',
             ],
+            'secondary_teacher_ids' => ['array'],
+            'secondary_teacher_ids.*' => [
+                'required',
+                'int',
+                'distinct',
+            ],
         ];
 
         // Set rules for teachers.
@@ -56,6 +62,11 @@ class UpdateClassroomRequest extends FormRequest
                     ->where('school_id', $teacher->school_id)  // Admin teacher can update classroom for teachers in the same school.
                 : Rule::exists('teachers', 'id')
                     ->where('id', $teacher->id);   // Non-admin teacher can only update classroom owned by himself.
+
+            $rules['secondary_teacher_ids.*'][] = Rule::exists('teachers', 'id')
+                ->where('school_id', $teacher->school_id); // Can only add secondary teacher from the same school.
+
+            $rules['secondary_teacher_ids.*'][] = Rule::notIn([$this->integer('owner_id')]); // Secondary teacher cannot be the owner.
         }
 
         return $rules;

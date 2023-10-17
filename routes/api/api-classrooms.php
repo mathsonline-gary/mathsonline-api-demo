@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Http\Controllers\Api\V1\ClassroomGroupController;
-use App\Http\Controllers\Api\V1\ClassroomSecondaryTeacherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,10 +41,4 @@ Route::prefix('classrooms')
         Route::delete('/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
             ->name('groups.destroy');
 
-        // Classroom secondary teacher routes.
-        Route::post('/{classroom}/secondary-teachers', [ClassroomSecondaryTeacherController::class, 'store'])
-            ->name('secondary-teachers.store');
-
-        Route::delete('/{classroom}/secondary-teachers/{user}', [ClassroomSecondaryTeacherController::class, 'destroy'])
-            ->name('secondary-teachers.destroy');
     });

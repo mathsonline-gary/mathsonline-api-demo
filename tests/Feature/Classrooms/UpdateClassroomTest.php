@@ -228,6 +228,32 @@ class UpdateClassroomTest extends TestCase
     /**
      * Operation test.
      */
+    public function test_it_updates_secondary_teachers()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['secondary_teacher_ids'] = [$nonAdminTeacher1->id, $nonAdminTeacher2->id];
+
+        $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+
+        $classroom->refresh();
+
+        $this->assertEquals(2, $classroom->secondaryTeachers->count());
+        $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher1));
+        $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher2));
+    }
+
+    /**
+     * Operation test.
+     */
     public function test_it_logs_updated_classroom_activity(): void
     {
         $school = $this->fakeTraditionalSchool();

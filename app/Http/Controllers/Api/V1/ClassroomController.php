@@ -71,12 +71,11 @@ class ClassroomController extends Controller
 
     public function store(StoreClassroomRequest $request)
     {
-        // Authorize.
         $this->authorize('create', Classroom::class);
         $authenticatedUser = $request->user();
 
         // Construct attributes.
-        $attributes = $request->only([
+        $validated = $request->only([
             'name',
             'year_id',
             'owner_id',
@@ -88,21 +87,22 @@ class ClassroomController extends Controller
             'groups',
         ]);
 
+        // Set school_id and classroom type if the authenticated user is a teacher.
         if ($authenticatedTeacher = $authenticatedUser->asTeacher()) {
-            $attributes['school_id'] = $authenticatedTeacher->school_id;
-            $attributes['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
+            $validated['school_id'] = $authenticatedTeacher->school_id;
+            $validated['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
         }
 
-        return DB::transaction(function () use ($attributes, $authenticatedUser) {
+        $classroom = DB::transaction(function () use ($validated, $authenticatedUser) {
             // Create the classroom.
-            $classroom = $this->classroomService->create($attributes);
+            $classroom = $this->classroomService->create($validated);
 
             // Dispatch ClassroomCreated event.
             ClassroomCreated::dispatch($authenticatedUser, $classroom);
 
             // Add custom groups if any.
-            if (isset($attributes['groups']) && count($attributes['groups']) > 0) {
-                foreach ($attributes['groups'] as $group) {
+            if (isset($validated['groups']) && count($validated['groups']) > 0) {
+                foreach ($validated['groups'] as $group) {
                     $classroomGroup = $this->classroomService->addCustomGroup($classroom, $group);
 
                     ClassroomGroupCreated::dispatch($authenticatedUser, $classroomGroup);
@@ -110,22 +110,25 @@ class ClassroomController extends Controller
             }
 
             // Add secondary teachers if it is passed.
-            if (isset($attributes['secondary_teacher_ids']) && count($attributes['secondary_teacher_ids']) > 0) {
-                $this->classroomService->assignSecondaryTeachers($classroom, $attributes['secondary_teacher_ids']);
+            if (isset($validated['secondary_teacher_ids']) && count($validated['secondary_teacher_ids']) > 0) {
+                $this->classroomService->assignSecondaryTeachers($classroom, $validated['secondary_teacher_ids']);
             }
 
-            return $this->successResponse(
-                new ClassroomResource($classroom),
-                'The classroom is created successfully.',
-                201,
-            );
+            return $classroom;
         });
+
+        return $this->successResponse(
+            new ClassroomResource($classroom),
+            'The classroom is created successfully.',
+            201,
+        );
     }
 
     public function update(UpdateClassroomRequest $request, Classroom $classroom)
     {
         // Authorize request.
         $this->authorize('update', $classroom);
+        $authenticatedUser = $request->user();
 
         $validated = $request->safe()->only([
             'name',
@@ -135,11 +138,22 @@ class ClassroomController extends Controller
             'attempts',
             'mastery_enabled',
             'self_rating_enabled',
+            'secondary_teacher_ids',
         ]);
 
-        $updatedClassroom = $this->classroomService->update($classroom, $validated);
+        $updatedClassroom = DB::transaction(function () use ($authenticatedUser, $classroom, $validated) {
+            // Update the classroom.
+            $updatedClassroom = $this->classroomService->update($classroom, $validated);
 
-        ClassroomUpdated::dispatch($request->user(), $validated, $updatedClassroom);
+            // Update secondary teachers if it is passed.
+            if (isset($validated['secondary_teacher_ids']) && count($validated['secondary_teacher_ids']) > 0) {
+                $this->classroomService->assignSecondaryTeachers($classroom, $validated['secondary_teacher_ids']);
+            }
+
+            ClassroomUpdated::dispatch($authenticatedUser, $validated, $updatedClassroom);
+
+            return $updatedClassroom;
+        });
 
         return $this->successResponse(
             new ClassroomResource($updatedClassroom->load('owner')),
