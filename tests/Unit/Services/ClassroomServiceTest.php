@@ -576,7 +576,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::deleteGroup()
+     * @see ClassroomService::deleteCustomGroup()
      */
     public function test_it_deletes_a_classroom_group(): void
     {
@@ -591,7 +591,7 @@ class ClassroomServiceTest extends TestCase
         $students = $this->fakeStudent($school, 5);
         $this->attachStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
 
-        $this->classroomService->deleteGroup($customClassroomGroup);
+        $this->classroomService->deleteCustomGroup($customClassroomGroup);
 
         // Assert that the custom classroom group was deleted.
         $this->assertDatabaseMissing('classroom_groups', ['id' => $customClassroomGroup->id]);

@@ -32,13 +32,7 @@ Route::prefix('classrooms')
             ->name('destroy');
 
         // Classroom group routes.
-        Route::post('/{classroom}/groups', [ClassroomGroupController::class, 'store'])
-            ->name('groups.store');
-
-        Route::put('/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
+        Route::put('/{classroom}/groups', [ClassroomGroupController::class, 'update'])
             ->name('groups.update');
-
-        Route::delete('/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
-            ->name('groups.destroy');
 
     });

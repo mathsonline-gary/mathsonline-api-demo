@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\DefaultClassroomGroupExistsException;
+use App\Exceptions\DeleteDefaultClassroomGroupException;
 use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
@@ -291,7 +292,7 @@ class ClassroomService
     }
 
     /**
-     * Delete the given classroom, its groups and its pivot data (secondary teachers, students).
+     * Delete the given classroom and its groups.
      *
      * @param Classroom $classroom
      * @return void
@@ -308,15 +309,23 @@ class ClassroomService
     }
 
     /**
-     * Delete the given classroom group, detach its students.
+     * Delete the given custom classroom group, detach its students.
      *
      * @param ClassroomGroup $group
      * @return void
+     * @throws DeleteDefaultClassroomGroupException
      */
-    public function deleteGroup(ClassroomGroup $group): void
+    public function deleteCustomGroup(ClassroomGroup $group): void
     {
+        if ($group->isDefault()) {
+            throw new DeleteDefaultClassroomGroupException();
+        }
+
         DB::transaction(function () use ($group) {
-            // Detach all students.
+            // Move students in this group to the default group.
+            $group->classroom->defaultClassroomGroup->students()->syncWithoutDetaching($group->students);
+
+            // Detach students from this group.
             $group->students()->detach();
 
             // Delete classroom group.

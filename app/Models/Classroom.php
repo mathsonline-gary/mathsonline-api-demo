@@ -98,7 +98,9 @@ class Classroom extends Model
     public function customClassroomGroups(): HasMany
     {
         return $this->hasMany(ClassroomGroup::class)
-            ->where('is_default', false);
+            ->where([
+                'is_default' => false,
+            ]);
     }
 
     /**
