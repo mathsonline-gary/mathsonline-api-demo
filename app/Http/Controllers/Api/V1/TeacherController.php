@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Events\Teachers\TeacherCreated;
-use App\Events\Teachers\TeacherDeleted;
-use App\Events\Teachers\TeacherUpdated;
+use App\Events\Teacher\TeacherCreated;
+use App\Events\Teacher\TeacherDeleted;
+use App\Events\Teacher\TeacherUpdated;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Http\Requests\Teacher\UpdateTeacherRequest;
@@ -43,7 +43,7 @@ class TeacherController extends Controller
 
         $teachers = $this->teacherService->search($options);
 
-        return TeacherResource::collection($teachers);
+        return $this->successResponse(TeacherResource::collection($teachers));
     }
 
     public function show(Request $request, Teacher $teacher)
@@ -57,7 +57,7 @@ class TeacherController extends Controller
 
         $teacher = $this->teacherService->find($teacher->id, $options);
 
-        return new TeacherResource($teacher);
+        return $this->successResponse(new TeacherResource($teacher));
     }
 
     public function store(StoreTeacherRequest $request)
@@ -89,7 +89,11 @@ class TeacherController extends Controller
 
         TeacherCreated::dispatch($authenticatedUser, $teacher);
 
-        return response()->json(new TeacherResource($teacher), 201);
+        return $this->successResponse(
+            new TeacherResource($teacher),
+            'The teacher is created successfully.',
+            201,
+        );
     }
 
     public function update(UpdateTeacherRequest $request, Teacher $teacher)
@@ -131,7 +135,10 @@ class TeacherController extends Controller
 
         TeacherUpdated::dispatch($authenticatedUser, $beforeAttributes, $updatedTeacher);
 
-        return response()->json(new TeacherResource($updatedTeacher));
+        return $this->successResponse(
+            new TeacherResource($updatedTeacher),
+            'The teacher is updated successfully.',
+        );
     }
 
     public function destroy(Teacher $teacher)
@@ -142,7 +149,10 @@ class TeacherController extends Controller
 
         TeacherDeleted::dispatch($this->authService->user(), $teacher);
 
-        return response()->noContent();
+        return $this->successResponse(
+            null,
+            'The teacher is deleted successfully.',
+        );
     }
 }
 

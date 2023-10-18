@@ -356,7 +356,7 @@ class ClassroomServiceTest extends TestCase
 
 
     /**
-     * @see ClassroomService::addSecondaryTeachers()
+     * @see ClassroomService::assignSecondaryTeachers()
      */
     public function test_it_adds_secondary_teachers_with_detaching_by_default()
     {
@@ -373,7 +373,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals(0, $classroom->secondaryTeachers()->count());
 
         // Add $teacher1 and $teacher 2 as secondary teachers.
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
 
         // Assert that there are 2 secondary teachers associate with the classroom.
         $this->assertEquals(2, $classroom->secondaryTeachers()->count());
@@ -382,7 +382,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals([$teacher1->id, $teacher2->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
 
         // Add $teacher2 and $teacher3 as secondary teachers.
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id]);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id]);
 
         // Assert that there are 2 secondary teachers associate with the classroom.
         $this->assertEquals(2, $classroom->secondaryTeachers()->count());
@@ -392,7 +392,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::addSecondaryTeachers()
+     * @see ClassroomService::assignSecondaryTeachers()
      */
     public function test_it_adds_secondary_teachers_without_detaching()
     {
@@ -409,7 +409,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals(0, $classroom->secondaryTeachers()->count());
 
         // Add $teacher1 and $teacher 2 as secondary teachers.
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id]);
 
         // Assert that there are 2 secondary teachers associate with the classroom.
         $this->assertEquals(2, $classroom->secondaryTeachers()->count());
@@ -418,7 +418,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals([$teacher1->id, $teacher2->id], $classroom->secondaryTeachers()->pluck('teachers.id')->toArray());
 
         // Add $teacher2 and $teacher3 as secondary teachers.
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id], false);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher2->id, $teacher3->id], false);
 
         // Assert that there are 3 secondary teachers associate with the classroom.
         $this->assertEquals(3, $classroom->secondaryTeachers()->count());
@@ -446,7 +446,7 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals(0, $classroom->secondaryTeachers()->count());
 
         // Add $teacher1, $teacher2 and $teacher3 as secondary teachers.
-        $this->classroomService->addSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id, $teacher3->id]);
+        $this->classroomService->assignSecondaryTeachers($classroom, [$teacher1->id, $teacher2->id, $teacher3->id]);
 
         // Assert that there are 3 secondary teachers associate with the classroom.
         $this->assertEquals(3, $classroom->secondaryTeachers()->count());
@@ -502,7 +502,7 @@ class ClassroomServiceTest extends TestCase
 
         $classroom = $this->fakeClassroom($adminTeacher);
 
-        $this->classroomService->addSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
+        $this->classroomService->assignSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
@@ -576,7 +576,7 @@ class ClassroomServiceTest extends TestCase
     }
 
     /**
-     * @see ClassroomService::deleteGroup()
+     * @see ClassroomService::deleteCustomGroup()
      */
     public function test_it_deletes_a_classroom_group(): void
     {
@@ -591,7 +591,7 @@ class ClassroomServiceTest extends TestCase
         $students = $this->fakeStudent($school, 5);
         $this->attachStudentsToClassroomGroup($customClassroomGroup, $students->pluck('id')->toArray());
 
-        $this->classroomService->deleteGroup($customClassroomGroup);
+        $this->classroomService->deleteCustomGroup($customClassroomGroup);
 
         // Assert that the custom classroom group was deleted.
         $this->assertDatabaseMissing('classroom_groups', ['id' => $customClassroomGroup->id]);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\ClassroomController;
+use App\Http\Controllers\Api\V1\ClassroomGroupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,19 +32,7 @@ Route::prefix('classrooms')
             ->name('destroy');
 
         // Classroom group routes.
-        Route::post('/{classroom}/groups', [ClassroomGroupController::class, 'store'])
-            ->name('groups.store');
-
-        Route::put('/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'update'])
+        Route::put('/{classroom}/groups', [ClassroomGroupController::class, 'update'])
             ->name('groups.update');
 
-        Route::delete('/{classroom}/groups/{classroomGroup}', [ClassroomGroupController::class, 'destroy'])
-            ->name('groups.destroy');
-
-        // Classroom secondary teacher routes.
-        Route::post('/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'store'])
-            ->name('secondary-teachers.store');
-
-        Route::delete('/{classroom}/secondary-teachers/{teacher}', [ClassroomSecondaryTeacherController::class, 'destroy'])
-            ->name('secondary-teachers.destroy');
     });

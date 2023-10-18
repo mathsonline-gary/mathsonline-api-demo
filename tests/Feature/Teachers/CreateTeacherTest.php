@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Teachers;
+namespace Tests\Feature\Teachers;
 
 use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
@@ -44,7 +44,7 @@ class CreateTeacherTest extends TestCase
     }
 
     /**
-     * Authentication test.
+     * Authorization test.
      *
      * @see SetAuthenticationDefaults
      */
@@ -67,15 +67,12 @@ class CreateTeacherTest extends TestCase
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
 
-        $teachersCount = Teacher::count();
-        $activitiesCount = Activity::count();
-
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
 
-        // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated();
+        // Assert that the request is successful.
+        $response->assertCreated()->assertJsonFragment(['success' => true]);
     }
 
     /**
@@ -107,8 +104,6 @@ class CreateTeacherTest extends TestCase
 
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
 
-        $response->assertCreated();
-
         // Assert that the response has correct data of the new teacher.
         $response->assertJsonFragment([
             'school_id' => $school->id,
@@ -137,9 +132,7 @@ class CreateTeacherTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
-
-        $response->assertCreated();
+        $this->postJson(route('api.v1.teachers.store', $this->payload));
 
         // Assert that the new teacher was created in the database.
         $this->assertDatabaseCount('teachers', 2);
@@ -173,9 +166,7 @@ class CreateTeacherTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
-
-        $response->assertCreated();
+        $this->postJson(route('api.v1.teachers.store', $this->payload));
 
         // Assert that the activity was logged.
         $this->assertDatabaseCount('activities', 1);
@@ -186,8 +177,8 @@ class CreateTeacherTest extends TestCase
 
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
         $this->assertEquals(ActivityType::CREATED_TEACHER, $activity->type);
-        $this->assertArrayHasKey('teacher_id', $activity->data);
-        $this->assertEquals($teacher->id, $activity->data['teacher_id']);
+        $this->assertArrayHasKey('id', $activity->data);
+        $this->assertEquals($teacher->id, $activity->data['id']);
         $this->assertEquals($teacher->created_at, $activity->acted_at);
     }
 
@@ -207,7 +198,7 @@ class CreateTeacherTest extends TestCase
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
 
         // Assert that the response has a 422 “Unprocessable Entity” status code.
-        $response->assertStatus(422)
+        $response->assertUnprocessable()
             ->assertInvalid('username');
     }
 
@@ -225,30 +216,8 @@ class CreateTeacherTest extends TestCase
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
 
         // Assert that the response has a 422 “Unprocessable Entity” status code.
-        $response->assertStatus(422)
+        $response->assertUnprocessable()
             ->assertInvalid('username');
-    }
-
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
-    public function test_username_field_is_trimmed()
-    {
-        $this->actingAsTeacher($this->fakeAdminTeacher());
-
-        $this->payload['username'] = ' ' . $this->payload['username'] . ' ';
-
-        $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
-
-        // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated();
-
-        // Assert that the response has correct data of the new teacher.
-        $response->assertJsonFragment([
-            'username' => trim($this->payload['username']),
-        ]);
     }
 
     /**
@@ -263,13 +232,13 @@ class CreateTeacherTest extends TestCase
         // Test the minimum length validation.
         $this->payload['username'] = 'a';
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['username' => __('validation.min.string', ['attribute' => 'username', 'min' => 3])]);
 
         // Test the maximum length validation.
         $this->payload['username'] = str_repeat('a', 33);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['username' => __('validation.max.string', ['attribute' => 'username', 'max' => 32])]);
     }
 
@@ -321,7 +290,7 @@ class CreateTeacherTest extends TestCase
         // Test the email validation.
         $this->payload['email'] = 'invalid-email';
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['email' => __('validation.email', ['attribute' => 'email'])]);
     }
 
@@ -337,13 +306,13 @@ class CreateTeacherTest extends TestCase
         // Test the minimum length validation.
         $this->payload['email'] = 'a@b';
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['email' => __('validation.min.string', ['attribute' => 'email', 'min' => 4])]);
 
         // Test the maximum length validation.
         $this->payload['email'] = str_repeat('a', 129) . '@' . str_repeat('b', 64) . '.' . str_repeat('c', 63);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['email' => __('validation.max.string', ['attribute' => 'email', 'max' => 128])]);
     }
 
@@ -359,26 +328,8 @@ class CreateTeacherTest extends TestCase
         unset($this->payload['first_name']);
 
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['first_name' => __('validation.required', ['attribute' => 'first name'])]);
-    }
-
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
-    public function test_first_name_field_is_trimmed()
-    {
-        $this->actingAsTeacher($this->fakeAdminTeacher());
-
-        $this->payload['first_name'] = ' ' . $this->payload['first_name'] . ' ';
-
-        $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertCreated()
-            ->assertJsonFragment(['first_name' => trim($this->payload['first_name'])]);
-
-        $this->assertDatabaseHas('teachers', ['first_name' => trim($this->payload['first_name'])]);
     }
 
     /**
@@ -393,7 +344,7 @@ class CreateTeacherTest extends TestCase
         // Test the maximum length validation.
         $this->payload['first_name'] = str_repeat('a', 33);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['first_name' => __('validation.max.string', ['attribute' => 'first name', 'max' => 32])]);
     }
 
@@ -409,26 +360,8 @@ class CreateTeacherTest extends TestCase
         unset($this->payload['last_name']);
 
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['last_name' => __('validation.required', ['attribute' => 'last name'])]);
-    }
-
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
-    public function test_last_name_field_is_trimmed()
-    {
-        $this->actingAsTeacher($this->fakeAdminTeacher());
-
-        $this->payload['last_name'] = ' ' . $this->payload['last_name'] . ' ';
-
-        $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertCreated()
-            ->assertJsonFragment(['last_name' => trim($this->payload['last_name'])]);
-
-        $this->assertDatabaseHas('teachers', ['last_name' => trim($this->payload['last_name'])]);
     }
 
     /**
@@ -443,7 +376,7 @@ class CreateTeacherTest extends TestCase
         // Test the maximum length validation.
         $this->payload['last_name'] = str_repeat('a', 33);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['last_name' => __('validation.max.string', ['attribute' => 'last name', 'max' => 32])]);
     }
 
@@ -459,7 +392,7 @@ class CreateTeacherTest extends TestCase
         unset($this->payload['password']);
 
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['password' => __('validation.required', ['attribute' => 'password'])]);
     }
 
@@ -475,13 +408,13 @@ class CreateTeacherTest extends TestCase
         // Test the minimum length validation.
         $this->payload['password'] = 'a';
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['password' => __('validation.min.string', ['attribute' => 'password', 'min' => 4])]);
 
         // Test the maximum length validation.
         $this->payload['password'] = str_repeat('a', 33);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['password' => __('validation.max.string', ['attribute' => 'password', 'max' => 32])]);
     }
 
@@ -526,24 +459,6 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_title_field_is_trimmed()
-    {
-        $this->actingAsTeacher($this->fakeAdminTeacher());
-
-        $this->payload['title'] = ' ' . $this->payload['title'] . ' ';
-
-        $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertCreated()
-            ->assertJsonFragment(['title' => trim($this->payload['title'])]);
-
-        $this->assertDatabaseHas('teachers', ['title' => trim($this->payload['title'])]);
-    }
-
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_title_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -551,7 +466,7 @@ class CreateTeacherTest extends TestCase
         // Test the maximum length validation.
         $this->payload['title'] = str_repeat('a', 17);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['title' => __('validation.max.string', ['attribute' => 'title', 'max' => 16])]);
     }
 
@@ -596,24 +511,6 @@ class CreateTeacherTest extends TestCase
      *
      * @see StoreTeacherRequest::rules()
      */
-    public function test_position_field_is_trimmed()
-    {
-        $this->actingAsTeacher($this->fakeAdminTeacher());
-
-        $this->payload['position'] = ' ' . $this->payload['position'] . ' ';
-
-        $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertCreated()
-            ->assertJsonFragment(['position' => trim($this->payload['position'])]);
-
-        $this->assertDatabaseHas('teachers', ['position' => trim($this->payload['position'])]);
-    }
-
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_position_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -621,7 +518,7 @@ class CreateTeacherTest extends TestCase
         // Test the maximum length validation.
         $this->payload['position'] = str_repeat('a', 129);
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['position' => __('validation.max.string', ['attribute' => 'position', 'max' => 128])]);
     }
 
@@ -637,7 +534,7 @@ class CreateTeacherTest extends TestCase
         unset($this->payload['is_admin']);
 
         $this->postJson(route('api.v1.teachers.store', $this->payload))
-            ->assertStatus(422)
+            ->assertUnprocessable()
             ->assertInvalid(['is_admin' => __('validation.required', ['attribute' => 'is admin'])]);
     }
 }

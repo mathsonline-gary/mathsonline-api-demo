@@ -23,13 +23,17 @@ class ClassroomResource extends JsonResource
             'school_id' => $this->school_id,
             'type' => $this->type,
             'name' => $this->name,
+            'year_id' => $this->year_id,
             'owner_id' => $this->owner_id,
+            'mastery_enabled' => $this->mastery_enabled,
+            'self_rating_enabled' => $this->self_rating_enabled,
             'pass_grade' => $this->defaultClassroomGroup->pass_grade,
             'attempts' => $this->defaultClassroomGroup->attempts,
             'school' => $this->whenLoaded('school'),
             'owner' => $this->whenLoaded('owner'),
             'secondary_teachers' => $this->whenLoaded('secondaryTeachers'),
-            'groups' => $this->whenLoaded('customClassroomGroups'),
+            'default_group' => $this->whenLoaded('defaultClassroomGroup'),
+            'custom_groups' => $this->whenLoaded('customClassroomGroups'),
         ];
     }
 }

@@ -115,9 +115,9 @@ class User extends Authenticatable
     /**
      * Get the user as a teacher.
      *
-     * @return Teacher
+     * @return Teacher|null
      */
-    public function asTeacher(): Teacher
+    public function asTeacher(): ?Teacher
     {
         return $this->teacher;
     }
@@ -135,9 +135,9 @@ class User extends Authenticatable
     /**
      * Get the user as a student.
      *
-     * @return Student
+     * @return Student|null
      */
-    public function asStudent(): Student
+    public function asStudent(): ?Student
     {
         return $this->student;
     }
@@ -155,9 +155,9 @@ class User extends Authenticatable
     /**
      * Get the user as a member.
      *
-     * @return Member
+     * @return Member|null
      */
-    public function asMember(): Member
+    public function asMember(): ?Member
     {
         return $this->member;
     }
@@ -175,9 +175,9 @@ class User extends Authenticatable
     /**
      * Get the user as an administrator.
      *
-     * @return Admin
+     * @return Admin|null
      */
-    public function asAdmin(): Admin
+    public function asAdmin(): ?Admin
     {
         return $this->admin;
     }
@@ -195,9 +195,9 @@ class User extends Authenticatable
     /**
      * Get the user as a developer.
      *
-     * @return Developer
+     * @return Developer|null
      */
-    public function asDeveloper(): Developer
+    public function asDeveloper(): ?Developer
     {
         return $this->developer;
     }

@@ -4,15 +4,16 @@ namespace App\Providers;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
-use App\Events\Classrooms\ClassroomCreated;
-use App\Events\Classrooms\ClassroomDeleted;
-use App\Events\Classrooms\ClassroomUpdated;
-use App\Events\Students\StudentCreated;
-use App\Events\Students\StudentDeleted;
-use App\Events\Students\StudentUpdated;
-use App\Events\Teachers\TeacherCreated;
-use App\Events\Teachers\TeacherDeleted;
-use App\Events\Teachers\TeacherUpdated;
+use App\Events\Classroom\ClassroomCreated;
+use App\Events\Classroom\ClassroomDeleted;
+use App\Events\Classroom\ClassroomGroupCreated;
+use App\Events\Classroom\ClassroomUpdated;
+use App\Events\Student\StudentCreated;
+use App\Events\Student\StudentDeleted;
+use App\Events\Student\StudentUpdated;
+use App\Events\Teacher\TeacherCreated;
+use App\Events\Teacher\TeacherDeleted;
+use App\Events\Teacher\TeacherUpdated;
 use App\Listeners\LogActivity;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -70,6 +71,10 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         ClassroomDeleted::class => [
+            LogActivity::class,
+        ],
+
+        ClassroomGroupCreated::class => [
             LogActivity::class,
         ],
         // --------------------------------------------------------------------------------

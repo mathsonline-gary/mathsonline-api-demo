@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\Classroom\UpdateClassroomGroupRequest;
 use App\Models\Classroom;
-use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ClassroomGroupController extends Controller
 {
@@ -17,57 +16,49 @@ class ClassroomGroupController extends Controller
     {
     }
 
-    public function store(Request $request, Classroom $classroom)
+    public function update(UpdateClassroomGroupRequest $request, Classroom $classroom)
     {
-        $this->authorize('create', [ClassroomGroup::class, $classroom]);
+        $this->authorize('update', [$classroom]);
 
-        // Validate the request data.
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'pass_grade' => ['required', 'integer', 'min:0', 'max:100'],
-            'attempts' => ['required', 'integer', 'min:1'],
+        $validated = $request->safe()->only([
+            'adds',
+            'removes',
+            'updates',
         ]);
 
-        // Create the classroom group in the classroom.
-        try {
-            $classroomGroup = $this->classroomService->addCustomGroup($classroom, $validated);
+        DB::transaction(function () use ($validated, $classroom) {
+            // Add groups if any.
+            if (isset($validated['adds']) && count($validated['adds']) > 0) {
+                foreach ($validated['adds'] as $attributes) {
+                    $this->classroomService->addCustomGroup($classroom, $attributes);
+                }
+            }
 
-            return response()->json([
-                'message' => 'The classroom group was created successfully.',
-                'data' => $classroomGroup,
-            ], 201);
-        } catch (MaxClassroomGroupCountReachedException $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode());
-        }
-    }
+            // Remove groups if any.
+            if (isset($validated['removes']) && count($validated['removes']) > 0) {
+                // Find the groups to remove.
+                $groupsToRemove = $classroom->customClassroomGroups()
+                    ->whereIn('id', $validated['removes'])
+                    ->get();
 
-    public function update(Request $request, Classroom $classroom, ClassroomGroup $classroomGroup)
-    {
-        $this->authorize('update', [$classroomGroup, $classroom]);
+                foreach ($groupsToRemove as $group) {
+                    $this->classroomService->deleteCustomGroup($group);
+                }
+            }
 
-        // Validate the request data.
-        $validated = $request->validate([
-            'name' => ['string', 'max:255'],
-            'pass_grade' => ['integer', 'min:0', 'max:100'],
-            'attempts' => ['integer', 'min:1'],
-        ]);
+            // Update groups if any.
+            if (isset($validated['updates']) && count($validated['updates']) > 0) {
+                // Find the groups to update.
+                $groupsToUpdate = $classroom->customClassroomGroups()
+                    ->whereIn('id', collect($validated['updates'])->pluck('id'))
+                    ->get();
 
-        // Update the classroom group.
-        $this->classroomService->updateGroup($classroomGroup, $validated);
+                foreach ($groupsToUpdate as $group) {
+                    $this->classroomService->updateGroup($group, collect($validated['updates'])->firstWhere('id', $group->id));
+                }
+            }
+        });
 
-        return response()->json([
-            'message' => 'The classroom group was updated successfully.',
-            'data' => $classroomGroup,
-        ]);
-    }
-
-    public function destroy(Classroom $classroom, ClassroomGroup $classroomGroup)
-    {
-        $this->authorize('delete', [$classroomGroup, $classroom]);
-
-        // Delete the classroom group.
-        $this->classroomService->deleteGroup($classroomGroup);
-
-        return response()->noContent();
+        return $this->successResponse(message: 'Classroom groups are updated successfully.');
     }
 }

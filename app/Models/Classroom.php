@@ -10,22 +10,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Classroom extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'school_id',
         'owner_id',
+        'year_id',
         'type',
         'name',
+        'mastery_enabled',
+        'self_rating_enabled',
     ];
 
     protected $casts = [
         'school_id' => 'int',
         'owner_id' => 'int',
+        'year_id' => 'int',
         'type' => ClassroomType::class,
+        'mastery_enabled' => 'bool',
+        'self_rating_enabled' => 'bool',
     ];
 
     // The max limit of the number of classroom groups.
@@ -91,6 +98,28 @@ class Classroom extends Model
     public function customClassroomGroups(): HasMany
     {
         return $this->hasMany(ClassroomGroup::class)
-            ->where('is_default', false);
+            ->where([
+                'is_default' => false,
+            ]);
+    }
+
+    /**
+     * Indicates whether the classroom is a traditional classroom.
+     *
+     * @return bool
+     */
+    public function isTraditionalClassroom(): bool
+    {
+        return $this->type === ClassroomType::TRADITIONAL_CLASSROOM;
+    }
+
+    /**
+     * Indicates whether the classroom is a homeschool classroom.
+     *
+     * @return bool
+     */
+    public function isHomeschoolClassroom(): bool
+    {
+        return $this->type === ClassroomType::HOMESCHOOL_CLASSROOM;
     }
 }
