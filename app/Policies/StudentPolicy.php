@@ -41,8 +41,11 @@ class StudentPolicy
 
     public function create(User $user): bool
     {
-        return $user instanceof Teacher &&
-            $user->isAdmin();
+        if ($teacher = $user->asTeacher()) {
+            return $teacher->isAdmin();
+        }
+
+        return false;
     }
 
     public function update(User $user, Student $student): Response

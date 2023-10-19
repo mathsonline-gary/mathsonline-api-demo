@@ -62,24 +62,34 @@ class StudentController extends Controller
     public function store(StoreStudentRequest $request)
     {
         $this->authorize('create', Student::class);
+        $authenticatedUser = $request->user();
 
-        $attributes = $request->safe()->only([
+        $validated = $request->safe()->only([
             'username',
             'email',
             'first_name',
             'last_name',
             'password',
+            'expired_tasks_excluded',
+            'confetti_enabled',
         ]);
 
-        $authenticatedTeacher = $this->authService->teacher();
+        if ($authenticatedUser->isTeacher()) {
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
 
-        $attributes['school_id'] = $authenticatedTeacher->school_id;
+            $validated['school_id'] = $authenticatedTeacher->school_id;
 
-        $student = $this->studentService->create($attributes);
+        }
 
-        StudentCreated::dispatch($authenticatedTeacher, $student);
+        $student = $this->studentService->create($validated);
 
-        return new StudentResource($student);
+        StudentCreated::dispatch($authenticatedUser, $student);
+
+        return $this->successResponse(
+            data: new StudentResource($student),
+            message: 'The student is created successfully.',
+            status: 201,
+        );
     }
 
     public function update(UpdateStudentRequest $request, Student $student)

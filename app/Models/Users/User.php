@@ -2,6 +2,7 @@
 
 namespace App\Models\Users;
 
+use App\Enums\UserType;
 use App\Models\Activity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,7 +22,6 @@ class User extends Authenticatable
     protected $fillable = [
         'login',
         'password',
-        'type_id',
     ];
 
     protected $hidden = [
@@ -30,7 +30,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'type_id' => 'int',
+        'type' => UserType::class,
     ];
 
     public $timestamps = false;
@@ -109,7 +109,7 @@ class User extends Authenticatable
      */
     public function isTeacher(): bool
     {
-        return $this->type_id === self::TYPE_TEACHER && $this->teacher !== null;
+        return $this->type === UserType::TYPE_TEACHER && $this->teacher !== null;
     }
 
     /**
@@ -129,7 +129,7 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->type_id === self::TYPE_STUDENT && $this->student !== null;
+        return $this->type === UserType::TYPE_STUDENT && $this->student !== null;
     }
 
     /**
@@ -149,7 +149,7 @@ class User extends Authenticatable
      */
     public function isMember(): bool
     {
-        return $this->type_id === self::TYPE_MEMBER && $this->member !== null;
+        return $this->type === UserType::TYPE_MEMBER && $this->member !== null;
     }
 
     /**
@@ -169,7 +169,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->type_id === self::TYPE_ADMIN && $this->admin !== null;
+        return $this->type === UserType::TYPE_ADMIN && $this->admin !== null;
     }
 
     /**
@@ -189,7 +189,7 @@ class User extends Authenticatable
      */
     public function isDeveloper(): bool
     {
-        return $this->type_id === self::TYPE_DEVELOPER && $this->developer !== null;
+        return $this->type === UserType::TYPE_DEVELOPER && $this->developer !== null;
     }
 
     /**

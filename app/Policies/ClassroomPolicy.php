@@ -24,7 +24,9 @@ class ClassroomPolicy
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and viewing a classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;
@@ -57,7 +59,9 @@ class ClassroomPolicy
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and viewing a classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;
@@ -77,7 +81,9 @@ class ClassroomPolicy
      */
     public function delete(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and deleting the classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;

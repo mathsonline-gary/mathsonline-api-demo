@@ -13,7 +13,9 @@ class ClassroomGroupPolicy
     {
         // The user is a teacher, and the classroom is a traditional classroom.
         /** @var Teacher $teacher */
-        if ($teacher = $user->asTeacher() && $classroom->isTraditionalClassroom()) {
+        if ($user->isTeacher() && $classroom->isTraditionalClassroom()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and is update classroom groups of a traditional classroom in the same school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;

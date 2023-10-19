@@ -16,12 +16,20 @@ class StoreStudentRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'username' => ['required', 'string', 'unique:students', 'min:3', 'max:32'],
             'email' => ['nullable', 'email'],
             'first_name' => ['required', 'string', 'max:32'],
             'last_name' => ['required', 'string', 'max:32'],
             'password' => ['required', 'confirmed', Password::defaults(), 'min:4', 'max:32'],
         ];
+
+        // Set rules for teacher users.
+        if ($this->user()->isTeacher()) {
+            $rules['expired_tasks_excluded'] = ['required', 'boolean'];
+            $rules['confetti_enabled'] = ['required', 'boolean'];
+        }
+
+        return $rules;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Users\Student;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -99,16 +100,30 @@ class StudentService
             'password',
             'first_name',
             'last_name',
+            'expired_tasks_excluded',
+            'confetti_enabled',
         ]);
 
-        $student = new Student([
-            ...$attributes,
-            'password' => Hash::make($attributes['password']),
-        ]);
+        return DB::transaction(function () use ($attributes) {
+            // Create a user.
+            $user = User::create([
+                'login' => $attributes['username'],
+                'password' => Hash::make($attributes['password']),
+                'type' => User::TYPE_STUDENT,
+            ]);
 
-        $student->save();
+            // Create the student.
+            $student = new Student($attributes);
+            $user->student()->save($student);
 
-        return $student;
+            // Create the student settings.
+            $student->settings()->create([
+                'expired_tasks_excluded' => $attributes['expired_tasks_excluded'],
+                'confetti_enabled' => $attributes['confetti_enabled'],
+            ]);
+
+            return $student;
+        });
     }
 
     /**
