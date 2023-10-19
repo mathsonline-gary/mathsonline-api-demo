@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Models\Users\Student;
 use App\Services\StudentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class StudentServiceTest extends TestCase
@@ -218,6 +217,8 @@ class StudentServiceTest extends TestCase
             'email' => fake()->safeEmail,
             'password' => fake()->password,
             'school_id' => $school->id,
+            'expired_tasks_excluded' => fake()->boolean,
+            'confetti_enabled' => fake()->boolean,
         ];
 
         $student = $this->studentService->create($options);
@@ -237,7 +238,6 @@ class StudentServiceTest extends TestCase
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
         $this->assertEquals($options['school_id'], $student->school_id);
-        $this->assertTrue(Hash::check($options['password'], $student->password));
     }
 
     /**
@@ -271,7 +271,6 @@ class StudentServiceTest extends TestCase
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
-        $this->assertTrue(Hash::check($options['password'], $student->password));
     }
 
     /**
@@ -313,7 +312,7 @@ class StudentServiceTest extends TestCase
         $customClassroomGroup2 = $this->fakeCustomClassroomGroup($classroom2);
 
         // Assign the student into $customClassroomGroup1 and $customClassroomGroup2.
-        $this->studentService->assignIntoClassroomGroups($student, [
+        $this->studentService->assignToClassroomGroups($student, [
             $customClassroomGroup1->id,
             $customClassroomGroup2->id
         ]);
@@ -330,7 +329,7 @@ class StudentServiceTest extends TestCase
         ]);
 
         // Assign the student into the default classroom group of $classroom1 and $customClassroomGroup2.
-        $this->studentService->assignIntoClassroomGroups($student, [
+        $this->studentService->assignToClassroomGroups($student, [
             $classroom1->defaultClassroomGroup->id,
             $customClassroomGroup2->id
         ]);

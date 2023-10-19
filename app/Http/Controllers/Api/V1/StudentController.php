@@ -71,15 +71,17 @@ class StudentController extends Controller
             'first_name',
             'last_name',
             'password',
-            'expired_tasks_excluded',
-            'confetti_enabled',
-            'classroom_group_ids',
         ]);
 
         if ($authenticatedUser->isTeacher()) {
             $authenticatedTeacher = $authenticatedUser->asTeacher();
 
             $validated['school_id'] = $authenticatedTeacher->school_id;
+            $validated['settings'] = [
+                'expired_tasks_excluded' => $request->boolean('expired_tasks_excluded', true),
+                'confetti_enabled' => $request->boolean('confetti_enabled', true),
+            ];
+            $validated['classroom_group_ids'] = $request->input('classroom_group_ids', []);
 
             $student = DB::transaction(function () use ($validated, $authenticatedTeacher) {
                 // Create a user.
@@ -87,7 +89,7 @@ class StudentController extends Controller
 
                 // Assign the student into the given classroom groups.
                 if (isset($validated['classroom_group_ids']) && count($validated['classroom_group_ids']) > 0) {
-                    $this->studentService->assignIntoClassroomGroups($student, $validated['classroom_group_ids']);
+                    $this->studentService->assignToClassroomGroups($student, $validated['classroom_group_ids']);
                 }
 
                 return $student;

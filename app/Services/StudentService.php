@@ -100,8 +100,7 @@ class StudentService
             'password',
             'first_name',
             'last_name',
-            'expired_tasks_excluded',
-            'confetti_enabled',
+            'settings',
         ]);
 
         return DB::transaction(function () use ($attributes) {
@@ -117,10 +116,7 @@ class StudentService
             $user->student()->save($student);
 
             // Create the student settings.
-            $student->settings()->create([
-                'expired_tasks_excluded' => $attributes['expired_tasks_excluded'],
-                'confetti_enabled' => $attributes['confetti_enabled'],
-            ]);
+            $student->settings()->create($attributes['settings'] ?? []);
 
             return $student;
         });
@@ -181,7 +177,7 @@ class StudentService
      * @param array $classroomGroupIds
      * @return void
      */
-    public function assignIntoClassroomGroups(Student $student, array $classroomGroupIds): void
+    public function assignToClassroomGroups(Student $student, array $classroomGroupIds): void
     {
         $student->classroomGroups()->syncWithoutDetaching($classroomGroupIds);
     }
