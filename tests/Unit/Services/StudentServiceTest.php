@@ -2,9 +2,13 @@
 
 namespace Tests\Unit\Services;
 
+use App\Enums\UserType;
 use App\Models\Users\Student;
+use App\Models\Users\StudentSetting;
+use App\Models\Users\User;
 use App\Services\StudentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class StudentServiceTest extends TestCase
@@ -206,9 +210,12 @@ class StudentServiceTest extends TestCase
         $this->assertCount(2, $result->classroomGroups);
     }
 
+    /**
+     * @see StudentService::create()
+     */
     public function test_it_creates_a_student(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        $school = $this->fakeSchool();
 
         $options = [
             'first_name' => fake()->firstName,
@@ -217,27 +224,48 @@ class StudentServiceTest extends TestCase
             'email' => fake()->safeEmail,
             'password' => fake()->password,
             'school_id' => $school->id,
-            'expired_tasks_excluded' => fake()->boolean,
-            'confetti_enabled' => fake()->boolean,
+            'settings' => [
+                'expired_tasks_excluded' => fake()->boolean,
+                'confetti_enabled' => fake()->boolean,
+            ],
         ];
+
+        $userCount = User::count();
+        $studentCount = Student::count();
+        $studentSettingsCount = StudentSetting::count();
 
         $student = $this->studentService->create($options);
 
-        // Assert that it returns a student.
+        // Assert that it returns the created student.
         $this->assertInstanceOf(Student::class, $student);
         $this->assertEquals($options['first_name'], $student->first_name);
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
+        $this->assertEquals($options['school_id'], $student->school_id);
         $this->assertObjectNotHasProperty('password', $student);
 
         // Assert that the student was created correctly in the database.
+        $this->assertDatabaseCount('students', $studentCount + 1);
         $student->refresh();
         $this->assertEquals($options['first_name'], $student->first_name);
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
         $this->assertEquals($options['school_id'], $student->school_id);
+
+        // Assert that the associated user was created correctly in the database.
+        $this->assertDatabaseCount('users', $userCount + 1);
+        $user = $student->asUser();
+        $this->assertEquals($options['username'], $user->login);
+        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
+        $this->assertTrue(Hash::check($options['password'], $user->password));
+
+        // Assert that the student settings were created correctly in the database.
+        $this->assertDatabaseCount('student_settings', $studentSettingsCount + 1);
+        $settings = $student->settings;
+        $this->assertEquals($options['settings']['expired_tasks_excluded'], $settings->expired_tasks_excluded);
+        $this->assertEquals($options['settings']['confetti_enabled'], $settings->confetti_enabled);
     }
 
     /**
@@ -299,6 +327,9 @@ class StudentServiceTest extends TestCase
         $this->assertDatabaseMissing('classroom_group_student', ['student_id' => $student->id]);
     }
 
+    /**
+     * @see StudentService::assignToClassroomGroups()
+     */
     public function test_it_assigns_the_student_into_classroom_groups()
     {
         $school = $this->fakeTraditionalSchool();
