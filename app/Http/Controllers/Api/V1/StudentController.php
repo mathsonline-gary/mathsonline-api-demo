@@ -13,6 +13,7 @@ use App\Models\Users\Student;
 use App\Services\AuthService;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -72,6 +73,7 @@ class StudentController extends Controller
             'password',
             'expired_tasks_excluded',
             'confetti_enabled',
+            'classroom_group_ids',
         ]);
 
         if ($authenticatedUser->isTeacher()) {
@@ -79,16 +81,29 @@ class StudentController extends Controller
 
             $validated['school_id'] = $authenticatedTeacher->school_id;
 
+            $student = DB::transaction(function () use ($validated, $authenticatedTeacher) {
+                // Create a user.
+                $student = $this->studentService->create($validated);
+
+                // Assign the student into the given classroom groups.
+                if (isset($validated['classroom_group_ids']) && count($validated['classroom_group_ids']) > 0) {
+                    $this->studentService->assignIntoClassroomGroups($student, $validated['classroom_group_ids']);
+                }
+
+                return $student;
+            });
+
+            StudentCreated::dispatch($authenticatedUser, $student);
+
+            return $this->successResponse(
+                data: new StudentResource($student),
+                message: 'The student is created successfully.',
+                status: 201,
+            );
         }
 
-        $student = $this->studentService->create($validated);
-
-        StudentCreated::dispatch($authenticatedUser, $student);
-
-        return $this->successResponse(
-            data: new StudentResource($student),
-            message: 'The student is created successfully.',
-            status: 201,
+        return $this->errorResponse(
+            message: 'Failed to create the student.',
         );
     }
 

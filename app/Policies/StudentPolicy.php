@@ -41,8 +41,8 @@ class StudentPolicy
 
     public function create(User $user): bool
     {
-        if ($teacher = $user->asTeacher()) {
-            return $teacher->isAdmin();
+        if ($user->isTeacher()) {
+            return true;
         }
 
         return false;

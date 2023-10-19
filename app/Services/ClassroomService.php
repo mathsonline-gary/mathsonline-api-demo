@@ -332,4 +332,16 @@ class ClassroomService
             $group->delete();
         });
     }
+
+    /**
+     * Assign students to the given classroom group.
+     *
+     * @param ClassroomGroup $classroomGroup
+     * @param array $studentIds
+     * @return void
+     */
+    public function assignStudents(ClassroomGroup $classroomGroup, array $studentIds): void
+    {
+        $classroomGroup->students()->syncWithoutDetaching($studentIds);
+    }
 }

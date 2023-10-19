@@ -93,7 +93,7 @@ class CreateStudentTest extends TestCase
 
         $response = $this->postJson(route('api.v1.students.store', $this->payload));
 
-        // Assert that the response has a 201 “Created” status code and the student is created in $school1.
+        // Assert that the response has a 201 “Created” status code.
         $response->assertCreated()
             ->assertJsonFragment(['success' => true])
             ->assertJsonFragment(['school_id' => $school1->id]);
@@ -104,18 +104,70 @@ class CreateStudentTest extends TestCase
      *
      * @see StudentPolicy::create()
      */
-    public function test_a_non_admin_teacher_is_unauthorized_to_create_a_student(): void
+    public function test_a_non_admin_teacher_can_create_a_student_in_classroom_groups_that_they_manage(): void
     {
-        $nonAdminTeacher = $this->fakeNonAdminTeacher();
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+        // Create a classroom group of which the non-admin teacher is the owner.
+        $classroom1 = $this->fakeClassroom($nonAdminTeacher);
+
+        // Create a classroom group of which the non-admin teacher is a secondary teacher.
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+        $classroomGroup = $this->fakeCustomClassroomGroup($classroom2);
+        $classroom2->secondaryTeachers()->attach($nonAdminTeacher);
 
         $this->actingAsTeacher($nonAdminTeacher);
 
+        $this->payload['classroom_group_ids'] = [
+            $classroom1->defaultClassroomGroup->id,
+            $classroomGroup->id,
+        ];
+
         $response = $this->postJson(route('api.v1.students.store', $this->payload));
 
-        // Assert that the response has a 403 “Forbidden” status code.
-        $response->assertForbidden();
+        // Assert that the response has a 201 “Created” status code.
+        $response->assertCreated()
+            ->assertJsonFragment(['success' => true]);
     }
 
+    /**
+     * Validation test.
+     *
+     * @see StudentPolicy::create()
+     */
+    public function test_a_non_admin_teacher_cannot_create_a_student_in_classrooms_that_they_do_not_manage(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+        // Create a classroom groups not managed by the non-admin teacher.
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+        $classroomGroup = $this->fakeCustomClassroomGroup($classroom2);
+
+        $this->actingAsTeacher($nonAdminTeacher);
+
+        $this->payload['classroom_group_ids'] = [
+            $classroom1->defaultClassroomGroup->id,
+            $classroomGroup->id,
+        ];
+
+        $response = $this->postJson(route('api.v1.students.store', $this->payload));
+
+        // Assert that the request is invalid.
+        $response->assertUnprocessable()
+            ->assertInvalid('classroom_group_ids.0')
+            ->assertInvalid('classroom_group_ids.1');
+    }
+
+    /**
+     * Operation test.
+     */
     public function test_it_returns_the_created_student()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -132,71 +184,6 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['first_name' => $this->payload['first_name']])
             ->assertJsonFragment(['last_name' => $this->payload['last_name']])
             ->assertJsonMissing(['password']);
-    }
-
-    public function test_it_creates_the_student()
-    {
-        $adminTeacher = $this->fakeAdminTeacher();
-
-        $studentCount = Student::count();
-        $userCount = User::count();
-        $studentSettingCount = StudentSetting::count();
-
-        $this->actingAsTeacher($adminTeacher);
-
-        $this->postJson(route('api.v1.students.store', $this->payload));
-
-        // Assert that the student is created in the database.
-        $this->assertDatabaseCount('students', $studentCount + 1);
-
-        // Assert that the student is created correctly in the database.
-        $student = Student::latest()->first();
-        $this->assertEquals($this->payload['username'], $student->username);
-        $this->assertEquals($this->payload['email'], $student->email);
-        $this->assertEquals($this->payload['first_name'], $student->first_name);
-        $this->assertEquals($this->payload['last_name'], $student->last_name);
-        $this->assertEquals($adminTeacher->school_id, $student->school_id);
-
-        // Assert that the associated user is created in the database.
-        $this->assertDatabaseCount('users', $userCount + 1);
-
-        // Assert that the associated user is created correctly in the database.
-        $user = $student->asUser();
-        $this->assertEquals($this->payload['username'], $user->login);
-        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
-        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
-
-        // Assert that the associated student setting is created in the database.
-        $this->assertDatabaseCount('student_settings', $studentSettingCount + 1);
-
-        // Assert that the associated student setting is created correctly in the database.
-        $studentSetting = $student->settings;
-        $this->assertEquals($student->id, $studentSetting->student_id);
-        $this->assertEquals($this->payload['expired_tasks_excluded'], $studentSetting->expired_tasks_excluded);
-        $this->assertEquals($this->payload['confetti_enabled'], $studentSetting->confetti_enabled);
-    }
-
-    public function test_it_logs_student_created_activity()
-    {
-        $adminTeacher = $this->fakeAdminTeacher();
-
-        $activityCount = Activity::count();
-
-        $this->actingAsTeacher($adminTeacher);
-
-        $this->postJson(route('api.v1.students.store', $this->payload));
-
-        // Assert that the student created activity is created in the database.
-        $this->assertDatabaseCount('activities', $activityCount + 1);
-
-        // Assert that the student created activity is created correctly in the database.
-        $activity = Activity::latest('acted_at')->first();
-        $student = Student::latest()->first();
-        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::CREATED_STUDENT, $activity->type);
-        $this->assertArrayHasKey('id', $activity->data);
-        $this->assertEquals($student->id, $activity->data['id']);
-        $this->assertEquals($student->created_at, $activity->acted_at);
     }
 
     /**
@@ -458,8 +445,8 @@ class CreateStudentTest extends TestCase
      */
     public function test_password_is_required(): void
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
+        $adminTeacher = $this->fakeAdminTeacher();
+
         $this->actingAsTeacher($adminTeacher);
 
         // Test that the password attribute is required.
@@ -493,4 +480,167 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('password', __('validation.max.string', ['attribute' => 'password', 'max' => 32]));
     }
 
+    /**
+     * Validation test.
+     */
+    public function test_classroom_group_ids_is_required_if_the_user_is_a_non_admin_teacher()
+    {
+        $nonAdminTeacher = $this->fakeNonAdminTeacher();
+        $this->actingAsTeacher($nonAdminTeacher);
+
+        $this->postJson(route('api.v1.students.store', $this->payload))
+            ->assertUnprocessable()
+            ->assertInvalid('classroom_group_ids', __('validation.required', ['attribute' => 'classroom_group_ids']));
+    }
+
+    public function test_classroom_groups_should_be_in_the_same_school_as_the_teacher(): void
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $adminTeacher1 = $this->fakeAdminTeacher($school1);
+        $adminTeacher2 = $this->fakeAdminTeacher($school2);
+
+        $classroom1 = $this->fakeClassroom($adminTeacher2);
+        $classroom2 = $this->fakeClassroom($adminTeacher2);
+
+        $this->actingAsTeacher($adminTeacher1);
+
+        $this->payload['classroom_group_ids'] = [
+            $classroom1->defaultClassroomGroup->id,
+            $classroom2->defaultClassroomGroup->id,
+        ];
+
+        $this->postJson(route('api.v1.students.store', $this->payload))
+            ->assertUnprocessable()
+            ->assertInvalid('classroom_group_ids.0')
+            ->assertInvalid('classroom_group_ids.1');
+    }
+
+    public function test_classroom_groups_should_be_managed_by_the_non_admin_teacher(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+
+        $this->actingAsTeacher($nonAdminTeacher);
+
+        $this->payload['classroom_group_ids'] = [
+            $classroom1->defaultClassroomGroup->id,
+            $classroom2->defaultClassroomGroup->id,
+        ];
+
+        $this->postJson(route('api.v1.students.store', $this->payload))
+            ->assertUnprocessable()
+            ->assertInvalid('classroom_group_ids.0')
+            ->assertInvalid('classroom_group_ids.1');
+    }
+
+    /**
+     * Operation test.
+     */
+    public function test_it_creates_the_student()
+    {
+        $adminTeacher = $this->fakeAdminTeacher();
+
+        $studentCount = Student::count();
+        $userCount = User::count();
+        $studentSettingCount = StudentSetting::count();
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->postJson(route('api.v1.students.store', $this->payload));
+
+        // Assert that the student is created in the database.
+        $this->assertDatabaseCount('students', $studentCount + 1);
+
+        // Assert that the student is created correctly in the database.
+        $student = Student::latest()->first();
+        $this->assertEquals($this->payload['username'], $student->username);
+        $this->assertEquals($this->payload['email'], $student->email);
+        $this->assertEquals($this->payload['first_name'], $student->first_name);
+        $this->assertEquals($this->payload['last_name'], $student->last_name);
+        $this->assertEquals($adminTeacher->school_id, $student->school_id);
+
+        // Assert that the associated user is created in the database.
+        $this->assertDatabaseCount('users', $userCount + 1);
+
+        // Assert that the associated user is created correctly in the database.
+        $user = $student->asUser();
+        $this->assertEquals($this->payload['username'], $user->login);
+        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
+        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
+
+        // Assert that the associated student setting is created in the database.
+        $this->assertDatabaseCount('student_settings', $studentSettingCount + 1);
+
+        // Assert that the associated student setting is created correctly in the database.
+        $studentSetting = $student->settings;
+        $this->assertEquals($student->id, $studentSetting->student_id);
+        $this->assertEquals($this->payload['expired_tasks_excluded'], $studentSetting->expired_tasks_excluded);
+        $this->assertEquals($this->payload['confetti_enabled'], $studentSetting->confetti_enabled);
+    }
+
+    /**
+     * Operation test.
+     */
+    public function test_it_logs_student_created_activity()
+    {
+        $adminTeacher = $this->fakeAdminTeacher();
+
+        $activityCount = Activity::count();
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->postJson(route('api.v1.students.store', $this->payload));
+
+        // Assert that the student created activity is created in the database.
+        $this->assertDatabaseCount('activities', $activityCount + 1);
+
+        // Assert that the student created activity is created correctly in the database.
+        $activity = Activity::latest('acted_at')->first();
+        $student = Student::latest()->first();
+        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
+        $this->assertEquals(ActivityType::CREATED_STUDENT, $activity->type);
+        $this->assertArrayHasKey('id', $activity->data);
+        $this->assertEquals($student->id, $activity->data['id']);
+        $this->assertEquals($student->created_at, $activity->acted_at);
+    }
+
+    /**
+     * Operation test.
+     */
+    public function test_it_assigns_the_student_into_the_classroom_groups()
+    {
+        $adminTeacher = $this->fakeAdminTeacher();
+
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+        $classroomGroup1 = $this->fakeCustomClassroomGroup($classroom1);
+        $classroomGroup2 = $this->fakeCustomClassroomGroup($classroom2);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['classroom_group_ids'] = [
+            $classroomGroup1->id,
+            $classroomGroup2->id,
+        ];
+
+        $this->postJson(route('api.v1.students.store', $this->payload));
+
+        // Assert that the student is assigned into the classroom groups.
+        $student = Student::latest()->first();
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $classroomGroup1->id,
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $classroomGroup2->id,
+        ]);
+    }
 }

@@ -173,4 +173,16 @@ class StudentService
             $student->delete();
         });
     }
+
+    /**
+     * Assign the given student into the given classroom groups.
+     *
+     * @param Student $student
+     * @param array $classroomGroupIds
+     * @return void
+     */
+    public function assignIntoClassroomGroups(Student $student, array $classroomGroupIds): void
+    {
+        $student->classroomGroups()->syncWithoutDetaching($classroomGroupIds);
+    }
 }

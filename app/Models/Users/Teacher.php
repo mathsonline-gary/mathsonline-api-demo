@@ -123,9 +123,25 @@ class Teacher extends Model
      */
     public function getOwnedAndSecondaryClassrooms(): Collection
     {
-        $ownedClassrooms = $this->ownedClassrooms()->get();
-        $secondaryClassrooms = $this->secondaryClassrooms()->get();
+        $ownedClassrooms = $this->ownedClassrooms;
+        $secondaryClassrooms = $this->secondaryClassrooms;
 
         return $ownedClassrooms->merge($secondaryClassrooms)->unique('id');
+    }
+
+    /**
+     * Get classrooms that are managed by the teacher:
+     * If the teacher is an admin, then all classrooms from the same school are returned.
+     * If the teacher is a non-admin, then only classrooms that they own or are secondary teachers of are returned.
+     *
+     * @return Collection<Classroom>
+     */
+    public function getManagedClassrooms(): Collection
+    {
+        if ($this->isAdmin()) {
+            return $this->school->classrooms;
+        }
+
+        return $this->getOwnedAndSecondaryClassrooms();
     }
 }

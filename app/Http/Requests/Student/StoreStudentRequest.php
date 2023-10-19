@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Student;
 
+use App\Models\Users\Teacher;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreStudentRequest extends FormRequest
@@ -26,8 +28,24 @@ class StoreStudentRequest extends FormRequest
 
         // Set rules for teacher users.
         if ($this->user()->isTeacher()) {
+            /** @var Teacher $teacher */
+            $teacher = $this->user()->asTeacher();
+            $classrooms = $teacher->getManagedClassrooms();
+
             $rules['expired_tasks_excluded'] = ['required', 'boolean'];
             $rules['confetti_enabled'] = ['required', 'boolean'];
+            $rules['classroom_group_ids'] = ['array'];
+            $rules['classroom_group_ids.*'] = [
+                'required',
+                'integer',
+                Rule::exists('classroom_groups', 'id')
+                    ->whereIn('classroom_id', $classrooms->pluck('id')->toArray()), // The classroom group must be from a classroom managed by the authenticated teacher.
+            ];
+
+            // Set rules for non-admin users.
+            if (!$teacher->isAdmin()) {
+                $rules['classroom_group_ids'][] = 'required';
+            }
         }
 
         return $rules;
