@@ -81,7 +81,7 @@ class Teacher extends Model
      */
     public function isOwnerOfClassroom(Classroom $classroom): bool
     {
-        return $this->ownedClassrooms()->where('id', $classroom->id)->exists();
+        return $this->id === $classroom->owner_id;
     }
 
     /**

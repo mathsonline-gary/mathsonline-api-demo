@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Http\Controllers\Api\V1\ClassroomGroupController;
+use App\Http\Controllers\Api\V1\ClassroomStudentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,5 +35,9 @@ Route::prefix('classrooms')
         // Classroom group routes.
         Route::put('/{classroom}/groups', [ClassroomGroupController::class, 'update'])
             ->name('groups.update');
+
+        // Classroom students routes.
+        Route::get('/{classroom}/students', [ClassroomStudentController::class, 'index'])
+            ->name('students.index');
 
     });
