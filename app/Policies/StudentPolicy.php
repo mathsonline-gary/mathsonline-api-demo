@@ -11,7 +11,10 @@ class StudentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user instanceof Teacher;
+        if ($user->isTeacher()) {
+            return true;
+        }
+        return false;
     }
 
     public function view(User $user, Student $student): Response

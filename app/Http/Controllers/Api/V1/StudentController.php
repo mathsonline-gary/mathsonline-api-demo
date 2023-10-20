@@ -10,6 +10,7 @@ use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
 use App\Models\Users\Student;
+use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
@@ -28,24 +29,39 @@ class StudentController extends Controller
     {
         $this->authorize('viewAny', Student::class);
 
-        $authenticatedTeacher = $this->authService->teacher();
+        $authenticatedUser = $request->user();
 
-        $options = [
-            'school_id' => $authenticatedTeacher->school_id,
-            'key' => $request->input('search_key'),
-            'pagination' => $request->boolean('pagination', true),
-            'all' => $request->boolean('all', true),    // Whether to show all students or only those managed by the authenticated teacher.
-        ];
+        if ($authenticatedUser->isTeacher()) {
+            /** @var Teacher $authenticatedTeacher */
+            $authenticatedTeacher = $authenticatedUser->asTeacher();
 
-        // Get IDs of classrooms managed by the authenticated teacher.
-        if (!$authenticatedTeacher->isAdmin() || !$options['all']) {
-            // Merge the two arrays of classroom IDs.
-            $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()->pluck('id')->toArray();
+            $options = [
+                'school_id' => $authenticatedTeacher->school_id,
+                'key' => $request->input('search_key'),
+                'all' => $request->boolean('all', true),    // Whether to show all students or only those managed by the authenticated teacher.
+                'pagination' => $request->boolean('pagination', false),
+                'page' => $request->integer('page', 1),
+                'per_page' => $request->integer('per_page', 20),
+                'with_school' => $request->boolean('with_school', false),
+                'with_activities' => $request->boolean('with_activities', false),
+                'with_classroom_groups' => $request->boolean('with_classroom_groups', false),
+            ];
+
+            // If the authenticated user is not an admin teacher, or the request does not want to show all students,
+            // then get IDs of classrooms of which the authenticated teacher is the owner or secondary teacher.
+            if (!$authenticatedTeacher->isAdmin() || !$options['all']) {
+                // Merge the two arrays of classroom IDs.
+                $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()->pluck('id')->toArray();
+            }
+
+            $students = $this->studentService->search($options);
+
+            return $this->successResponse(StudentResource::collection($students));
         }
 
-        $students = $this->studentService->search($options);
-
-        return StudentResource::collection($students);
+        return $this->errorResponse(
+            message: 'Failed to get the student list.',
+        );
     }
 
     public function show(Student $student)

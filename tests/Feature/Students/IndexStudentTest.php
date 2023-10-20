@@ -2,7 +2,6 @@
 
 namespace Feature\Students;
 
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,12 +9,17 @@ class IndexStudentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Run MarketSeeder before each test.
-     *
-     * @var string
-     */
-    protected string $seeder = MarketSeeder::class;
+    public function test_a_guest_cannot_get_the_list_of_students(): void
+    {
+        $this->fakeStudent(null, 5);
+
+        $this->assertGuest();
+
+        $response = $this->getJson(route('api.v1.students.index'));
+
+        // Assert that the request is unauthorized.
+        $response->assertUnauthorized();
+    }
 
     public function test_an_admin_teacher_can_get_the_list_of_all_students_who_are_in_the_same_school_as_the_teacher(): void
     {
@@ -28,29 +32,16 @@ class IndexStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.index'));
+        $response = $this->getJson(route('api.v1.students.index', [
+            'all' => true,
+        ]));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students1->count(), 'data');
-
-        // Assert the response has the expected attributes of each student.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'school_id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each student.
-        $response->assertJsonMissingPath('data.*.password');
 
         // Assert all students in school 2 are not included.
         foreach ($students2 as $student) {
@@ -92,31 +83,16 @@ class IndexStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.index', [
+        $response = $this->getJson(route('api.v1.students.index', [
             'all' => false,
         ]));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students2->count() + $students3->count(), 'data');
-
-        // Assert the response has the expected attributes of each student.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'school_id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each student.
-        $response->assertJsonMissingPath('data.*.password');
 
         // Assert all students in classroom 1 are not included.
         foreach ($students1 as $student) {
@@ -166,31 +142,17 @@ class IndexStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.index', [
+        $response = $this->getJson(route('api.v1.students.index', [
+            'all' => true,
             'search_key' => 'john',
         ]));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount(2, 'data');
-
-        // Assert the response has the expected attributes of each student.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'school_id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each student.
-        $response->assertJsonMissingPath('data.*.password');
 
         // Assert that $student1 is not included.
         $response->assertJsonFragment([
@@ -239,29 +201,16 @@ class IndexStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.index'));
+        $response = $this->getJson(route('api.v1.students.index', [
+            'all' => true,
+        ]));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students2->count() + $students3->count(), 'data');
-
-        // Assert the response has the expected attributes of each student.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'school_id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each student.
-        $response->assertJsonMissingPath('data.*.password');
 
         // Assert that all students in classroom 1 are not included.
         foreach ($students1 as $student) {
@@ -322,31 +271,16 @@ class IndexStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.index', [
+        $response = $this->getJson(route('api.v1.students.index', [
             'search_key' => 'john',
         ]));
 
         // Assert that the request is successful.
-        $response->assertOk();
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount(1, 'data');
-
-        // Assert the response has the expected attributes of each student.
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'id',
-                    'school_id',
-                    'username',
-                    'first_name',
-                    'last_name',
-                ],
-            ]
-        ]);
-
-        // Assert the response does not contain the password of each student.
-        $response->assertJsonMissingPath('data.*.password');
 
         // Assert that $student1 is not included.
         $response->assertJsonFragment([
@@ -363,4 +297,55 @@ class IndexStudentTest extends TestCase
             'id' => $student3->id,
         ]);
     }
+
+    public function test_it_returns_expected_details_of_students()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $this->fakeStudent($school, 5);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->getJson(route('api.v1.students.index'));
+
+        // Assert the response has the expected attributes of each student.
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'school_id',
+                    'username',
+                    'first_name',
+                    'last_name',
+                ],
+            ]
+        ]);
+
+        // Assert the response does not contain the password of each student.
+        $response->assertJsonMissingPath('data.*.password');
+    }
+
+    public function test_it_returns_login_statistics_if_explicitly_requested()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $this->fakeStudent($school, 5);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->getJson(route('api.v1.students.index', [
+            'with_activities' => true,
+        ]));
+
+        // Assert the response has the expected attributes of each student.
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'login_count',
+                    'last_login_at',
+                ],
+            ]
+        ]);
+    }
+
 }
