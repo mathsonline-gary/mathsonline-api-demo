@@ -75,7 +75,8 @@ class StudentService
      * @param array{
      *     throwable?: bool,
      *     with_school?: bool,
-     *     with_classroom_groups?: bool
+     *     with_classrooms?: bool,
+     *     with_activities?: bool,
      *     } $options
      * @return Student|null
      */
@@ -92,11 +93,15 @@ class StudentService
             $student->load('school');
         }
 
-        if ($options['with_classroom_groups'] ?? false) {
+        if ($options['with_classrooms'] ?? false) {
             $student->load('classroomGroups', 'classroomGroups.classroom')
                 ->whereHas('classroomGroups.classroom', function ($query) use ($student) {
                     $query->where('school_id', $student->school_id);
                 });
+        }
+
+        if ($options['with_activities'] ?? false) {
+            $student->load('user.activities');
         }
 
         return $student;

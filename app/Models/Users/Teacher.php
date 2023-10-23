@@ -144,4 +144,27 @@ class Teacher extends Model
 
         return $this->getOwnedAndSecondaryClassrooms();
     }
+
+    /**
+     * Indicate that if the teacher manages the given student.
+     * If the teacher is an admin, then the student must be from the same school.
+     * If the teacher is a non-admin, then the student must be from the same school and from a classroom that they manage.
+     *
+     * @param Student $student
+     * @return bool
+     */
+    public function canManageStudent(Student $student): bool
+    {
+        if ($this->isAdmin()) {
+            return $this->school_id === $student->school_id;
+        } else {
+            return $this->school_id === $student->school_id &&
+                $student->classroomGroups()
+                    ->whereIn('classroom_id',
+                        $this->getOwnedAndSecondaryClassrooms()
+                            ->pluck('id')
+                            ->toArray())
+                    ->exists();
+        }
+    }
 }

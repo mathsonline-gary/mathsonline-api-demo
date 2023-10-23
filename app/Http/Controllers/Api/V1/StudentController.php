@@ -45,6 +45,7 @@ class StudentController extends Controller
                 'with_school' => $request->boolean('with_school'),
                 'with_activities' => $request->boolean('with_activities'),
                 'with_classroom_groups' => $request->boolean('with_classroom_groups'),
+                'with_classrooms' => $request->boolean('with_classrooms'),
             ];
 
             // Set the 'classroom_ids' option.
@@ -75,11 +76,14 @@ class StudentController extends Controller
         $this->authorize('view', $student);
 
         $student = $this->studentService->find($student->id, [
-            'with_school' => true,
-            'with_classroom_groups' => true,
+            'with_school' => false,
+            'with_classrooms' => true,
+            'with_activities' => true,
         ]);
 
-        return new StudentResource($student);
+        return $this->successResponse(
+            data: new StudentResource($student),
+        );
     }
 
     public function store(StoreStudentRequest $request)

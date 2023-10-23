@@ -17,29 +17,13 @@ class StudentPolicy
         return false;
     }
 
-    public function view(User $user, Student $student): Response
+    public function view(User $user, Student $student): bool
     {
-        // The user is an admin teacher, and the student is from the same school.
-        if ($user instanceof Teacher &&
-            $user->isAdmin() &&
-            $user->school_id === $student->school_id) {
-            return Response::allow();
+        if ($user->isTeacher()) {
+            return $user->asTeacher()->canManageStudent($student);
         }
 
-        // The user is a non-admin teacher, and the student is from the same school and from a classroom that they manage.
-        if ($user instanceof Teacher &&
-            !$user->isAdmin() &&
-            $user->school_id === $student->school_id &&
-            $student->classroomGroups()
-                ->whereIn('classroom_id',
-                    $user->getOwnedAndSecondaryClassrooms()
-                        ->pluck('id')
-                        ->toArray())
-                ->exists()) {
-            return Response::allow();
-        }
-
-        return Response::denyAsNotFound('No student found.');
+        return false;
     }
 
     public function create(User $user): bool

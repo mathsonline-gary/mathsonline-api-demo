@@ -40,6 +40,13 @@ class StudentResource extends JsonResource
 
                     return [];
                 }),
+            'pass_grade' => $this->whenLoaded('classroomGroups', function () {
+                if (!$this->classroomGroups->isEmpty()) {
+                    return $this->classroomGroups->max('pass_grade');
+                }
+
+                return null;
+            }),
             'login_count' => $this->when(
                 $this->relationLoaded('user') && $this->asUser()->relationLoaded('activities'),
                 function () {
