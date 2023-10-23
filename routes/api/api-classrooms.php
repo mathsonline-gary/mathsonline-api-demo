@@ -36,8 +36,4 @@ Route::prefix('classrooms')
         Route::put('/{classroom}/groups', [ClassroomGroupController::class, 'update'])
             ->name('groups.update');
 
-        // Classroom students routes.
-        Route::get('/{classroom}/students', [ClassroomStudentController::class, 'index'])
-            ->name('students.index');
-
     });

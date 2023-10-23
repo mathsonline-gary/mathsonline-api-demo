@@ -98,11 +98,4 @@ class ClassroomPolicy
         return false;
     }
 
-    /**
-     * Determine whether the user can view any student in the classroom.
-     */
-    public function viewAnyStudent(User $user, Classroom $classroom): bool
-    {
-        return $this->view($user, $classroom);
-    }
 }

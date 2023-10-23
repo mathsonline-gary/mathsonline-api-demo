@@ -348,4 +348,136 @@ class IndexStudentTest extends TestCase
         ]);
     }
 
+    public function test_an_admin_teacher_can_get_the_student_list_of_a_classroom_in_their_school()
+    {
+        $school = $this->fakeTraditionalSchool();
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+        $students1 = $this->fakeStudent($school, 5);
+        $students2 = $this->fakeStudent($school, 5);
+
+        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->getJson(route('api.v1.students.index', [
+            'classroom_id' => $classroom1->id,
+        ]));
+
+        // Assert that the request is successful.
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
+
+        // Assert that the response contains the correct number of students.
+        $response->assertJsonCount($students1->count(), 'data');
+
+        // Assert all students in classroom 1 are included.
+        foreach ($students1 as $student) {
+            $response->assertJsonFragment([
+                'id' => $student->id,
+            ]);
+        }
+
+        // Assert all students in classroom 2 are not included.
+        foreach ($students2 as $student) {
+            $response->assertJsonMissing([
+                'id' => $student->id,
+            ]);
+        }
+    }
+
+    public function test_an_admin_teacher_cannot_get_the_student_list_of_a_classroom_in_another_school()
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $adminTeacher1 = $this->fakeAdminTeacher($school1);
+        $adminTeacher2 = $this->fakeAdminTeacher($school2);
+
+        $classroom = $this->fakeClassroom($adminTeacher2);
+
+        $this->actingAsTeacher($adminTeacher1);
+
+        $response = $this->getJson(route('api.v1.students.index', [
+            'classroom_id' => $classroom->id,
+        ]));
+
+        // Assert that the request is invalid.
+        $response->assertUnprocessable()
+            ->assertInvalid('classroom_id');
+    }
+
+    public function test_a_non_admin_teacher_can_get_the_student_list_of_a_classroom_that_they_managed()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($nonAdminTeacher1);
+        $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+
+        $students1 = $this->fakeStudent($school, 5);
+        $students2 = $this->fakeStudent($school, 5);
+
+        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+
+        $this->actingAsTeacher($nonAdminTeacher1);
+
+        $response = $this->getJson(route('api.v1.students.index', [
+            'classroom_id' => $classroom1->id,
+        ]));
+
+        // Assert that the request is successful.
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
+
+        // Assert that the response contains the correct number of students.
+        $response->assertJsonCount($students1->count(), 'data');
+
+        // Assert all students in classroom 1 are included.
+        foreach ($students1 as $student) {
+            $response->assertJsonFragment([
+                'id' => $student->id,
+            ]);
+        }
+
+        // Assert all students in classroom 2 are not included.
+        foreach ($students2 as $student) {
+            $response->assertJsonMissing([
+                'id' => $student->id,
+            ]);
+        }
+    }
+
+    public function test_a_non_admin_teacher_cannot_get_the_student_list_of_a_classroom_that_is_not_managed_by_them()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+        $classroom1 = $this->fakeClassroom($nonAdminTeacher1);
+        $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+
+        $students1 = $this->fakeStudent($school, 5);
+        $students2 = $this->fakeStudent($school, 5);
+
+        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+
+        $this->actingAsTeacher($nonAdminTeacher1);
+
+        $response = $this->getJson(route('api.v1.students.index', [
+            'classroom_id' => $classroom2->id,
+        ]));
+
+        // Assert that the request is invalid.
+        $response->assertUnprocessable()
+            ->assertInvalid('classroom_id');
+    }
+
 }

@@ -6,6 +6,7 @@ use App\Events\Student\StudentCreated;
 use App\Events\Student\StudentDeleted;
 use App\Events\Student\StudentUpdated;
 use App\Http\Controllers\Api\Controller;
+use App\Http\Requests\Student\IndexStudentRequest;
 use App\Http\Requests\Student\StoreStudentRequest;
 use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Http\Resources\StudentResource;
@@ -13,7 +14,6 @@ use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\StudentService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
@@ -25,7 +25,7 @@ class StudentController extends Controller
     {
     }
 
-    public function index(Request $request)
+    public function index(IndexStudentRequest $request)
     {
         $this->authorize('viewAny', Student::class);
 
@@ -39,19 +39,25 @@ class StudentController extends Controller
                 'school_id' => $authenticatedTeacher->school_id,
                 'key' => $request->input('search_key'),
                 'all' => $request->boolean('all', true),    // Whether to show all students or only those managed by the authenticated teacher.
-                'pagination' => $request->boolean('pagination', false),
+                'pagination' => $request->boolean('pagination', true),
                 'page' => $request->integer('page', 1),
                 'per_page' => $request->integer('per_page', 20),
-                'with_school' => $request->boolean('with_school', false),
-                'with_activities' => $request->boolean('with_activities', false),
-                'with_classroom_groups' => $request->boolean('with_classroom_groups', false),
+                'with_school' => $request->boolean('with_school'),
+                'with_activities' => $request->boolean('with_activities'),
+                'with_classroom_groups' => $request->boolean('with_classroom_groups'),
             ];
 
-            // If the authenticated user is not an admin teacher, or the request does not want to show all students,
-            // then get IDs of classrooms of which the authenticated teacher is the owner or secondary teacher.
-            if (!$authenticatedTeacher->isAdmin() || !$options['all']) {
-                // Merge the two arrays of classroom IDs.
-                $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()->pluck('id')->toArray();
+            // Set the 'classroom_ids' option.
+            {
+                $classroomId = $request->integer('classroom_id');
+
+                if ($classroomId > 0) {
+                    $options['classroom_ids'] = [$classroomId];
+                } elseif (!$authenticatedTeacher->isAdmin() || !$options['all']) {
+                    $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()
+                        ->pluck('id')
+                        ->toArray();
+                }
             }
 
             $students = $this->studentService->search($options);
