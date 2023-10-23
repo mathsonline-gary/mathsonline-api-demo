@@ -153,22 +153,51 @@ class StudentService
      */
     public function update(Student $student, array $payload): Student
     {
-        $fillableAttributes = Arr::only($payload, [
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-        ]);
+        return DB::transaction(function () use ($student, $payload) {
+            // Update the student.
+            {
+                $fillableStudentAttributes = Arr::only($payload, [
+                    'username',
+                    'email',
+                    'first_name',
+                    'last_name',
+                ]);
 
-        if (isset($payload['password'])) {
-            $fillableAttributes['password'] = Hash::make($payload['password']);
-        }
+                if (count($fillableStudentAttributes) > 0) {
+                    $student->update($fillableStudentAttributes);
+                }
+            }
 
-        $student->fill($fillableAttributes);
+            // Update the associated user.
+            {
+                $fillableUserAttributes = [];
 
-        $student->save();
+                if (isset($payload['username'])) {
+                    $fillableUserAttributes['login'] = $payload['username'];
+                }
+                if (isset($payload['password'])) {
+                    $fillableUserAttributes['password'] = Hash::make($payload['password']);
+                }
 
-        return $student;
+                if (count($fillableUserAttributes) > 0) {
+                    $student->user()->update($fillableUserAttributes);
+                }
+            }
+
+            // Update the associated student settings.
+            {
+                $fillableSettingsAttributes = Arr::only($payload, [
+                    'expired_tasks_excluded',
+                    'confetti_enabled',
+                ]);
+
+                if (count($fillableSettingsAttributes) > 0) {
+                    $student->settings()->update($fillableSettingsAttributes);
+                }
+            }
+
+            return $student;
+        });
     }
 
     /**

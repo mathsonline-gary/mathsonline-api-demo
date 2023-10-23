@@ -145,15 +145,18 @@ class StudentController extends Controller
             'first_name',
             'last_name',
             'password',
+            'expired_tasks_excluded',
+            'confetti_enabled',
         ]);
-
-        $beforeAttributes = $student->getAttributes();
 
         $updatedStudent = $this->studentService->update($student, $validated);
 
-        StudentUpdated::dispatch($this->authService->teacher(), $beforeAttributes, $updatedStudent);
+        StudentUpdated::dispatch($request->user(), $request->except(['password']), $updatedStudent);
 
-        return new StudentResource($updatedStudent);
+        return $this->successResponse(
+            data: new StudentResource($updatedStudent),
+            message: 'The student is updated successfully.',
+        );
     }
 
     public function destroy(Student $student)

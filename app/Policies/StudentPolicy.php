@@ -35,17 +35,14 @@ class StudentPolicy
         return false;
     }
 
-    public function update(User $user, Student $student): Response
+    public function update(User $user, Student $student): bool
     {
         // The user ia an admin teacher, and the student is from the same school.
-        if ($user instanceof Teacher &&
-            $user->isAdmin()) {
-            return $user->school_id === $student->school_id
-                ? Response::allow()
-                : Response::denyAsNotFound('No student found.');
+        if ($user->isTeacher()) {
+            return $user->asTeacher()->canManageStudent($student);
         }
 
-        return Response::deny();
+        return false;
     }
 
     public function delete(User $user, Student $student): Response

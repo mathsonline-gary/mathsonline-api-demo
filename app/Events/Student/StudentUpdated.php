@@ -5,7 +5,7 @@ namespace App\Events\Student;
 use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
 use App\Models\Users\Student;
-use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -17,20 +17,20 @@ class StudentUpdated extends ActivityLoggableEvent
     /**
      * Create a new event instance.
      *
-     * @param Teacher $actor The user who updated the student.
-     * @param array $before Student's attributes before updated.
-     * @param Student $after The updated student instance.
+     * @param User $actor The user who updated the student.
+     * @param array $payload
+     * @param Student $updatedStudent The updated student instance.
      */
-    public function __construct(Teacher $actor, array $before, Student $after,
+    public function __construct(User $actor, array $payload, Student $updatedStudent,
     )
     {
         parent::__construct(
             actor: $actor,
             activityType: ActivityType::UPDATED_STUDENT,
-            actedAt: $after->updated_at,
+            actedAt: $updatedStudent->updated_at,
             data: [
-                'before' => $before,
-                'after' => $after->getAttributes(),
+                'id' => $updatedStudent->id,
+                'payload' => $payload,
             ],
         );
     }

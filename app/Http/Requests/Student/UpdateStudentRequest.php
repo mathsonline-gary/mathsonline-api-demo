@@ -17,11 +17,18 @@ class UpdateStudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['string', Rule::unique('students')->ignore($this->student->id), 'min:3', 'max:32'],
+            'username' => [
+                'string',
+                Rule::unique('students', 'username')->ignore($this->student->id),
+                'min:3',
+                'max:32',
+            ],
             'email' => ['nullable', 'email'],
             'first_name' => ['string', 'max:32'],
             'last_name' => ['string', 'max:32'],
             'password' => ['string', Password::defaults(), 'min:4', 'max:32'],
+            'expired_tasks_excluded' => ['boolean'],
+            'confetti_enabled' => ['boolean'],
         ];
     }
 }
