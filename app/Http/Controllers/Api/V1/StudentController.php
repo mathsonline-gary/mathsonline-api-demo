@@ -54,7 +54,7 @@ class StudentController extends Controller
 
                 if ($classroomId > 0) {
                     $options['classroom_ids'] = [$classroomId];
-                } elseif (!$authenticatedTeacher->isAdmin() || !$options['all']) {
+                } elseif (!$options['all']) {
                     $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()
                         ->pluck('id')
                         ->toArray();
