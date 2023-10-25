@@ -161,8 +161,7 @@ class CreateStudentTest extends TestCase
 
         // Assert that the request is invalid.
         $response->assertUnprocessable()
-            ->assertInvalid('classroom_group_ids.0')
-            ->assertInvalid('classroom_group_ids.1');
+            ->assertInvalid('classroom_group_ids.0');
     }
 
     /**
@@ -513,8 +512,7 @@ class CreateStudentTest extends TestCase
 
         $this->postJson(route('api.v1.students.store', $this->payload))
             ->assertUnprocessable()
-            ->assertInvalid('classroom_group_ids.0')
-            ->assertInvalid('classroom_group_ids.1');
+            ->assertInvalid('classroom_group_ids.0');
     }
 
     public function test_classroom_groups_should_be_managed_by_the_non_admin_teacher(): void
@@ -536,7 +534,27 @@ class CreateStudentTest extends TestCase
 
         $this->postJson(route('api.v1.students.store', $this->payload))
             ->assertUnprocessable()
-            ->assertInvalid('classroom_group_ids.0')
+            ->assertInvalid('classroom_group_ids.0');
+    }
+
+    public function test_classroom_groups_should_be_from_different_classrooms(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+        $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $this->payload['classroom_group_ids'] = [
+            $classroom->defaultClassroomGroup->id,
+            $customClassroomGroup->id,
+        ];
+
+        $this->postJson(route('api.v1.students.store', $this->payload))
+            ->assertUnprocessable()
             ->assertInvalid('classroom_group_ids.1');
     }
 
