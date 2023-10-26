@@ -35,4 +35,15 @@ Route::prefix('students')
         Route::delete('/{student}', [StudentController::class, 'destroy'])
             ->name('destroy');
 
+        // Add a student to a classroom group.
+        Route::put('/{student}/move-to-classroom-group/{classroomGroup}', [StudentController::class, 'addGroup'])
+            ->name('classroom-groups.add');
+
+        // Set student's classroom groups (removing all previous groups).
+        Route::put('/{student}/classroom-groups', [StudentController::class, 'setGroups'])
+            ->name('classroom-groups.set');
+
+        // Remove a student from a classroom.
+        Route::delete('/{student}/classrooms/{classroom}', [StudentController::class, 'removeFromClassroom'])
+            ->name('classrooms.remove');
     });
