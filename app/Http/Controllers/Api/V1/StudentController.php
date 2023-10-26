@@ -99,8 +99,8 @@ class StudentController extends Controller
             $authenticatedTeacher = $authenticatedUser->asTeacher();
 
             $validated['school_id'] = $authenticatedTeacher->school_id;
+            $validated['expired_tasks_excluded'] = $request->boolean('expired_tasks_excluded', true);
             $validated['settings'] = [
-                'expired_tasks_excluded' => $request->boolean('expired_tasks_excluded', true),
                 'confetti_enabled' => $request->boolean('confetti_enabled', true),
             ];
             $validated['classroom_group_ids'] = $request->input('classroom_group_ids', []);
@@ -111,7 +111,10 @@ class StudentController extends Controller
 
                 // Assign the student into the given classroom groups.
                 if (isset($validated['classroom_group_ids']) && count($validated['classroom_group_ids']) > 0) {
-                    $this->studentService->assignToClassroomGroups($student, $validated['classroom_group_ids']);
+                    $this->studentService->addToClassroomGroups($student, $validated['classroom_group_ids'], [
+                        'expired_tasks_excluded' => $validated['expired_tasks_excluded'],
+                        'detaching' => false,
+                    ]);
                 }
 
                 return $student;

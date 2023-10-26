@@ -21,6 +21,10 @@ return new class extends Migration {
             $table->foreignId('student_id')
                 ->constrained('students');
 
+            $table->boolean('expired_tasks_excluded')
+                ->default(true)
+                ->comment('Whether this student should receive expired tasks from the classroom group. The student will still receive active and future tasks.');
+
             $table->timestamps();
         });
     }

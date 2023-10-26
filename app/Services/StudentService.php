@@ -226,10 +226,28 @@ class StudentService
      *
      * @param Student $student
      * @param array $classroomGroupIds
+     * @param array{
+     *     expired_tasks_excluded?: bool,
+     *     detaching?: bool,
+     * } $options
      * @return void
      */
-    public function assignToClassroomGroups(Student $student, array $classroomGroupIds): void
+    public function addToClassroomGroups(Student $student, array $classroomGroupIds, array $options = []): void
     {
-        $student->classroomGroups()->syncWithoutDetaching($classroomGroupIds);
+        $classroomGroups = [];
+
+        foreach ($classroomGroupIds as $classroomGroupId) {
+            $classroomGroups[$classroomGroupId] = [
+                'expired_tasks_excluded' => $options['expired_tasks_excluded'] ?? true,
+            ];
+        }
+
+        if ($options['detaching'] ?? true) {
+            $student->classroomGroups()->sync($classroomGroups);
+        } else {
+            if (count($classroomGroups) > 0) {
+                $student->classroomGroups()->syncWithoutDetaching($classroomGroups);
+            }
+        }
     }
 }

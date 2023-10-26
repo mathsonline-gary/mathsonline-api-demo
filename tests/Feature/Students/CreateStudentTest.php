@@ -599,7 +599,6 @@ class CreateStudentTest extends TestCase
         // Assert that the associated student setting is created correctly in the database.
         $studentSetting = $student->settings;
         $this->assertEquals($student->id, $studentSetting->student_id);
-        $this->assertEquals($this->payload['expired_tasks_excluded'], $studentSetting->expired_tasks_excluded);
         $this->assertEquals($this->payload['confetti_enabled'], $studentSetting->confetti_enabled);
     }
 
@@ -655,10 +654,12 @@ class CreateStudentTest extends TestCase
         $this->assertDatabaseHas('classroom_group_student', [
             'student_id' => $student->id,
             'classroom_group_id' => $classroomGroup1->id,
+            'expired_tasks_excluded' => $this->payload['expired_tasks_excluded'],
         ]);
         $this->assertDatabaseHas('classroom_group_student', [
             'student_id' => $student->id,
             'classroom_group_id' => $classroomGroup2->id,
+            'expired_tasks_excluded' => $this->payload['expired_tasks_excluded'],
         ]);
     }
 }

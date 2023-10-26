@@ -16,10 +16,6 @@ return new class extends Migration {
             $table->foreignId('student_id')
                 ->constrained('students');
 
-            $table->boolean('expired_tasks_excluded')
-                ->default(false)
-                ->comment('Whether this student should receive expired tasks from their new class or group. The student will still receive active and future tasks.');
-
             $table->boolean('balloon_tips_enabled')
                 ->default(true)
                 ->comment('Whether this student should receive balloon tips.');
