@@ -48,18 +48,14 @@ class StudentController extends Controller
                 'with_classrooms' => $request->boolean('with_classrooms'),
             ];
 
-            // Set the 'classroom_ids' option.
-            {
-                $classroomId = $request->integer('classroom_id');
-
-                if ($classroomId > 0) {
-                    $options['classroom_ids'] = [$classroomId];
-                } elseif (!$options['all']) {
-                    $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()
-                        ->pluck('id')
-                        ->toArray();
-                }
+            // if the request is not to show all students,
+            // then we need to filter the students by the classrooms that the authenticated teacher owns or is secondary.
+            if (!$options['all']) {
+                $options['classroom_ids'] = $authenticatedTeacher->getOwnedAndSecondaryClassrooms()
+                    ->pluck('id')
+                    ->toArray();
             }
+
 
             $students = $this->studentService->search($options);
 

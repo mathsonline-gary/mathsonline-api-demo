@@ -130,6 +130,24 @@ class Teacher extends Model
     }
 
     /**
+     * Indicate that if the teacher manages the given classroom.
+     * If the teacher is an admin, then the classroom must be from the same school as the teacher.
+     * If the teacher is a non-admin, then the classroom must be from the same school and be owned or be a secondary classroom of the teacher.
+     *
+     * @param Classroom $classroom
+     * @return bool
+     */
+    public function canManageClassroom(Classroom $classroom): bool
+    {
+        if ($this->isAdmin()) {
+            return $this->school_id === $classroom->school_id;
+        } else {
+            return $this->school_id === $classroom->school_id &&
+                ($this->isOwnerOfClassroom($classroom) || $this->isSecondaryTeacherOfClassroom($classroom));
+        }
+    }
+
+    /**
      * Get classrooms that are managed by the teacher:
      * If the teacher is an admin, then all classrooms from the same school are returned.
      * If the teacher is a non-admin, then only classrooms that they own or are secondary teachers of are returned.

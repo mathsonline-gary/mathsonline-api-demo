@@ -17,20 +17,30 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('classrooms')
     ->name('classrooms.')
     ->group(function () {
+
+        // List classrooms.
         Route::get('/', [ClassroomController::class, 'index'])
             ->name('index');
 
+        // Get a classroom.
         Route::get('/{classroom}', [ClassroomController::class, 'show'])
             ->name('show');
 
+        // Create a classroom.
         Route::post('/', [ClassroomController::class, 'store'])
             ->name('store');
 
+        // Update a classroom.
         Route::put('/{classroom}', [ClassroomController::class, 'update'])
             ->name('update');
 
+        // Delete a classroom.
         Route::delete('/{classroom}', [ClassroomController::class, 'destroy'])
             ->name('destroy');
+
+        // List students in a classroom.
+        Route::get('/{classroom}/students', [ClassroomStudentController::class, 'index'])
+            ->name('students.index');
 
         // Classroom group routes.
         Route::put('/{classroom}/groups', [ClassroomGroupController::class, 'update'])

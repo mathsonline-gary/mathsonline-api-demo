@@ -98,4 +98,16 @@ class ClassroomPolicy
         return false;
     }
 
+    /**
+     * Determine whether the user can view any student in the classroom.
+     */
+    public function viewAnyStudent(User $user, Classroom $classroom): bool
+    {
+        if ($user->isTeacher()) {
+            return $user->asTeacher()->canManageClassroom($classroom);
+        }
+
+        return false;
+    }
+
 }
