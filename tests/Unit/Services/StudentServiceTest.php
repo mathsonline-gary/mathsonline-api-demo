@@ -2,7 +2,10 @@
 
 namespace Tests\Unit\Services;
 
+use App\Enums\UserType;
 use App\Models\Users\Student;
+use App\Models\Users\StudentSetting;
+use App\Models\Users\User;
 use App\Services\StudentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -148,7 +151,7 @@ class StudentServiceTest extends TestCase
 
         $result = $this->studentService->search($options);
 
-        $this->assertCount(15, $result);
+        $this->assertCount(20, $result);
         $this->assertEquals(1, $result->currentPage());
     }
 
@@ -207,9 +210,12 @@ class StudentServiceTest extends TestCase
         $this->assertCount(2, $result->classroomGroups);
     }
 
+    /**
+     * @see StudentService::create()
+     */
     public function test_it_creates_a_student(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        $school = $this->fakeSchool();
 
         $options = [
             'first_name' => fake()->firstName,
@@ -218,26 +224,47 @@ class StudentServiceTest extends TestCase
             'email' => fake()->safeEmail,
             'password' => fake()->password,
             'school_id' => $school->id,
+            'settings' => [
+                'expired_tasks_excluded' => fake()->boolean,
+                'confetti_enabled' => fake()->boolean,
+            ],
         ];
+
+        $userCount = User::count();
+        $studentCount = Student::count();
+        $studentSettingsCount = StudentSetting::count();
 
         $student = $this->studentService->create($options);
 
-        // Assert that it returns a student.
+        // Assert that it returns the created student.
         $this->assertInstanceOf(Student::class, $student);
         $this->assertEquals($options['first_name'], $student->first_name);
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
+        $this->assertEquals($options['school_id'], $student->school_id);
         $this->assertObjectNotHasProperty('password', $student);
 
         // Assert that the student was created correctly in the database.
+        $this->assertDatabaseCount('students', $studentCount + 1);
         $student->refresh();
         $this->assertEquals($options['first_name'], $student->first_name);
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
         $this->assertEquals($options['school_id'], $student->school_id);
-        $this->assertTrue(Hash::check($options['password'], $student->password));
+
+        // Assert that the associated user was created correctly in the database.
+        $this->assertDatabaseCount('users', $userCount + 1);
+        $user = $student->asUser();
+        $this->assertEquals($options['username'], $user->login);
+        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
+        $this->assertTrue(Hash::check($options['password'], $user->password));
+
+        // Assert that the student settings were created correctly in the database.
+        $this->assertDatabaseCount('student_settings', $studentSettingsCount + 1);
+        $settings = $student->settings;
+        $this->assertEquals($options['settings']['confetti_enabled'], $settings->confetti_enabled);
     }
 
     /**
@@ -271,7 +298,6 @@ class StudentServiceTest extends TestCase
         $this->assertEquals($options['last_name'], $student->last_name);
         $this->assertEquals($options['username'], $student->username);
         $this->assertEquals($options['email'], $student->email);
-        $this->assertTrue(Hash::check($options['password'], $student->password));
     }
 
     /**
@@ -298,5 +324,139 @@ class StudentServiceTest extends TestCase
 
         // Assert that the student was removed from the classroom groups.
         $this->assertDatabaseMissing('classroom_group_student', ['student_id' => $student->id]);
+    }
+
+    /**
+     * @see StudentService::addToClassroomGroups()
+     */
+    public function test_it_adds_the_student_into_classroom_groups()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $teacher = $this->fakeTeacher($school);
+        $student = $this->fakeStudent($school);
+
+        $classroom1 = $this->fakeClassroom($teacher);
+        $customClassroomGroup1 = $this->fakeCustomClassroomGroup($classroom1);
+        $classroom2 = $this->fakeClassroom($teacher);
+        $customClassroomGroup2 = $this->fakeCustomClassroomGroup($classroom2);
+
+        $options = [
+            'expired_tasks_excluded' => fake()->boolean,
+            'detaching' => false,
+        ];
+
+        // Assign the student into $customClassroomGroup1 and $customClassroomGroup2.
+        $this->studentService->addToClassroomGroups($student,
+            [
+                $customClassroomGroup1->id,
+                $customClassroomGroup2->id,
+            ],
+            $options);
+
+        // Assert that the student was assigned into $customClassroomGroup1 and $customClassroomGroup2.
+        $this->assertDatabaseCount('classroom_group_student', 2);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup2->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+
+        // Assign the student into the default classroom group of $classroom1 and $customClassroomGroup2.
+        $this->studentService->addToClassroomGroups($student,
+            [
+                $classroom1->defaultClassroomGroup->id,
+                $customClassroomGroup2->id
+            ],
+            $options);
+
+        // Assert that the student was assigned into the default classroom group of $classroom1 without duplication.
+        $this->assertDatabaseCount('classroom_group_student', 3);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $classroom1->defaultClassroomGroup->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup2->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+    }
+
+    /**
+     * @see StudentService::addToClassroomGroups()
+     */
+    public function test_it_adds_the_student_into_classroom_groups_with_detaching_by_default()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $teacher = $this->fakeTeacher($school);
+        $student = $this->fakeStudent($school);
+
+        $classroom1 = $this->fakeClassroom($teacher);
+        $customClassroomGroup1 = $this->fakeCustomClassroomGroup($classroom1);
+        $classroom2 = $this->fakeClassroom($teacher);
+        $customClassroomGroup2 = $this->fakeCustomClassroomGroup($classroom2);
+
+        $options = [
+            'expired_tasks_excluded' => fake()->boolean,
+        ];
+
+        // Assign the student into $customClassroomGroup1 and $customClassroomGroup2.
+        $this->studentService->addToClassroomGroups($student,
+            [
+                $customClassroomGroup1->id,
+                $customClassroomGroup2->id,
+            ],
+            $options);
+
+        // Assert that the student was assigned into $customClassroomGroup1 and $customClassroomGroup2.
+        $this->assertDatabaseCount('classroom_group_student', 2);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup2->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+
+        // Assign the student into the default classroom group of $classroom1 and $customClassroomGroup2.
+        $this->studentService->addToClassroomGroups($student,
+            [
+                $classroom1->defaultClassroomGroup->id,
+                $customClassroomGroup2->id
+            ],
+            $options);
+
+        // Assert that the student was assigned with detaching $customClassroomGroup1.
+        $this->assertDatabaseCount('classroom_group_student', 2);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $classroom1->defaultClassroomGroup->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
+        $this->assertDatabaseMissing('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup1->id,
+        ]);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'student_id' => $student->id,
+            'classroom_group_id' => $customClassroomGroup2->id,
+            'expired_tasks_excluded' => $options['expired_tasks_excluded'],
+        ]);
     }
 }

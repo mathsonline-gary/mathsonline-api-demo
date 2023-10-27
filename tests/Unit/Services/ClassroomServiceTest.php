@@ -599,4 +599,55 @@ class ClassroomServiceTest extends TestCase
         // Assert that there is no student associate with the classroom group.
         $this->assertDatabaseMissing('classroom_group_student', ['classroom_group_id' => $customClassroomGroup->id]);
     }
+
+    /**
+     * @see ClassroomService::assignStudents()
+     */
+    public function test_it_assigns_students_into_classroom_groups()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $student1 = $this->fakeStudent($school);
+        $student2 = $this->fakeStudent($school);
+        $student3 = $this->fakeStudent($school);
+
+        $classroom = $this->fakeClassroom($adminTeacher);
+        $customClassroomGroup1 = $this->fakeCustomClassroomGroup($classroom);
+
+        // Assign $student1 and $student2 into $customClassroomGroup1.
+        $this->classroomService->assignStudents($customClassroomGroup1, [
+            $student1->id,
+            $student2->id,
+        ]);
+
+        // Assert that the students were assigned into the classroom group.
+        $this->assertDatabaseCount('classroom_group_student', 2);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'student_id' => $student1->id,
+        ])->assertDatabaseHas('classroom_group_student', [
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'student_id' => $student2->id,
+        ]);
+
+        // Assign $student2 and $student3 into $customClassroomGroup1.
+        $this->classroomService->assignStudents($customClassroomGroup1, [
+            $student2->id,
+            $student3->id,
+        ]);
+
+        // Assert that the students were assigned into the classroom group without duplication.
+        $this->assertDatabaseCount('classroom_group_student', 3);
+        $this->assertDatabaseHas('classroom_group_student', [
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'student_id' => $student1->id,
+        ])->assertDatabaseHas('classroom_group_student', [
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'student_id' => $student2->id,
+        ])->assertDatabaseHas('classroom_group_student', [
+            'classroom_group_id' => $customClassroomGroup1->id,
+            'student_id' => $student3->id,
+        ]);
+    }
 }

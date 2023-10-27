@@ -77,6 +77,16 @@ class School extends Model
     }
 
     /**
+     * Get the school's classrooms.
+     *
+     * @return HasMany
+     */
+    public function classrooms(): HasMany
+    {
+        return $this->hasMany(Classroom::class);
+    }
+
+    /**
      * Scope a query to only include traditional schools.
      *
      * @param Builder $query

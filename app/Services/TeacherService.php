@@ -134,7 +134,7 @@ class TeacherService
             $user = User::create([
                 'login' => $attributes['username'],
                 'password' => Hash::make($attributes['password']),
-                'type_id' => User::TYPE_TEACHER,
+                'type' => User::TYPE_TEACHER,
             ]);
 
             $teacher = new Teacher($attributes);

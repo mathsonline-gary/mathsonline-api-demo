@@ -16,10 +16,10 @@ class ClassroomUpdated extends ActivityLoggableEvent
 
     /**
      * @param User $actor The user who update the classroom.
-     * @param array $request The request payload.
+     * @param array $payload The request payload.
      * @param Classroom $updatedClassroom The updated classroom.
      */
-    public function __construct(User $actor, array $request, Classroom $updatedClassroom)
+    public function __construct(User $actor, array $payload, Classroom $updatedClassroom)
     {
         parent::__construct(
             actor: $actor,
@@ -27,7 +27,7 @@ class ClassroomUpdated extends ActivityLoggableEvent
             actedAt: $updatedClassroom->updated_at,
             data: [
                 'id' => $updatedClassroom->id,
-                'request' => $request,
+                'payload' => $payload,
             ],
         );
     }

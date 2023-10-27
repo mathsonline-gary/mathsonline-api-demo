@@ -24,14 +24,16 @@ class ClassroomPolicy
      */
     public function view(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and viewing a classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;
             }
 
             // The user is a non-admin teacher, and viewing a classroom that he owns.
-            if (!$teacher->isAdmin() && $teacher->id === $classroom->owner_id) {
+            if (!$teacher->isAdmin() && $teacher->isOwnerOfClassroom($classroom)) {
                 return true;
             }
         }
@@ -57,14 +59,16 @@ class ClassroomPolicy
      */
     public function update(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and viewing a classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;
             }
 
             // The user is a non-admin teacher, and viewing a classroom that he owns.
-            if (!$teacher->isAdmin() && $teacher->id === $classroom->owner_id) {
+            if (!$teacher->isAdmin() && $teacher->isOwnerOfClassroom($classroom)) {
                 return true;
             }
         }
@@ -77,18 +81,33 @@ class ClassroomPolicy
      */
     public function delete(User $user, Classroom $classroom): bool
     {
-        if ($teacher = $user->asTeacher()) {
+        if ($user->isTeacher()) {
+            $teacher = $user->asTeacher();
+
             // The user is an admin teacher, and deleting the classroom in his school.
             if ($teacher->isAdmin() && $teacher->school_id === $classroom->school_id) {
                 return true;
             }
 
             // The user is a non-admin teacher, and deleting the classroom that he owns.
-            if (!$teacher->isAdmin() && $teacher->id === $classroom->owner_id) {
+            if (!$teacher->isAdmin() && $teacher->isOwnerOfClassroom($classroom)) {
                 return true;
             }
         }
 
         return false;
     }
+
+    /**
+     * Determine whether the user can view any student in the classroom.
+     */
+    public function viewAnyStudent(User $user, Classroom $classroom): bool
+    {
+        if ($user->isTeacher()) {
+            return $user->asTeacher()->canManageClassroom($classroom);
+        }
+
+        return false;
+    }
+
 }

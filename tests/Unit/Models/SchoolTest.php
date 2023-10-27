@@ -44,7 +44,7 @@ class SchoolTest extends TestCase
      */
     public function test_a_homeschool_has_one_owner(): void
     {
-        $school = $this->fakeHomeSchool();
+        $school = $this->fakeHomeschool();
 
         Member::factory()
             ->count(1)
@@ -92,7 +92,7 @@ class SchoolTest extends TestCase
     {
         $traditionalSchools = $this->fakeTraditionalSchool(10);
 
-        $homeschools = $this->fakeHomeSchool(10);
+        $homeschools = $this->fakeHomeschool(10);
 
         $result = School::traditionalSchools()->get();
 
@@ -117,7 +117,7 @@ class SchoolTest extends TestCase
     {
         $traditionalSchools = $this->fakeTraditionalSchool(10);
 
-        $homeschools = $this->fakeHomeSchool(10);
+        $homeschools = $this->fakeHomeschool(10);
 
         $result = School::homeschools()->get();
 

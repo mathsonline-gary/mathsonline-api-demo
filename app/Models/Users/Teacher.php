@@ -81,7 +81,7 @@ class Teacher extends Model
      */
     public function isOwnerOfClassroom(Classroom $classroom): bool
     {
-        return $this->ownedClassrooms()->where('id', $classroom->id)->exists();
+        return $this->id === $classroom->owner_id;
     }
 
     /**
@@ -123,9 +123,66 @@ class Teacher extends Model
      */
     public function getOwnedAndSecondaryClassrooms(): Collection
     {
-        $ownedClassrooms = $this->ownedClassrooms()->get();
-        $secondaryClassrooms = $this->secondaryClassrooms()->get();
+        $ownedClassrooms = $this->ownedClassrooms;
+        $secondaryClassrooms = $this->secondaryClassrooms;
 
         return $ownedClassrooms->merge($secondaryClassrooms)->unique('id');
+    }
+
+    /**
+     * Indicate that if the teacher manages the given classroom.
+     * If the teacher is an admin, then the classroom must be from the same school as the teacher.
+     * If the teacher is a non-admin, then the classroom must be from the same school and be owned or be a secondary classroom of the teacher.
+     *
+     * @param Classroom $classroom
+     * @return bool
+     */
+    public function canManageClassroom(Classroom $classroom): bool
+    {
+        if ($this->isAdmin()) {
+            return $this->school_id === $classroom->school_id;
+        } else {
+            return $this->school_id === $classroom->school_id &&
+                ($this->isOwnerOfClassroom($classroom) || $this->isSecondaryTeacherOfClassroom($classroom));
+        }
+    }
+
+    /**
+     * Get classrooms that are managed by the teacher:
+     * If the teacher is an admin, then all classrooms from the same school are returned.
+     * If the teacher is a non-admin, then only classrooms that they own or are secondary teachers of are returned.
+     *
+     * @return Collection<Classroom>
+     */
+    public function getManagedClassrooms(): Collection
+    {
+        if ($this->isAdmin()) {
+            return $this->school->classrooms;
+        }
+
+        return $this->getOwnedAndSecondaryClassrooms();
+    }
+
+    /**
+     * Indicate that if the teacher manages the given student.
+     * If the teacher is an admin, then the student must be from the same school.
+     * If the teacher is a non-admin, then the student must be from the same school and from a classroom that they manage.
+     *
+     * @param Student $student
+     * @return bool
+     */
+    public function canManageStudent(Student $student): bool
+    {
+        if ($this->isAdmin()) {
+            return $this->school_id === $student->school_id;
+        } else {
+            return $this->school_id === $student->school_id &&
+                $student->classroomGroups()
+                    ->whereIn('classroom_id',
+                        $this->getOwnedAndSecondaryClassrooms()
+                            ->pluck('id')
+                            ->toArray())
+                    ->exists();
+        }
     }
 }

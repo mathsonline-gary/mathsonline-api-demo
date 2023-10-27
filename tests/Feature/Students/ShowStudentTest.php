@@ -3,7 +3,6 @@
 namespace Feature\Students;
 
 use App\Http\Controllers\Api\V1\StudentController;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,12 +13,15 @@ class ShowStudentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Run MarketSeeder before each test.
-     *
-     * @var string
-     */
-    protected string $seeder = MarketSeeder::class;
+    public function test_a_guest_is_unauthenticated_get_the_detail_of_a_student(): void
+    {
+        $student = $this->fakeStudent();
+
+        $response = $this->getJson(route('api.v1.students.show', $student));
+
+        // Assert that the request is unauthorized.
+        $response->assertUnauthorized();
+    }
 
     public function test_an_admin_teacher_can_get_the_detail_of_a_student_in_the_same_school(): void
     {
@@ -30,39 +32,14 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
         // Assert that the request is successful.
-        $response->assertOk();
-
-        // Assert the response has the expected attributes of the student.
-        $response->assertJsonStructure([
-            'data' => [
-                'id',
-                'school_id',
-                'username',
-                'first_name',
-                'last_name',
-                'classroom_groups',
-            ],
-        ]);
-
-        // Assert the response does not contain the password of the student.
-        $response->assertJsonMissingPath('data.password');
-
-        // Assert the response has the expected value of each attribute.
-        $response->assertJson([
-            'data' => [
-                'id' => $student->id,
-                'school_id' => $student->school_id,
-                'username' => $student->username,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-            ],
-        ]);
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
     }
 
-    public function test_an_admin_teacher_cannot_get_the_detail_of_a_student_in_another_school(): void
+    public function test_an_admin_teacher_is_unauthorized_to_get_the_detail_of_a_student_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school1);
@@ -72,10 +49,10 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
-        // Assert that the response has status code 404.
-        $response->assertNotFound();
+        // Assert that the request is unauthorized.
+        $response->assertForbidden();
     }
 
     public function test_a_non_admin_teacher_can_get_the_detail_of_a_student_who_is_in_the_classroom_owned_by_him(): void
@@ -91,38 +68,11 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
         // Assert that the request is successful.
-        $response->assertOk();
-
-        // Assert the response has the expected attributes of the student.
-        $response->assertJsonStructure([
-            'data' => [
-                'id',
-                'school_id',
-                'username',
-                'first_name',
-                'last_name',
-                'school',
-                'classroom_groups',
-                'classrooms',
-            ],
-        ]);
-
-        // Assert the response does not contain the password of the student.
-        $response->assertJsonMissingPath('data.password');
-
-        // Assert the response has the expected value of each attribute.
-        $response->assertJson([
-            'data' => [
-                'id' => $student->id,
-                'school_id' => $student->school_id,
-                'username' => $student->username,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-            ],
-        ]);
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
     }
 
     public function test_a_non_admin_teacher_can_get_the_detail_of_a_student_who_is_in_the_classroom_where_the_teacher_is_a_secondary_teacher()
@@ -140,38 +90,11 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
         // Assert that the request is successful.
-        $response->assertOk();
-
-        // Assert the response has the expected attributes of the student.
-        $response->assertJsonStructure([
-            'data' => [
-                'id',
-                'school_id',
-                'username',
-                'first_name',
-                'last_name',
-                'school',
-                'classroom_groups',
-                'classrooms',
-            ],
-        ]);
-
-        // Assert the response does not contain the password of the student.
-        $response->assertJsonMissingPath('data.password');
-
-        // Assert the response has the expected value of each attribute.
-        $response->assertJson([
-            'data' => [
-                'id' => $student->id,
-                'school_id' => $student->school_id,
-                'username' => $student->username,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-            ],
-        ]);
+        $response->assertOk()
+            ->assertJsonFragment(['success' => true]);
     }
 
     public function test_a_non_admin_teacher_cannot_get_the_detail_of_a_student_in_another_school(): void
@@ -184,10 +107,10 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
-        // Assert that the response has status code 404.
-        $response->assertNotFound();
+        // Assert that the request is unauthorized.
+        $response->assertForbidden();
     }
 
     public function test_a_non_admin_teacher_cannot_get_the_detail_of_a_student_who_is_not_managed_by_him(): void
@@ -199,9 +122,47 @@ class ShowStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.teachers.v1.students.show', $student));
+        $response = $this->getJson(route('api.v1.students.show', $student));
 
-        // Assert that the response has status code 404.
-        $response->assertNotFound();
+        // Assert that the request is unauthorized.
+        $response->assertForbidden();
+    }
+
+    public function test_it_returns_expected_attributes_of_the_student()
+    {
+        $school = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $student = $this->fakeStudent($school);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->getJson(route('api.v1.students.show', $student));
+
+        // Assert that the request contains the expected attributes.
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'username',
+                    'email',
+                    'first_name',
+                    'last_name',
+                    'school_id',
+                    'classroom_groups',
+                    'classrooms',
+                    'pass_grade',
+                    'login_count',
+                    'last_login_at',
+                ],
+            ])
+            ->assertJsonFragment([
+                'id' => $student->id,
+                'username' => $student->username,
+                'email' => $student->email,
+                'first_name' => $student->first_name,
+                'last_name' => $student->last_name,
+                'school_id' => $student->school_id,
+            ]);
     }
 }

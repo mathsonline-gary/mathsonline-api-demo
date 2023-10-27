@@ -63,7 +63,7 @@ class TeacherTest extends TestCase
 
         $teacher = $this->fakeAdminTeacher($school);
 
-        $classrooms = $teacher->classroomsAsOwner;
+        $classrooms = $teacher->ownedClassrooms;
 
         // Assert that the classrooms collection is empty
         $this->assertEmpty($classrooms);
@@ -256,4 +256,100 @@ class TeacherTest extends TestCase
         $this->assertTrue($classrooms->contains($classroom5));
         $this->assertFalse($classrooms->contains($classroom6));
     }
+
+    /**
+     * @see Teacher::canManageStudent()
+     */
+    public function test_it_indicates_that_the_admin_teacher_can_manage_the_student()
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school1);
+
+        $student1 = $this->fakeStudent($school1);
+        $student2 = $this->fakeStudent($school2);
+
+        $this->assertTrue($adminTeacher->canManageStudent($student1));
+        $this->assertFalse($adminTeacher->canManageStudent($student2));
+    }
+
+    public function test_it_indicates_that_the_non_admin_teacher_can_manage_the_student()
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school1);
+
+        $student1 = $this->fakeStudent($school1);
+        $student2 = $this->fakeStudent($school1);
+        $student3 = $this->fakeStudent($school1);
+        $student4 = $this->fakeStudent($school2);
+
+        $classroom1 = $this->fakeClassroom($nonAdminTeacher1);
+        $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+        $classroom3 = $this->fakeClassroom($nonAdminTeacher2);
+
+        $this->attachSecondaryTeachersToClassroom($classroom2, [$nonAdminTeacher1->id]);
+
+        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, [$student1->id]);
+        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, [$student2->id]);
+        $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, [$student3->id]);
+
+        $this->assertTrue($nonAdminTeacher1->canManageStudent($student1));
+        $this->assertTrue($nonAdminTeacher1->canManageStudent($student2));
+        $this->assertFalse($nonAdminTeacher1->canManageStudent($student3));
+        $this->assertFalse($nonAdminTeacher1->canManageStudent($student4));
+    }
+
+    /**
+     * @see Teacher::canManageClassroom()
+     */
+    public function test_it_indicates_that_the_admin_teacher_can_manage_the_classroom()
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $adminTeacher = $this->fakeAdminTeacher($school1);
+
+        $classroom1 = $this->fakeClassroom($adminTeacher);
+        $classroom2 = $this->fakeClassroom($adminTeacher);
+        $classroom3 = $this->fakeClassroom($adminTeacher);
+
+        $this->assertTrue($adminTeacher->canManageClassroom($classroom1));
+        $this->assertTrue($adminTeacher->canManageClassroom($classroom2));
+        $this->assertTrue($adminTeacher->canManageClassroom($classroom3));
+
+        $classroom4 = $this->fakeClassroom($this->fakeAdminTeacher($school2));
+
+        $this->assertFalse($adminTeacher->canManageClassroom($classroom4));
+    }
+
+    /**
+     * @see Teacher::canManageClassroom()
+     */
+    public function test_it_indicates_that_the_non_admin_teacher_can_manage_the_classroom()
+    {
+        $school1 = $this->fakeTraditionalSchool();
+        $school2 = $this->fakeTraditionalSchool();
+
+        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
+        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school1);
+
+        $classroom1 = $this->fakeClassroom($nonAdminTeacher1);
+        $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+        $classroom3 = $this->fakeClassroom($nonAdminTeacher2);
+
+        $this->attachSecondaryTeachersToClassroom($classroom2, [$nonAdminTeacher1->id]);
+
+        $this->assertTrue($nonAdminTeacher1->canManageClassroom($classroom1));
+        $this->assertTrue($nonAdminTeacher1->canManageClassroom($classroom2));
+        $this->assertFalse($nonAdminTeacher1->canManageClassroom($classroom3));
+
+        $classroom4 = $this->fakeClassroom($this->fakeAdminTeacher($school2));
+
+        $this->assertFalse($nonAdminTeacher1->canManageClassroom($classroom4));
+    }
+
 }

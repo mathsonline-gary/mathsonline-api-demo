@@ -8,6 +8,22 @@ use Illuminate\Database\Eloquent\Collection;
 trait TestSchoolHelpers
 {
     /**
+     * Create fake school(s).
+     *
+     * @param int $count
+     * @param array $attributes
+     * @return Collection|School
+     */
+    public function fakeSchool(int $count = 1, array $attributes = []): Collection|School
+    {
+        $schools = School::factory()
+            ->count($count)
+            ->create($attributes);
+
+        return $count === 1 ? $schools->first() : $schools;
+    }
+
+    /**
      * Create fake traditional school(s).
      *
      * @param int $count
@@ -31,7 +47,7 @@ trait TestSchoolHelpers
      * @param array $attributes
      * @return Collection<School>|School
      */
-    public function fakeHomeSchool(int $count = 1, array $attributes = []): Collection|School
+    public function fakeHomeschool(int $count = 1, array $attributes = []): Collection|School
     {
         $schools = School::factory()
             ->count($count)
