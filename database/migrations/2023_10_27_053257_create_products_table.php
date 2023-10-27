@@ -10,16 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('years', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
 
             $table->foreignId('market_id')
-                ->constrained('markets');
+                ->constrained();
 
             $table->string('name');
 
-            $table->unsignedTinyInteger('order')
-                ->comment('The display order of the year.');
+            $table->string('stripe_product_id')
+                ->unique()
+                ->comment('The Stripe product ID.');
 
             $table->softDeletes();
         });
@@ -30,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('years');
+        Schema::dropIfExists('products');
     }
 };
