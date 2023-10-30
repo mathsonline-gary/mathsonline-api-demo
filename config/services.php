@@ -37,4 +37,11 @@ return [
         'redirect' => env('GOOGLE_OAUTH_REDIRECT_URI')
     ],
 
+    'stripe' => [
+        1 => [
+            'key' => env('STRIPE_PUBLISHABLE_KEY_1'),
+            'secrete' => env('STRIPE_SECRET_KEY_1'),
+        ]
+    ],
+
 ];
