@@ -5,7 +5,7 @@ namespace Tests\Traits;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
 
-trait TestSchoolHelpers
+trait SchoolTestHelpers
 {
     /**
      * Create fake school(s).

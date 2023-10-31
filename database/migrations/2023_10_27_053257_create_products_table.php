@@ -20,6 +20,7 @@ return new class extends Migration {
 
             $table->string('stripe_product_id')
                 ->unique()
+                ->nullable()
                 ->comment('The Stripe product ID.');
 
             $table->softDeletes();

@@ -46,15 +46,18 @@ class RegisteredMemberController extends Controller
             $customer = $this->stripeService->createCustomer($validated);
 
             // Create a homeschool.
-            $validated['type'] = SchoolType::HOMESCHOOL;
-            $validated['stripe_customer_id'] = $customer->id;
-            $validated['name'] = "Homeschool of {$validated['first_name']} {$validated['last_name']}";
-            $school = $this->schoolService->create($validated);
+            $school = $this->schoolService->create([
+                ...$validated,
+                'type' => SchoolType::HOMESCHOOL,
+                'stripe_customer_id' => $customer->id,
+                'name' => "Homeschool of {$validated['first_name']} {$validated['last_name']}",
+            ]);
 
             // Create a member.
-            $validated['school_id'] = $school->id;
-
-            return $this->memberService->create($validated);
+            return $this->memberService->create([
+                ...$validated,
+                'school_id' => $school->id,
+            ]);
         });
 
         // Log the member in.

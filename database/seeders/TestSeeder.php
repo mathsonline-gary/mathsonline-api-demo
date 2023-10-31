@@ -17,6 +17,9 @@ class TestSeeder extends Seeder
         $this->call([
             MarketSeeder::class,
             YearSeeder::class,
+            ProductSeeder::class,
+            CampaignSeeder::class,
+            MembershipSeeder::class,
         ]);
     }
 }

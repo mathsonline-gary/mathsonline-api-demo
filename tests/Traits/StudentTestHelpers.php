@@ -7,7 +7,7 @@ use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
 use Illuminate\Database\Eloquent\Collection;
 
-trait TestStudentHelpers
+trait StudentTestHelpers
 {
     /**
      * Create student(s) in the given school.
