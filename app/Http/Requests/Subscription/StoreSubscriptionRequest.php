@@ -15,8 +15,6 @@ class StoreSubscriptionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $user = $this->user();
-
         return [
             'membership_id' => [
                 'required',
