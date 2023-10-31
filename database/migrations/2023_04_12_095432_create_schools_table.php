@@ -46,6 +46,10 @@ return new class extends Migration {
             $table->string('address_country')
                 ->nullable();
 
+            $table->string('stripe_customer_id')
+                ->unique()
+                ->nullable();
+
             $table->timestamps();
         });
 

@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
+use App\Enums\UserType;
 use App\Models\Users\Member;
+use App\Models\Users\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class MemberService
 {
     /**
-     * Create a new member.
+     * Create a new member and the associated instances.
      *
      * @param array $attributes
      * @return Member
@@ -18,10 +20,7 @@ class MemberService
     public function create(array $attributes): Member
     {
         $attributes = Arr::only($attributes, [
-            'market_id',
             'school_id',
-            'type_id',
-            'username',
             'email',
             'first_name',
             'last_name',
@@ -30,16 +29,20 @@ class MemberService
 
         $attributes['password'] = Hash::make($attributes['password']);
 
-        $member = Member::create($attributes);
+        return DB::transaction(function () use ($attributes) {
+            // Create a user.
+            $user = User::create([
+                'login' => $attributes['email'],
+                'password' => $attributes['password'],
+                'type' => UserType::MEMBER,
+            ]);
 
-        Log::info('Member created: ', $member->only([
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-        ]));
+            // Create a member.
+            $member = new Member($attributes);
 
-        return $member;
+            $user->member()->save($member);
+
+            return $member;
+        });
     }
 }

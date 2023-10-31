@@ -30,9 +30,11 @@ class School extends Model
         'address_state',
         'address_postal_code',
         'address_country',
+        'stripe_customer_id',
     ];
 
     protected $casts = [
+        'market_id' => 'int',
         'type' => SchoolType::class,
     ];
 

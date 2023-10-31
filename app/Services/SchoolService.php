@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\School;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 
 class SchoolService
 {
@@ -29,12 +28,9 @@ class SchoolService
             'address_state',
             'address_postal_code',
             'address_country',
+            'stripe_customer_id',
         ]);
 
-        $school = School::create($attributes);
-
-        Log::info('New school created: ', $attributes);
-
-        return $school;
+        return School::create($attributes);
     }
 }

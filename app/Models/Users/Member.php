@@ -14,7 +14,7 @@ class Member extends Model
         BelongsToUser;
 
     protected $fillable = [
-        'market_id',
+        'user_id',
         'school_id',
         'email',
         'first_name',
@@ -22,7 +22,8 @@ class Member extends Model
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'user_id' => 'int',
+        'school_id' => 'int',
     ];
 
     /**

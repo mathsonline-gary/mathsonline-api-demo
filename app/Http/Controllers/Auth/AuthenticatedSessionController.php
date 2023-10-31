@@ -30,11 +30,11 @@ class AuthenticatedSessionController extends Controller
         $type = $user->type;
 
         $profile = match ($type) {
-            UserType::TYPE_STUDENT => $user->asStudent(),
-            UserType::TYPE_TEACHER => new TeacherResource($user->asTeacher()),
-            UserType::TYPE_MEMBER => $user->asMember(),
-            UserType::TYPE_ADMIN => $user->asAdmin(),
-            UserType::TYPE_DEVELOPER => $user->asDeveloper(),
+            UserType::STUDENT => $user->asStudent(),
+            UserType::TEACHER => new TeacherResource($user->asTeacher()),
+            UserType::MEMBER => $user->asMember(),
+            UserType::ADMIN => $user->asAdmin(),
+            UserType::DEVELOPER => $user->asDeveloper(),
             default => null,
         };
 

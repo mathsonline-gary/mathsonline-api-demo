@@ -33,7 +33,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::TYPE_STUDENT->value,
+                'type' => UserType::STUDENT->value,
             ];
         });
     }
@@ -47,7 +47,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::TYPE_TEACHER->value,
+                'type' => UserType::TEACHER->value,
             ];
         });
     }
@@ -62,7 +62,7 @@ class UserFactory extends Factory
         return $this->state(function () {
             return [
                 'login' => fake()->safeEmail(),
-                'type' => UserType::TYPE_MEMBER->value,
+                'type' => UserType::MEMBER->value,
             ];
         });
     }
@@ -76,7 +76,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::TYPE_ADMIN->value,
+                'type' => UserType::ADMIN->value,
             ];
         });
     }
@@ -90,7 +90,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::TYPE_DEVELOPER->value,
+                'type' => UserType::DEVELOPER->value,
             ];
         });
     }

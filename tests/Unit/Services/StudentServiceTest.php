@@ -258,7 +258,7 @@ class StudentServiceTest extends TestCase
         $this->assertDatabaseCount('users', $userCount + 1);
         $user = $student->asUser();
         $this->assertEquals($options['username'], $user->login);
-        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
+        $this->assertEquals(UserType::STUDENT, $user->type);
         $this->assertTrue(Hash::check($options['password'], $user->password));
 
         // Assert that the student settings were created correctly in the database.

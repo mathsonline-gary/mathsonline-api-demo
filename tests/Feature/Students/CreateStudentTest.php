@@ -591,7 +591,7 @@ class CreateStudentTest extends TestCase
         $user = $student->asUser();
         $this->assertEquals($this->payload['username'], $user->login);
         $this->assertTrue(Hash::check($this->payload['password'], $user->password));
-        $this->assertEquals(UserType::TYPE_STUDENT, $user->type);
+        $this->assertEquals(UserType::STUDENT, $user->type);
 
         // Assert that the associated student setting is created in the database.
         $this->assertDatabaseCount('student_settings', $studentSettingCount + 1);

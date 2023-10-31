@@ -35,4 +35,7 @@ Route::middleware(['auth:sanctum'])
 
         // Classroom module routes.
         require __DIR__ . '/api-classrooms.php';
+
+        // Subscription module routes.
+        require __DIR__ . '/api-subscriptions.php';
     });

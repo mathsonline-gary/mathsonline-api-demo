@@ -22,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'login',
         'password',
+        'type',
     ];
 
     protected $hidden = [
@@ -34,12 +35,6 @@ class User extends Authenticatable
     ];
 
     public $timestamps = false;
-
-    public const TYPE_STUDENT = 1;
-    public const TYPE_TEACHER = 2;
-    public const TYPE_MEMBER = 3;
-    public const TYPE_ADMIN = 4;
-    public const TYPE_DEVELOPER = 5;
 
     /**
      * Get all the user's activities.
@@ -109,7 +104,7 @@ class User extends Authenticatable
      */
     public function isTeacher(): bool
     {
-        return $this->type === UserType::TYPE_TEACHER && $this->teacher !== null;
+        return $this->type === UserType::TEACHER && $this->teacher !== null;
     }
 
     /**
@@ -129,7 +124,7 @@ class User extends Authenticatable
      */
     public function isStudent(): bool
     {
-        return $this->type === UserType::TYPE_STUDENT && $this->student !== null;
+        return $this->type === UserType::STUDENT && $this->student !== null;
     }
 
     /**
@@ -149,7 +144,7 @@ class User extends Authenticatable
      */
     public function isMember(): bool
     {
-        return $this->type === UserType::TYPE_MEMBER && $this->member !== null;
+        return $this->type === UserType::MEMBER && $this->member !== null;
     }
 
     /**
@@ -169,7 +164,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->type === UserType::TYPE_ADMIN && $this->admin !== null;
+        return $this->type === UserType::ADMIN && $this->admin !== null;
     }
 
     /**
@@ -189,7 +184,7 @@ class User extends Authenticatable
      */
     public function isDeveloper(): bool
     {
-        return $this->type === UserType::TYPE_DEVELOPER && $this->developer !== null;
+        return $this->type === UserType::DEVELOPER && $this->developer !== null;
     }
 
     /**
