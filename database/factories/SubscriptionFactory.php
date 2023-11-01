@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Subscription;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Subscription>
+ * @extends Factory<Subscription>
  */
 class SubscriptionFactory extends Factory
 {
@@ -17,7 +18,7 @@ class SubscriptionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'stripe_subscription_id' => 'sub_' . $this->faker->uuid,
         ];
     }
 }

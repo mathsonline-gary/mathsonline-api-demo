@@ -45,7 +45,9 @@ class UserTest extends TestCase
      */
     public function test_it_returns_null_when_the_user_is_not_a_teacher(): void
     {
-        // TODO: Implement test_it_returns_null_when_the_user_is_not_a_teacher() method.
-        $this->assertTrue(true);
+        $student = $this->fakeStudent();
+        $user = $student->asUser();
+
+        $this->assertNull($user->asTeacher());
     }
 }

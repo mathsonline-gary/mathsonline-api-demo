@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Membership;
+use App\Models\School;
 use Illuminate\Support\Arr;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
+use Stripe\Subscription;
 
 class StripeService
 {
@@ -74,4 +77,38 @@ class StripeService
 //            'source' => $attributes['payment_source'],
         ]);
     }
+
+    /**
+     * Create a new Stripe subscription for the given school with the given membership.
+     *
+     * @param School $school
+     * @param Membership $membership
+     * @return Subscription
+     * @throws ApiErrorException
+     */
+    public function createSubscription(School $school, Membership $membership): Subscription
+    {
+        $stripe = $this->stripe($school->market_id);
+
+        // Set the parameters for the Stripe subscription.
+        $params = [
+            'customer' => $school->stripe_customer_id,
+            'items' => [
+                [
+                    'price' => $membership->stripe_price_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ];
+
+        if ($membership->is_recurring) {
+            $params['cancel_at_period_end'] = false;
+        } else {
+            $params['cancel_at_period_end'] = true;
+        }
+
+
+        return $stripe->subscriptions->create($params);
+    }
+
 }

@@ -2,13 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Users\Member;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Membership extends Model
 {
+    use HasFactory;
+
+    protected $casts = [
+        'is_recurring' => 'bool',
+        'period_in_days' => 'int',
+        'period_in_months' => 'int',
+        'price' => 'double',
+        'user_limit' => 'int',
+    ];
 
     /**
      * Get the product of the membership.
@@ -31,41 +39,13 @@ class Membership extends Model
     }
 
     /**
-     * Get the market ID of the membership.
-     *
-     * @return Attribute
-     */
-    public function marketId(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => $this->product->market_id,
-        );
-    }
-
-    /**
-     * Indicate if the membership is active.
+     * Determine if the membership is recurring.
      *
      * @return bool
      */
-    public function isActive(): bool
+    public function isRecurring(): bool
     {
-        return $this->campaign->isActive();
+        return $this->is_recurring;
     }
 
-    /**
-     * Indicate if the membership is subscribable by the given member.
-     *
-     * @param Member $member
-     * @return bool
-     */
-    public function isSubscribableByMember(Member $member): bool
-    {
-        // The membership's product must in the same market as the authenticated member.
-        if ($this->market_id === $member->market_id &&
-            $this->isActive()) {
-            return true;
-        }
-
-        return false;
-    }
 }

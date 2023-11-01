@@ -5,12 +5,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Subscription\StoreSubscriptionRequest;
 use App\Models\Subscription;
+use App\Models\Users\Member;
 use App\Services\MembershipService;
+use App\Services\StripeService;
+use App\Services\SubscriptionService;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionController extends Controller
 {
     public function __construct(
-        protected MembershipService $membershipService,
+        protected MembershipService   $membershipService,
+        protected SubscriptionService $subscriptionService,
+        protected StripeService       $stripeService,
     )
     {
     }
@@ -22,9 +28,10 @@ class SubscriptionController extends Controller
         $authenticatedUser = $request->user();
 
         if ($authenticatedUser->isMember()) {
+            /** @var Member $authenticatedMember */
             $authenticatedMember = $authenticatedUser->asMember();
 
-            // Validate the membership.
+            // Authorize if the member can subscribe to the membership.
             {
                 $membershipId = $request->integer('membership_id');
 
@@ -34,13 +41,39 @@ class SubscriptionController extends Controller
                     'with_campaign' => true,
                 ]);
 
-                if (!$membership->isSubscribableByMember($authenticatedMember)) {
+                if (!$authenticatedMember->school->canSubscribeToMembership($membership)) {
                     return $this->errorResponse(
-                        message: 'The membership is not subscribable by the authenticated member.',
-                        status: 422,
+                        message: 'The member is unauthorized to subscribe to the membership.',
+                        status: 403,
                     );
                 }
             }
+
+            // Create a subscription for the member.
+            $subscription = DB::transaction(function () use ($authenticatedMember, $membership) {
+                // Create a Stripe subscription for the member.
+                $stripeSubscription = $this->stripeService->createSubscription($authenticatedMember->school, $membership);
+
+                // Create a subscription for the member.
+                return $this->subscriptionService->create([
+                    'school_id' => $authenticatedMember->school->id,
+                    'membership_id' => $membership->id,
+                    'stripe_subscription_id' => $stripeSubscription->id,
+                    'starts_at' => $stripeSubscription->start_date,
+                    'ends_at' => $stripeSubscription->cancel_at,
+                    'cancelled_at' => $stripeSubscription->canceled_at,
+                    'ended_at' => $stripeSubscription->ended_at,
+                    'status' => $stripeSubscription->status,
+                ]);
+            });
+
+            return $this->successResponse(
+                data: [
+                    'subscription' => $subscription,
+                ],
+                message: 'Subscribed to the membership successfully.',
+                status: 201,
+            );
         }
 
         return $this->errorResponse(

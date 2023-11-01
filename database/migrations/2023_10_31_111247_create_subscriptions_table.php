@@ -25,13 +25,17 @@ return new class extends Migration {
             $table->timestamp('starts_at')
                 ->comment('The start date of the subscription.');
 
-            $table->timestamp('ends_at')
+            $table->timestamp('cancels_at')
                 ->nullable()
-                ->comment('The end date of the subscription. Null if the subscription is an active monthly subscription.');
+                ->comment('A date in the future at which the subscription will automatically get canceled. Null if the subscription is an active monthly subscription.');
 
             $table->timestamp('canceled_at')
                 ->nullable()
-                ->comment('The date the subscription was canceled.');
+                ->comment('The date at which the subscription was actually canceled.');
+
+            $table->timestamp('ended_at')
+                ->nullable()
+                ->comment('The date when the subscription actually ended. Null if the subscription is still active.');
 
             $table->string('status')
                 ->comment('The status of the subscription.');
