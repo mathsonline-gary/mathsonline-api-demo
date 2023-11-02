@@ -50,7 +50,7 @@ class StripeService
 
         $stripe = $this->stripe($attributes['market_id']);
 
-        return $stripe->customers->create([
+        $params = [
             'email' => $attributes['email'],
             'name' => "{$attributes['first_name']} {$attributes['last_name']}",
             'phone' => $attributes['phone'],
@@ -78,7 +78,18 @@ class StripeService
             'invoice_settings' => [
                 'default_payment_method' => $attributes['payment_method'],
             ],
-        ]);
+        ];
+
+        // Add "test_clock" parameter if the app is running in the "local" or "development" environment.
+        if (app()->environment('local', 'development')) {
+            $testClock = config("services.stripe.{$attributes['market_id']}.test_clock");
+
+            if (!empty($testClock)) {
+                $params['test_clock'] = $testClock;
+            }
+        }
+
+        return $stripe->customers->create($params);
     }
 
     /**
