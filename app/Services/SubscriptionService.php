@@ -20,7 +20,7 @@ class SubscriptionService
             'membership_id',
             'stripe_subscription_id',
             'starts_at',
-            'ends_at',
+            'cancels_at',
             'cancelled_at',
             'ended_at',
             'status',

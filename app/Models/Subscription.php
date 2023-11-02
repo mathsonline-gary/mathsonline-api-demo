@@ -26,7 +26,7 @@ class Subscription extends Model
 
     protected $casts = [
         'starts_at' => 'datetime',
-        'ends_at' => 'datetime',
+        'cancels_at' => 'datetime',
         'canceled_at' => 'datetime',
         'status' => SubscriptionStatus::class,
     ];
