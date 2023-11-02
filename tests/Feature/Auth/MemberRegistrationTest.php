@@ -49,7 +49,7 @@ class MemberRegistrationTest extends TestCase
             'address_state' => 'NSW',
             'address_postal_code' => '2000',
             'address_country' => 'Australia',
-            'payment_source' => 'tok_visa',
+            'payment_method' => 'tok_visa',
         ];
 
         $this->payload['email_confirmation'] = $this->payload['email'];

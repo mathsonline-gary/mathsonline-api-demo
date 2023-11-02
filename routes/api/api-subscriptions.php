@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\Api\V1\SubscriptionController;
 
-Route::prefix('subscriptions')
+Route::middleware(['auth:sanctum'])
+    ->prefix('subscriptions')
     ->name('subscriptions.')
     ->group(function () {
         // Create a subscription.

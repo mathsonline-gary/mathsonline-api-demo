@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\V1\Auth;
 
 use App\Enums\SchoolType;
 use App\Http\Controllers\Api\Controller;
@@ -37,7 +37,7 @@ class RegisteredMemberController extends Controller
             'address_state',
             'address_postal_code',
             'address_country',
-            'payment_source',
+            'payment_method',
         ]);
 
         /** @var Member $member */
@@ -60,11 +60,14 @@ class RegisteredMemberController extends Controller
             ]);
         });
 
-        // Log the member in.
-        auth()->login($member->asUser());
+        // Create an API token for the member.
+        $token = $member->asUser()->createToken('member-registration')->plainTextToken;
 
         return $this->successResponse(
-            data: new MemberResource($member),
+            data: [
+                'member' => new MemberResource($member),
+                'token' => $token,
+            ],
             message: 'Member registered successfully.',
             status: 201,
         );

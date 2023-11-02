@@ -14,18 +14,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])
-    ->prefix('v1')
+Route::prefix('v1')
     ->name('api.v1.')
     ->group(function () {
 
         // Auth module routes
-        Route::prefix('/auth')
+        Route::middleware(['auth:sanctum'])
+            ->prefix('/auth')
             ->name('auth.')
             ->group(function () {
                 Route::get('/me', [AuthenticatedSessionController::class, 'show'])
                     ->name('me');
             });
+
+        // Auth module routes.
+        require __DIR__ . '/api-auth.php';
 
         // Teacher module routes.
         require __DIR__ . '/api-teachers.php';

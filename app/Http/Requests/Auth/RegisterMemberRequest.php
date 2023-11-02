@@ -49,7 +49,7 @@ class RegisterMemberRequest extends FormRequest
             'address_state' => ['required', 'string', 'max:255'],
             'address_postal_code' => ['required', 'string', 'max:255'],
             'address_country' => ['required', 'string', 'max:255'],
-            'payment_source' => ['required', 'string'],
+            'payment_method' => ['required', 'string'],
         ];
     }
 }

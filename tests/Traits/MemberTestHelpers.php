@@ -34,7 +34,7 @@ trait MemberTestHelpers
             'address_state' => $attributes['address_state'] ?? fake()->city,
             'address_postal_code' => $attributes['address_postal_code'] ?? fake()->postcode,
             'address_country' => $attributes['address_country'] ?? fake()->country,
-            'payment_source' => $attributes['payment_source'] ?? 'tok_visa',
+            'payment_method' => $attributes['payment_method'] ?? 'tok_visa',
         ];
 
         // Create a Stripe customer.

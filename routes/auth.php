@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Auth\RegisteredMemberController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
-use App\Http\Controllers\Auth\RegisteredMemberController;
 use Illuminate\Support\Facades\Route;
 
 // Login route.
