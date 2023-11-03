@@ -10,6 +10,18 @@ class Membership extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'memberships';
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
     protected $casts = [
         'is_recurring' => 'bool',
         'period_in_days' => 'int',

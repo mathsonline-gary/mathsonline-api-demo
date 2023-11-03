@@ -6,8 +6,6 @@ use App\Enums\SchoolType;
 use App\Models\Users\Member;
 use App\Services\MemberService;
 use App\Services\SchoolService;
-use App\Services\StripeService;
-use Stripe\Exception\ApiErrorException;
 
 trait MemberTestHelpers
 {
@@ -17,7 +15,6 @@ trait MemberTestHelpers
      * @param int $marketId
      * @param array $attributes
      * @return Member
-     * @throws ApiErrorException
      */
     public function fakeMember(int $marketId = 1, array $attributes = []): Member
     {
@@ -34,13 +31,7 @@ trait MemberTestHelpers
             'address_state' => $attributes['address_state'] ?? fake()->city,
             'address_postal_code' => $attributes['address_postal_code'] ?? fake()->postcode,
             'address_country' => $attributes['address_country'] ?? fake()->country,
-            'payment_method' => $attributes['payment_method'] ?? 'tok_visa',
         ];
-
-        // Create a Stripe customer.
-        $stripeService = new StripeService();
-
-        $stripeCustomer = $stripeService->createCustomer($attributes);
 
         // Create a homeschool.
         $schoolService = new SchoolService();
@@ -48,7 +39,7 @@ trait MemberTestHelpers
         $school = $schoolService->create([
             ... $attributes,
             'type' => SchoolType::HOMESCHOOL->value,
-            'stripe_customer_id' => $stripeCustomer->id,
+            'stripe_customer_id' => 'cus_' . fake()->uuid,
             'name' => "Homeschool of {$attributes['first_name']} {$attributes['last_name']}",
         ]);
 

@@ -21,7 +21,7 @@ class SubscriptionService
             'stripe_subscription_id',
             'starts_at',
             'cancels_at',
-            'cancelled_at',
+            'canceled_at',
             'ended_at',
             'status',
             'custom_price',

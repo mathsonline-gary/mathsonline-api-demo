@@ -61,7 +61,7 @@ class SubscriptionController extends Controller
                     'stripe_subscription_id' => $stripeSubscription->id,
                     'starts_at' => $stripeSubscription->start_date,
                     'cancels_at' => $stripeSubscription->cancel_at,
-                    'cancelled_at' => $stripeSubscription->canceled_at,
+                    'canceled_at' => $stripeSubscription->canceled_at,
                     'ended_at' => $stripeSubscription->ended_at,
                     'status' => $stripeSubscription->status,
                 ]);
