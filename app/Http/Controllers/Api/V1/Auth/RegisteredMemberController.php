@@ -61,7 +61,9 @@ class RegisteredMemberController extends Controller
         });
 
         // Create an API token for the member.
-        $token = $member->asUser()->createToken('member-registration')->plainTextToken;
+        $token = $member->asUser()
+            ->createToken('member-registration', ['*'], now()->addMinutes(30))
+            ->plainTextToken;
 
         return $this->successResponse(
             data: [
