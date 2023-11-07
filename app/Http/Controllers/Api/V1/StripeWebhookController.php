@@ -9,8 +9,11 @@ use App\Services\SchoolService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Stripe\Event;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Stripe;
 use Stripe\WebhookSignature;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use UnexpectedValueException;
@@ -51,16 +54,24 @@ class StripeWebhookController extends Controller
         try {
             $event = Event::constructFrom($payload);
         } catch (UnexpectedValueException $exception) {
-            return $this->errorResponse(message: 'Invalid payload.', status: 422);
+            return $this->successResponse(message: 'Invalid payload.', status: 422);
         }
+
+        // Set the maximum number of retries.
+        Stripe::setMaxNetworkRetries(3);
 
         // Handle the event.
         switch ($event->type) {
             case 'customer.subscription.created':
                 $response = $this->handleCustomerSubscriptionCreated($payload);
                 break;
+
+            case 'customer.subscription.deleted':
+                $response = $this->handleCustomerSubscriptionDeleted($payload);
+                break;
+
             default:
-                return $this->errorResponse(message: 'Unhandled event.');
+                return $this->successResponse(message: 'The event is not handled.');
         }
 
         return $response;
@@ -73,7 +84,7 @@ class StripeWebhookController extends Controller
         // Check if the Stripe customer has a corresponding school in our database.
         if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
             return $this->errorResponse(
-                message: 'The Stripe customer ID does not exist in our database.',
+                message: 'The Stripe customer does not exist in our database.',
                 status: 404,
             );
         }
@@ -94,9 +105,9 @@ class StripeWebhookController extends Controller
                 status: 404,
             );
         }
-        
+
         // Create a new subscription.
-        $subscription = $this->subscriptionService->create([
+        $this->subscriptionService->create([
             'school_id' => $school->id,
             'membership_id' => $membership->id,
             'stripe_subscription_id' => $data['id'],
@@ -110,9 +121,37 @@ class StripeWebhookController extends Controller
         ]);
 
         return $this->successResponse(
-            data: $subscription->only(['id', 'membership_id']),
             message: 'Subscription created successfully.',
             status: 201,
+        );
+    }
+
+    protected function handleCustomerSubscriptionDeleted(array $payload): JsonResponse
+    {
+        $data = $payload['data']['object'];
+
+        // Check if the Stripe customer has a corresponding school in our database.
+        if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
+            Log::channel('stripe')->error('The Stripe customer does not exist in our database.', $payload);
+
+            return $this->successResponse(message: 'The Stripe customer does not exist in our database.');
+        }
+
+        // Find the subscription by the Stripe subscription ID.
+        if (!($subscription = $this->subscriptionService->search([
+            'school_id' => $school->id,
+            'stripe_subscription_id' => $data['id'],
+        ])->first())) {
+            Log::channel('stripe')->error('The subscription does not exist in our database.', $payload);
+
+            return $this->successResponse(message: 'The subscription does not exist in our database.');
+        }
+
+        // Cancel the subscription.
+        $this->subscriptionService->cancel($subscription, new Carbon($data['canceled_at']));
+
+        return $this->successResponse(
+            message: 'Subscription canceled successfully.',
         );
     }
 }
