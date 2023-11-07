@@ -59,13 +59,13 @@ class SubscriptionService
      * Cancel a subscription.
      *
      * @param Subscription $subscription
-     * @param Carbon $canceled_at
+     * @param Carbon|null $canceled_at
      * @return void
      */
-    public function cancel(Subscription $subscription, Carbon $canceled_at): void
+    public function cancel(Subscription $subscription, Carbon $canceled_at = null): void
     {
         $subscription->update([
-            'canceled_at' => $canceled_at,
+            'canceled_at' => $canceled_at ?? now(),
             'status' => SubscriptionStatus::CANCELED,
         ]);
     }

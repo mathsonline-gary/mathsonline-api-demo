@@ -18,6 +18,12 @@ use Stripe\WebhookSignature;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use UnexpectedValueException;
 
+/**
+ * The controller for handling Stripe webhook events.
+ * These events are triggered by making Stripe operations via the Stripe API or directly in the Stripe Dashboard.
+ * To avoid API loops, we handle these events by assuming they are triggered by the Stripe Dashboard.
+ *
+ */
 class StripeWebhookController extends Controller
 {
     public function __construct(
@@ -30,32 +36,11 @@ class StripeWebhookController extends Controller
 
     public function handle(Request $request, int $marketId)
     {
-        // Validate $marketId.
-        if (Market::where('id', $marketId)->doesntExist()) {
-            return $this->errorResponse(message: 'Invalid request.', status: 422);
-        }
+        $request = $this->validateRequest($request, $marketId);
 
-        // Verify the signature of the Stripe webhook.
-        try {
-            WebhookSignature::verifyHeader(
-                $request->getContent(),
-                $request->header('Stripe-Signature'),
-                config("services.stripe.{$marketId}.webhook.secret"),
-                config("services.stripe.{$marketId}.webhook.tolerance")
-            );
-        } catch (SignatureVerificationException $exception) {
-            throw new AccessDeniedHttpException($exception->getMessage(), $exception);
-        }
-
-        // Get the payload.
         $payload = json_decode($request->getContent(), true);
 
-        // Retrieve the event.
-        try {
-            $event = Event::constructFrom($payload);
-        } catch (UnexpectedValueException $exception) {
-            return $this->successResponse(message: 'Invalid payload.', status: 422);
-        }
+        $event = $this->constructEvent($payload);
 
         // Set the maximum number of retries.
         Stripe::setMaxNetworkRetries(3);
@@ -71,7 +56,7 @@ class StripeWebhookController extends Controller
                 break;
 
             default:
-                return $this->successResponse(message: 'The event is not handled.');
+                return $this->missingMethod();
         }
 
         return $response;
@@ -83,27 +68,27 @@ class StripeWebhookController extends Controller
 
         // Check if the Stripe customer has a corresponding school in our database.
         if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
-            return $this->errorResponse(
-                message: 'The Stripe customer does not exist in our database.',
-                status: 404,
-            );
+            Log::channel('stripe')
+                ->error('[customer.subscription.created] The associated school not found.', $payload);
+
+            return $this->missingMethod();
         }
 
         // Check if the Stripe subscription already exists in our database.
         if ($school->subscriptions->contains('stripe_subscription_id', $data['id'])) {
-            return $this->errorResponse(
-                message: 'The subscription already exists in our database.',
-                status: 422,
-            );
+            Log::channel('stripe')
+                ->error('[customer.subscription.created] The associated subscription already exists.', $payload);
+
+            return $this->missingMethod();
         }
 
-        // Find the associated membership by the Stripe Plan.
+        // Check if the Stripe subscription has a corresponding membership in our database.
         $plan = $data['items']['data'][0]['plan'];
         if (!$membership = $this->membershipService->findByStripeId($plan['id'])) {
-            return $this->errorResponse(
-                message: 'The Stripe Plan does not exist in our database.',
-                status: 404,
-            );
+            Log::channel('stripe')
+                ->error('[customer.subscription.created] The associated membership not found.', $payload);
+
+            return $this->missingMethod();
         }
 
         // Create a new subscription.
@@ -120,10 +105,7 @@ class StripeWebhookController extends Controller
             'custom_user_limit' => null,
         ]);
 
-        return $this->successResponse(
-            message: 'Subscription created successfully.',
-            status: 201,
-        );
+        return $this->successMethod();
     }
 
     protected function handleCustomerSubscriptionDeleted(array $payload): JsonResponse
@@ -132,26 +114,104 @@ class StripeWebhookController extends Controller
 
         // Check if the Stripe customer has a corresponding school in our database.
         if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
-            Log::channel('stripe')->error('The Stripe customer does not exist in our database.', $payload);
+            Log::channel('stripe')
+                ->error('[customer.subscription.deleted] The associated school not found.', $payload);
 
-            return $this->successResponse(message: 'The Stripe customer does not exist in our database.');
+            return $this->missingMethod();
         }
 
-        // Find the subscription by the Stripe subscription ID.
+        // Check if the Stripe subscription has a corresponding subscription in our database.
         if (!($subscription = $this->subscriptionService->search([
             'school_id' => $school->id,
             'stripe_subscription_id' => $data['id'],
         ])->first())) {
-            Log::channel('stripe')->error('The subscription does not exist in our database.', $payload);
+            Log::channel('stripe')
+                ->error('[customer.subscription.deleted] The associated subscription not found.', $payload);
 
-            return $this->successResponse(message: 'The subscription does not exist in our database.');
+            return $this->missingMethod();
         }
 
         // Cancel the subscription.
         $this->subscriptionService->cancel($subscription, new Carbon($data['canceled_at']));
 
+        return $this->successMethod();
+    }
+
+    /**
+     * Validate the webhook request.
+     *
+     * @param Request $request
+     * @param int $marketId
+     * @return Request
+     */
+    protected function validateRequest(Request $request, int $marketId): Request
+    {
+        // Validate $marketId.
+        if (Market::where('id', $marketId)->doesntExist()) {
+            Log::channel('stripe')
+                ->error('Invalid webhook endpoint.', $request->toArray());
+
+            throw new AccessDeniedHttpException('Invalid webhook endpoint.');
+        }
+
+        // Verify the signature of the Stripe webhook.
+        try {
+            WebhookSignature::verifyHeader(
+                $request->getContent(),
+                $request->header('Stripe-Signature'),
+                config("services.stripe.$marketId.webhook.secret"),
+                config("services.stripe.$marketId.webhook.tolerance")
+            );
+        } catch (SignatureVerificationException $exception) {
+            Log::channel('stripe')
+                ->error($exception->getMessage(), $request->toArray());
+
+            throw new AccessDeniedHttpException($exception->getMessage(), $exception);
+        }
+
+        return $request;
+    }
+
+    /**
+     * Construct the Stripe event.
+     *
+     * @param array $payload
+     * @return Event
+     */
+    protected function constructEvent(array $payload): Event
+    {
+        // Construct the Stripe event.
+        try {
+            return Event::constructFrom($payload);
+        } catch (UnexpectedValueException $exception) {
+            Log::channel('stripe')
+                ->error($exception->getMessage(), $payload);
+
+            throw new AccessDeniedHttpException($exception->getMessage(), $exception);
+        }
+    }
+
+    /**
+     * Respond with "Webhook handled" message.
+     *
+     * @return JsonResponse
+     */
+    protected function successMethod(): JsonResponse
+    {
         return $this->successResponse(
-            message: 'Subscription canceled successfully.',
+            message: 'Webhook handled.',
+        );
+    }
+
+    /**
+     * Respond with "Webhook unhandled" message.
+     *
+     * @return JsonResponse
+     */
+    protected function missingMethod(): JsonResponse
+    {
+        return $this->successResponse(
+            message: 'Webhook unhandled.',
         );
     }
 }
