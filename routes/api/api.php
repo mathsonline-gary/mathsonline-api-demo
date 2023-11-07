@@ -41,4 +41,7 @@ Route::prefix('v1')
 
         // Subscription module routes.
         require __DIR__ . '/api-subscriptions.php';
+
+        // Stripe API routes.
+        require __DIR__ . '/api-stripe.php';
     });

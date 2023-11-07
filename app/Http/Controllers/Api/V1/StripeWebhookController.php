@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\Controller;
 use App\Models\Market;
+use App\Services\MembershipService;
 use App\Services\SchoolService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Stripe\Event;
@@ -16,7 +18,9 @@ use UnexpectedValueException;
 class StripeWebhookController extends Controller
 {
     public function __construct(
-        protected SchoolService $schoolService,
+        protected SchoolService       $schoolService,
+        protected SubscriptionService $subscriptionService,
+        protected MembershipService   $membershipService,
     )
     {
     }
@@ -64,10 +68,51 @@ class StripeWebhookController extends Controller
 
     protected function handleCustomerSubscriptionCreated(array $payload): JsonResponse
     {
-        if ($school = $this->schoolService->findByStripeId($payload['data']['object']['customer'])) {
-            // Update the school's subscription status.
+        $data = $payload['data']['object'];
+
+        // Check if the Stripe customer has a corresponding school in our database.
+        if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
+            return $this->errorResponse(
+                message: 'The Stripe customer ID does not exist in our database.',
+                status: 404,
+            );
         }
 
-        return $this->successResponse(data: $payload);
+        // Check if the Stripe subscription already exists in our database.
+        if ($school->subscriptions->contains('stripe_subscription_id', $data['id'])) {
+            return $this->errorResponse(
+                message: 'The subscription already exists in our database.',
+                status: 422,
+            );
+        }
+
+        // Find the associated membership by the Stripe Plan.
+        $plan = $data['items']['data'][0]['plan'];
+        if (!$membership = $this->membershipService->findByStripeId($plan['id'])) {
+            return $this->errorResponse(
+                message: 'The Stripe Plan does not exist in our database.',
+                status: 404,
+            );
+        }
+        
+        // Create a new subscription.
+        $subscription = $this->subscriptionService->create([
+            'school_id' => $school->id,
+            'membership_id' => $membership->id,
+            'stripe_subscription_id' => $data['id'],
+            'starts_at' => $data['start_date'],
+            'cancels_at' => $data['cancel_at'],
+            'canceled_at' => $data['canceled_at'],
+            'ended_at' => $data['ended_at'],
+            'status' => $data['status'],
+            'custom_price' => null,
+            'custom_user_limit' => null,
+        ]);
+
+        return $this->successResponse(
+            data: $subscription->only(['id', 'membership_id']),
+            message: 'Subscription created successfully.',
+            status: 201,
+        );
     }
 }

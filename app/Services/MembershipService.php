@@ -41,4 +41,15 @@ class MembershipService
         return $membership;
     }
 
+    /**
+     * Find a membership by its Stripe Price ID.
+     *
+     * @param string $stripeId
+     * @return Membership|null
+     */
+    public function findByStripeId(string $stripeId): ?Membership
+    {
+        return Membership::where('stripe_price_id', $stripeId)->first();
+    }
+
 }
