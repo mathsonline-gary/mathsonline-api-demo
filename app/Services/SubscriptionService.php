@@ -20,6 +20,7 @@ class SubscriptionService
     {
         $attributes = Arr::only($attributes, [
             'school_id',
+            'product_id',
             'membership_id',
             'stripe_subscription_id',
             'starts_at',
@@ -53,6 +54,34 @@ class SubscriptionService
             });
 
         return $query->get();
+    }
+
+    /**
+     * Update a subscription.
+     *
+     * @param Subscription $subscription
+     * @param array $attributes
+     * @return Subscription
+     */
+    public function update(Subscription $subscription, array $attributes): Subscription
+    {
+        $attributes = Arr::only($attributes, [
+            'school_id',
+            'product_id',
+            'membership_id',
+            'stripe_subscription_id',
+            'starts_at',
+            'cancels_at',
+            'canceled_at',
+            'ended_at',
+            'status',
+            'custom_price',
+            'custom_user_limit',
+        ]);
+
+        $subscription->update($attributes);
+
+        return $subscription;
     }
 
     /**

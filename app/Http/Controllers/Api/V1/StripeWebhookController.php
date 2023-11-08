@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\Controller;
 use App\Models\Market;
 use App\Services\MembershipService;
+use App\Services\ProductService;
 use App\Services\SchoolService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
@@ -30,6 +31,7 @@ class StripeWebhookController extends Controller
         protected SchoolService       $schoolService,
         protected SubscriptionService $subscriptionService,
         protected MembershipService   $membershipService,
+        protected ProductService      $productService,
     )
     {
     }
@@ -53,6 +55,10 @@ class StripeWebhookController extends Controller
 
             case 'customer.subscription.deleted':
                 $response = $this->handleCustomerSubscriptionDeleted($payload);
+                break;
+
+            case 'customer.subscription.updated':
+                $response = $this->handleCustomerSubscriptionUpdated($payload);
                 break;
 
             default:
@@ -94,6 +100,7 @@ class StripeWebhookController extends Controller
         // Create a new subscription.
         $this->subscriptionService->create([
             'school_id' => $school->id,
+            'product_id' => $membership->product->id,
             'membership_id' => $membership->id,
             'stripe_subscription_id' => $data['id'],
             'starts_at' => $data['start_date'],
@@ -133,6 +140,62 @@ class StripeWebhookController extends Controller
 
         // Cancel the subscription.
         $this->subscriptionService->cancel($subscription, new Carbon($data['canceled_at']));
+
+        return $this->successMethod();
+    }
+
+    protected function handleCustomerSubscriptionUpdated(array $payload): JsonResponse
+    {
+        $data = $payload['data']['object'];
+
+        // Check if the Stripe customer has a corresponding school in our database.
+        if (!($school = $this->schoolService->findByStripeId($data['customer']))) {
+            Log::channel('stripe')
+                ->error('[customer.subscription.updated] The associated school not found.', $payload);
+
+            return $this->missingMethod();
+        }
+
+        // Check if the Stripe subscription has a corresponding subscription in our database. If not, create a new one.
+        $subscription = $school->subscriptions()->firstOrNew([
+            'stripe_subscription_id' => $data['id'],
+        ]);
+
+        // Set the subscription attributes.
+        $attributes = [
+            'school_id' => $school->id,
+            'stripe_subscription_id' => $data['id'],
+            'starts_at' => $data['start_date'],
+            'cancels_at' => $data['cancel_at'],
+            'canceled_at' => $data['canceled_at'],
+            'ended_at' => $data['ended_at'],
+            'status' => $data['status'],
+        ];
+
+        // Set membership attributes.
+        $plan = $data['items']['data'][0]['price'];
+        if ($membership = $this->membershipService->findByStripeId($plan['id'])) {
+            $attributes['membership_id'] = $membership->id;
+            $attributes['product_id'] = $membership->product->id;
+            $attributes['custom_price'] = null;
+        } else {
+            // If the membership is not found, Check the product.
+            if (!($product = $this->productService->findByStripeId($plan['product']))) {
+                // If the product is not found, log the error and skip the webhook.
+                Log::channel('stripe')
+                    ->error('[customer.subscription.updated] The associated product not found.', $payload);
+
+                return $this->missingMethod();
+            }
+
+            // Otherwise, set the custom price.
+            $attributes['membership_id'] = null;
+            $attributes['product_id'] = $product->id;
+            $attributes['custom_price'] = $plan['unit_amount'] / 100;
+        }
+
+        // Update the subscription.
+        $this->subscriptionService->update($subscription, $attributes);
 
         return $this->successMethod();
     }

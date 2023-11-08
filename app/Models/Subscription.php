@@ -13,6 +13,7 @@ class Subscription extends Model
 
     protected $fillable = [
         'school_id',
+        'product_id',
         'membership_id',
         'stripe_subscription_id',
         'starts_at',
@@ -25,6 +26,9 @@ class Subscription extends Model
     ];
 
     protected $casts = [
+        'school_id' => 'int',
+        'product_id' => 'int',
+        'membership_id' => 'int',
         'starts_at' => 'datetime',
         'cancels_at' => 'datetime',
         'canceled_at' => 'datetime',

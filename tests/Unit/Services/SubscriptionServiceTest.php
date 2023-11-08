@@ -67,4 +67,12 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals($attributes['custom_price'], $subscription->custom_price);
         $this->assertEquals($attributes['custom_user_limit'], $subscription->custom_user_limit);
     }
+
+    /**
+     * @see SubscriptionService::update()
+     */
+    public function test_it_updates_the_subscription(): void
+    {
+        // TODO
+    }
 }

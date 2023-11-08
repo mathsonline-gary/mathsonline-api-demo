@@ -20,7 +20,7 @@ class StripeService
      */
     public function stripe(int $marketId): StripeClient
     {
-        $secretKey = config("services.stripe.{$marketId}.secret");
+        $secretKey = config("services.stripe.$marketId.secret");
 
         return new StripeClient($secretKey);
     }

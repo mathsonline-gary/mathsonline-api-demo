@@ -13,7 +13,11 @@ return new class extends Migration {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
 
+            $table->foreignId('product_id')
+                ->constrained();
+
             $table->foreignId('membership_id')
+                ->nullable()
                 ->constrained();
 
             $table->foreignId('school_id')
