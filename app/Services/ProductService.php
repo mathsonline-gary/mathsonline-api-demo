@@ -14,6 +14,6 @@ class ProductService
      */
     public function findByStripeId(string $stripeId): ?Product
     {
-        return Product::where('stripe_product_id', $stripeId)->first();
+        return Product::where('stripe_id', $stripeId)->first();
     }
 }

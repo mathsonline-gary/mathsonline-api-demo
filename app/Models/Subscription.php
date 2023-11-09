@@ -13,26 +13,30 @@ class Subscription extends Model
 
     protected $fillable = [
         'school_id',
-        'product_id',
         'membership_id',
         'stripe_subscription_id',
+        'stripe_subscription_schedule_id',
         'starts_at',
         'cancels_at',
+        'current_period_starts_at',
+        'current_period_ends_at',
         'canceled_at',
         'ended_at',
         'status',
-        'custom_price',
         'custom_user_limit',
     ];
 
     protected $casts = [
         'school_id' => 'int',
-        'product_id' => 'int',
         'membership_id' => 'int',
         'starts_at' => 'datetime',
         'cancels_at' => 'datetime',
+        'current_period_starts_at' => 'datetime',
+        'current_period_ends_at' => 'datetime',
         'canceled_at' => 'datetime',
+        'ended_at' => 'datetime',
         'status' => SubscriptionStatus::class,
+        'custom_user_limit' => 'int',
     ];
 
     /**

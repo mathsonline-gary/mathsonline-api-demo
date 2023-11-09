@@ -42,7 +42,6 @@ class SubscriptionServiceTest extends TestCase
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
             'status' => SubscriptionStatus::ACTIVE,
-            'custom_price' => fake()->randomFloat(2, 0, 300),
             'custom_user_limit' => fake()->numberBetween(1, 100)
         ];
 
@@ -64,7 +63,6 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals($attributes['canceled_at'], $subscription->canceled_at);
         $this->assertEquals($attributes['ended_at'], $subscription->ended_at);
         $this->assertEquals($attributes['status'], $subscription->status);
-        $this->assertEquals($attributes['custom_price'], $subscription->custom_price);
         $this->assertEquals($attributes['custom_user_limit'], $subscription->custom_user_limit);
     }
 

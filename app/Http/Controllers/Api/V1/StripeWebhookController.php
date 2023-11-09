@@ -80,14 +80,14 @@ class StripeWebhookController extends Controller
             return $this->missingMethod();
         }
 
-        // Check if the Stripe subscription already exists in our database.
+        // Check if the Stripe subscription already exists in our database by Stripe subscription ID.
         if ($school->subscriptions->contains('stripe_subscription_id', $data['id'])) {
             Log::channel('stripe')
                 ->error('[customer.subscription.created] The associated subscription already exists.', $payload);
 
             return $this->missingMethod();
         }
-
+        
         // Check if the Stripe subscription has a corresponding membership in our database.
         $plan = $data['items']['data'][0]['plan'];
         if (!$membership = $this->membershipService->findByStripeId($plan['id'])) {
@@ -97,10 +97,30 @@ class StripeWebhookController extends Controller
             return $this->missingMethod();
         }
 
+        // Check if the Stripe subscription already exists in our database by Stripe subscription schedule ID.
+        // If so, it is a scheduled subscription, then update the subscription.
+        if ($subscription = $this->subscriptionService->search([
+            'school_id' => $school->id,
+            'stripe_subscription_id' => null,
+            'stripe_subscription_schedule_id' => $data['schedule'],
+        ])->first()) {
+            $this->subscriptionService->update($subscription, [
+                'stripe_subscription_id' => $data['id'],
+                'starts_at' => $data['start_date'],
+                'cancels_at' => $data['cancel_at'],
+                'current_period_starts_at' => $data['current_period_start'],
+                'current_period_ends_at' => $data['current_period_end'],
+                'canceled_at' => $data['canceled_at'],
+                'ended_at' => $data['ended_at'],
+                'status' => $data['status'],
+            ]);
+
+            return $this->successMethod();
+        }
+
         // Create a new subscription.
         $this->subscriptionService->create([
             'school_id' => $school->id,
-            'product_id' => $membership->product->id,
             'membership_id' => $membership->id,
             'stripe_subscription_id' => $data['id'],
             'starts_at' => $data['start_date'],
@@ -108,7 +128,6 @@ class StripeWebhookController extends Controller
             'canceled_at' => $data['canceled_at'],
             'ended_at' => $data['ended_at'],
             'status' => $data['status'],
-            'custom_price' => null,
             'custom_user_limit' => null,
         ]);
 
@@ -161,9 +180,19 @@ class StripeWebhookController extends Controller
             'stripe_subscription_id' => $data['id'],
         ]);
 
+        // Check if the Stripe subscription has a corresponding membership in our database.
+        $plan = $data['items']['data'][0]['price'];
+        if (!($membership = $this->membershipService->findByStripeId($plan['id']))) {
+            Log::channel('stripe')
+                ->error('[customer.subscription.updated] The associated membership not found.', $payload);
+
+            return $this->missingMethod();
+        }
+
         // Set the subscription attributes.
         $attributes = [
             'school_id' => $school->id,
+            'membership_id' => $membership->id,
             'stripe_subscription_id' => $data['id'],
             'starts_at' => $data['start_date'],
             'cancels_at' => $data['cancel_at'],
@@ -171,28 +200,6 @@ class StripeWebhookController extends Controller
             'ended_at' => $data['ended_at'],
             'status' => $data['status'],
         ];
-
-        // Set membership attributes.
-        $plan = $data['items']['data'][0]['price'];
-        if ($membership = $this->membershipService->findByStripeId($plan['id'])) {
-            $attributes['membership_id'] = $membership->id;
-            $attributes['product_id'] = $membership->product->id;
-            $attributes['custom_price'] = null;
-        } else {
-            // If the membership is not found, Check the product.
-            if (!($product = $this->productService->findByStripeId($plan['product']))) {
-                // If the product is not found, log the error and skip the webhook.
-                Log::channel('stripe')
-                    ->error('[customer.subscription.updated] The associated product not found.', $payload);
-
-                return $this->missingMethod();
-            }
-
-            // Otherwise, set the custom price.
-            $attributes['membership_id'] = null;
-            $attributes['product_id'] = $product->id;
-            $attributes['custom_price'] = $plan['unit_amount'] / 100;
-        }
 
         // Update the subscription.
         $this->subscriptionService->update($subscription, $attributes);

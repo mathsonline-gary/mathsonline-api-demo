@@ -85,7 +85,6 @@ class CreateSubscriptionTest extends TestCase
         $this->assertEquals($subscription->starts_at->addYear(), $subscription->cancels_at);
         $this->assertNull($subscription->canceled_at);
         $this->assertNull($subscription->ended_at);
-        $this->assertNull($subscription->custom_price);
         $this->assertNull($subscription->custom_user_limit);
 
         // Assert that the subscription was created in Stripe.
@@ -148,7 +147,6 @@ class CreateSubscriptionTest extends TestCase
         $this->assertNull($subscription->cancels_at);
         $this->assertNull($subscription->canceled_at);
         $this->assertNull($subscription->ended_at);
-        $this->assertNull($subscription->custom_price);
         $this->assertNull($subscription->custom_user_limit);
 
         // Assert that the subscription was created in Stripe.

@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Stripe\Subscription as StripeSubscription;
 
 class SubscriptionService
 {
@@ -20,19 +21,37 @@ class SubscriptionService
     {
         $attributes = Arr::only($attributes, [
             'school_id',
-            'product_id',
             'membership_id',
             'stripe_subscription_id',
+            'stripe_subscription_schedule_id',
             'starts_at',
             'cancels_at',
+            'current_period_starts_at',
+            'current_period_ends_at',
             'canceled_at',
             'ended_at',
             'status',
-            'custom_price',
             'custom_user_limit'
         ]);
 
         return Subscription::create($attributes);
+    }
+
+    public function createWithStripeSubscription(int $schoolId, int $membershipId, StripeSubscription $stripeSubscription)
+    {
+        return $this->create([
+            'school_id' => $schoolId,
+            'membership_id' => $membershipId,
+            'stripe_subscription_id' => $stripeSubscription->id,
+            'stripe_subscription_schedule_id' => $stripeSubscription->schedule,
+            'starts_at' => $stripeSubscription->start_date,
+            'cancels_at' => $stripeSubscription->cancel_at,
+            'current_period_starts_at' => $stripeSubscription->current_period_start,
+            'current_period_ends_at' => $stripeSubscription->current_period_end,
+            'canceled_at' => $stripeSubscription->canceled_at,
+            'ended_at' => $stripeSubscription->ended_at,
+            'status' => $stripeSubscription->status,
+        ]);
     }
 
     /**
@@ -41,16 +60,26 @@ class SubscriptionService
      * @param array{
      *     school_id?: int,
      *     stripe_subscription_id?: string,
+     *     stripe_subscription_schedule_id?: string,
      * } $options
      * @return Collection<Subscription>
      */
     public function search(array $options): Collection
     {
+        $options = Arr::only($options, [
+            'school_id',
+            'stripe_subscription_id',
+            'stripe_subscription_schedule_id',
+        ]);
+
         $query = Subscription::when(isset($options['school_id']), function ($query) use ($options) {
             $query->where('school_id', $options['school_id']);
         })
             ->when(isset($options['stripe_subscription_id']), function ($query) use ($options) {
                 $query->where('stripe_subscription_id', $options['stripe_subscription_id']);
+            })
+            ->when(isset($options['stripe_subscription_schedule_id']), function ($query) use ($options) {
+                $query->where('stripe_subscription_schedule_id', $options['stripe_subscription_schedule_id']);
             });
 
         return $query->get();
@@ -67,7 +96,6 @@ class SubscriptionService
     {
         $attributes = Arr::only($attributes, [
             'school_id',
-            'product_id',
             'membership_id',
             'stripe_subscription_id',
             'starts_at',
@@ -75,7 +103,6 @@ class SubscriptionService
             'canceled_at',
             'ended_at',
             'status',
-            'custom_price',
             'custom_user_limit',
         ]);
 

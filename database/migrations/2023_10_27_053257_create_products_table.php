@@ -15,20 +15,16 @@ return new class extends Migration {
             $table->id();
 
             $table->foreignId('market_id')
-                ->constrained();
+                ->constrained('markets');
 
             $table->string('name');
 
-            $table->string('stripe_product_id')
+            $table->string('stripe_id')
                 ->unique()
-                ->nullable()
                 ->comment('The Stripe product ID.');
 
             $table->enum('school_type', array_column(SchoolType::cases(), 'value'))
                 ->comment('Indicates the type of school that this product is for. 1: Traditional School, 2: Homeschool');
-
-            $table->unsignedInteger('default_user_limit')
-                ->comment('The default number of users that can be added to a school with this product.');
 
             $table->softDeletes();
         });

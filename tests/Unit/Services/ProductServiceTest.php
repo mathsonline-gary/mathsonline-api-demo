@@ -25,7 +25,7 @@ class ProductServiceTest extends TestCase
     /**
      * @see ProductService::findByStripeId
      */
-    public function test_it_finds_product_by_stripe_product_id(): void
+    public function test_it_finds_product_by_stripe_id(): void
     {
         // TODO
         $this->assertTrue(true);

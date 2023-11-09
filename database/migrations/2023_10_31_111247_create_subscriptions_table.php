@@ -13,9 +13,6 @@ return new class extends Migration {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('product_id')
-                ->constrained();
-
             $table->foreignId('membership_id')
                 ->nullable()
                 ->constrained();
@@ -26,12 +23,22 @@ return new class extends Migration {
             $table->string('stripe_subscription_id')
                 ->unique();
 
+            $table->string('stripe_subscription_schedule_id')
+                ->nullable()
+                ->comment('The Stripe subscription schedule ID attached to the subscription. This is mainly used for upcoming subscriptions scheduled for a future date.');
+
             $table->timestamp('starts_at')
                 ->comment('The start date of the subscription.');
 
             $table->timestamp('cancels_at')
                 ->nullable()
                 ->comment('A date in the future at which the subscription will automatically get canceled. Null if the subscription is an active monthly subscription.');
+
+            $table->timestamp('current_period_starts_at')
+                ->comment('Start of the current period that the subscription has been invoiced for.');
+
+            $table->timestamp('current_period_ends_at')
+                ->comment('End of the current period that the subscription has been invoiced for. At the end of this period, a new invoice will be created for a monthly subscription.');
 
             $table->timestamp('canceled_at')
                 ->nullable()
@@ -43,10 +50,6 @@ return new class extends Migration {
 
             $table->string('status')
                 ->comment('The status of the subscription.');
-
-            $table->unsignedDecimal('custom_price')
-                ->nullable()
-                ->comment('The custom price of the subscription. Null if the price is same as the membership price.');
 
             $table->unsignedInteger('custom_user_limit')
                 ->nullable()

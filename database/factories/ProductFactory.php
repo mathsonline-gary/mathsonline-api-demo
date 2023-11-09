@@ -16,7 +16,7 @@ class ProductFactory extends Factory
         return [
             'market_id' => Market::inRandomOrder()->first()->id,
             'name' => 'Fake Membership',
-            'stripe_product_id' => 'prod_' . fake()->uuid,
+            'stripe_id' => 'prod_' . fake()->uuid,
             'school_type' => fake()->randomElement(array_column(SchoolType::cases(), 'value')),
         ];
     }
