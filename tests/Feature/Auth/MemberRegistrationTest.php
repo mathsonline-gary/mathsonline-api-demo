@@ -95,11 +95,11 @@ class MemberRegistrationTest extends TestCase
         $this->assertEquals($this->payload['address_state'], $school->address_state);
         $this->assertEquals($this->payload['address_postal_code'], $school->address_postal_code);
         $this->assertEquals($this->payload['address_country'], $school->address_country);
-        $this->assertNotNull($school->stripe_customer_id);
+        $this->assertNotNull($school->stripe_id);
 
         // Assert that the Stripe customer was created correctly.
         try {
-            $stripeCustomer = $this->stripeClient->customers->retrieve($school->stripe_customer_id);
+            $stripeCustomer = $this->stripeClient->customers->retrieve($school->stripe_id);
             $this->assertEquals($this->payload['email'], $stripeCustomer->email);
             $this->assertEquals("{$this->payload['first_name']} {$this->payload['last_name']}", $stripeCustomer->name);
             $this->assertEquals($this->payload['phone'], $stripeCustomer->phone);

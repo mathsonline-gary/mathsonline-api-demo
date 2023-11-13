@@ -15,7 +15,7 @@ class SubscriptionPolicy
     public function create(User $user): bool
     {
         if ($user->isMember()) {
-            return !is_null($user->asMember()->school->stripe_customer_id);
+            return !is_null($user->asMember()->school->stripe_id);
         }
 
         return false;

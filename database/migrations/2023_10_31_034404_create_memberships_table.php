@@ -45,9 +45,9 @@ return new class extends Migration {
                 ->default(1)
                 ->comment('The user limit for the membership.');
 
-            $table->string('stripe_price_id')
+            $table->string('stripe_id')
                 ->unique()
-                ->comment('The Stripe price ID.');
+                ->comment('The connected Stripe price ID.');
 
             $table->string('note')
                 ->nullable()

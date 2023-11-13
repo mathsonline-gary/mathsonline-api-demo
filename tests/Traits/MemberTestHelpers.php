@@ -39,7 +39,7 @@ trait MemberTestHelpers
         $school = $schoolService->create([
             ... $attributes,
             'type' => SchoolType::HOMESCHOOL->value,
-            'stripe_customer_id' => 'cus_' . fake()->uuid,
+            'stripe_id' => 'cus_' . fake()->uuid,
             'name' => "Homeschool of {$attributes['first_name']} {$attributes['last_name']}",
         ]);
 

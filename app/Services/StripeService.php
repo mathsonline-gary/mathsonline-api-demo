@@ -106,10 +106,10 @@ class StripeService
 
         // Set the parameters for the Stripe subscription.
         $params = [
-            'customer' => $school->stripe_customer_id,
+            'customer' => $school->stripe_id,
             'items' => [
                 [
-                    'price' => $membership->stripe_price_id,
+                    'price' => $membership->stripe_id,
                     'quantity' => 1,
                 ],
             ],

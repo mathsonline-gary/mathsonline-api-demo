@@ -185,7 +185,7 @@ class SchoolTest extends TestCase
     /**
      * @see School::canSubscribeToMembership()
      */
-    public function test_it_returns_true_it_can_subscribe_a_membership(): void
+    public function test_it_returns_true_it_can_subscribe_to_a_membership(): void
     {
         $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
 

@@ -28,7 +28,7 @@ class SchoolService
             'address_state',
             'address_postal_code',
             'address_country',
-            'stripe_customer_id',
+            'stripe_id',
         ]);
 
         return School::create($attributes);
@@ -42,6 +42,6 @@ class SchoolService
      */
     public function findByStripeId(string $stripeId): ?School
     {
-        return School::where('stripe_customer_id', $stripeId)->first();
+        return School::where('stripe_id', $stripeId)->first();
     }
 }

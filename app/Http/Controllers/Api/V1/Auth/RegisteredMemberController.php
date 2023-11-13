@@ -49,7 +49,7 @@ class RegisteredMemberController extends Controller
             $school = $this->schoolService->create([
                 ...$validated,
                 'type' => SchoolType::HOMESCHOOL,
-                'stripe_customer_id' => $customer->id,
+                'stripe_id' => $customer->id,
                 'name' => "Homeschool of {$validated['first_name']} {$validated['last_name']}",
             ]);
 

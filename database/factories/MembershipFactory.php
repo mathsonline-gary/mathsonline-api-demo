@@ -21,7 +21,7 @@ class MembershipFactory extends Factory
             'period_in_days' => null,
             'is_recurring' => fake()->boolean(),
             'user_limit' => fake()->numberBetween(0, 200),
-            'stripe_price_id' => 'price_' . fake()->uuid,
+            'stripe_id' => 'price_' . fake()->uuid,
             'note' => fake()->optional()->text(),
             'product_id' => Product::factory()->create()->id,
             'campaign_id' => Campaign::factory()->create()->id,

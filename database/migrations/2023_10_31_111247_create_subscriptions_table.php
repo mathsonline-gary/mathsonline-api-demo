@@ -35,9 +35,11 @@ return new class extends Migration {
                 ->comment('A date in the future at which the subscription will automatically get canceled. Null if the subscription is an active monthly subscription.');
 
             $table->timestamp('current_period_starts_at')
+                ->nullable()
                 ->comment('Start of the current period that the subscription has been invoiced for.');
 
             $table->timestamp('current_period_ends_at')
+                ->nullable()
                 ->comment('End of the current period that the subscription has been invoiced for. At the end of this period, a new invoice will be created for a monthly subscription.');
 
             $table->timestamp('canceled_at')

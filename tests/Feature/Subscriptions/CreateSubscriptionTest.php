@@ -96,8 +96,8 @@ class CreateSubscriptionTest extends TestCase
             $this->fail($e->getMessage());
         }
         $this->assertEquals($subscription->stripe_subscription_id, $stripeSubscription->id);
-        $this->assertEquals($member->school->stripe_customer_id, $stripeSubscription->customer);
-        $this->assertEquals($membership->stripe_price_id, $stripeSubscription->items->data[0]->price->id);
+        $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
+        $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->current_period_start);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->start_date);
         $this->assertEquals($subscription->cancels_at->timestamp, $stripeSubscription->current_period_end);
@@ -158,8 +158,8 @@ class CreateSubscriptionTest extends TestCase
             $this->fail($e->getMessage());
         }
         $this->assertEquals($subscription->stripe_subscription_id, $stripeSubscription->id);
-        $this->assertEquals($member->school->stripe_customer_id, $stripeSubscription->customer);
-        $this->assertEquals($membership->stripe_price_id, $stripeSubscription->items->data[0]->price->id);
+        $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
+        $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->current_period_start);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->start_date);
         $this->assertEquals($subscription->starts_at->addMonth()->timestamp, $stripeSubscription->current_period_end);
