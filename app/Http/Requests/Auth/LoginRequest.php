@@ -30,7 +30,7 @@ class LoginRequest extends FormRequest
         return [
             'login' => ['required', 'string'],
             'password' => ['required', 'string'],
-            'type_id' => ['required', 'integer', 'between:1,5'],
+            'type' => ['required', 'integer', 'between:1,5'],
         ];
     }
 
