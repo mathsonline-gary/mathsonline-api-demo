@@ -82,6 +82,11 @@
     <div id="card-errors" role="alert"></div>
 
     <div>
+        <button id="generate">Generate Payment Token</button>
+        <span id="payment_token"></span>
+    </div>
+
+    <div>
         <button type="submit">Register</button>
     </div>
 </form>
@@ -130,6 +135,32 @@
                     }
                 })
         })
+
+        $('#generate').on('click', function (e) {
+            e.preventDefault()
+
+            generatePaymentToken()
+                .then(function (result) {
+                    if (result.error) {
+                        alert(result.error.message)
+                    } else {
+                        $('#payment_token').text(result.token.id)
+                    }
+                })
+        })
+
+        function generatePaymentToken() {
+            return stripe
+                .createToken(cardElement, {
+                    name: $('#first_name').val() + ' ' + $('#last_name').val(),
+                    address_line1: $('#address_line_1').val(),
+                    address_line2: $('#address_line_2').val(),
+                    address_city: $('#address_city').val(),
+                    address_state: $('#address_state').val(),
+                    address_zip: $('#address_postal_code').val(),
+                    address_country: $('#address_country').val(),
+                })
+        }
 
         function generatePaymentMethod() {
             return stripe

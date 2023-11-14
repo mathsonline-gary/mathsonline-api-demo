@@ -50,7 +50,13 @@ class SubscriptionController extends Controller
             }
 
             // Create a subscription for the member.
-            $subscription = DB::transaction(function () use ($authenticatedMember, $membership) {
+            $subscription = DB::transaction(function () use ($authenticatedMember, $membership, $request) {
+                // Set the default payment method for the member.
+                $this->stripeService->setDefaultPaymentMethod(
+                    $authenticatedMember->school,
+                    $request->string('payment_token_id'),
+                );
+
                 // Create a Stripe subscription for the member.
                 $stripeSubscription = $this->stripeService->createSubscription($authenticatedMember->school, $membership);
 

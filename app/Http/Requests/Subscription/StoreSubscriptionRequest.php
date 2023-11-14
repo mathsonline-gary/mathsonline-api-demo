@@ -4,7 +4,6 @@ namespace App\Http\Requests\Subscription;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends FormRequest
 {
@@ -19,7 +18,11 @@ class StoreSubscriptionRequest extends FormRequest
             'membership_id' => [
                 'required',
                 'integer',
-                Rule::exists('memberships', 'id'),
+            ],
+
+            'payment_token_id' => [
+                'required',
+                'string',
             ],
         ];
     }

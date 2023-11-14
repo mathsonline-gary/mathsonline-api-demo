@@ -6,6 +6,8 @@ use App\Enums\SchoolType;
 use App\Models\Users\Member;
 use App\Services\MemberService;
 use App\Services\SchoolService;
+use App\Services\StripeService;
+use Stripe\Exception\ApiErrorException;
 
 trait MemberTestHelpers
 {
@@ -14,7 +16,10 @@ trait MemberTestHelpers
      *
      * @param int $marketId
      * @param array $attributes
+     *
      * @return Member
+     *
+     * @throws ApiErrorException
      */
     public function fakeMember(int $marketId = 1, array $attributes = []): Member
     {
@@ -33,13 +38,18 @@ trait MemberTestHelpers
             'address_country' => $attributes['address_country'] ?? fake()->country,
         ];
 
+        // Create a Stripe customer.
+        $stripeService = new StripeService();
+
+        $stripeCustomer = $stripeService->createCustomer($attributes);
+
         // Create a homeschool.
         $schoolService = new SchoolService();
 
         $school = $schoolService->create([
             ... $attributes,
             'type' => SchoolType::HOMESCHOOL->value,
-            'stripe_id' => 'cus_' . fake()->uuid,
+            'stripe_id' => $stripeCustomer->id,
             'name' => "Homeschool of {$attributes['first_name']} {$attributes['last_name']}",
         ]);
 
@@ -56,6 +66,7 @@ trait MemberTestHelpers
      * Set the currently logged-in member for the application.
      *
      * @param mixed $member
+     *
      * @return void
      */
     public function actingAsMember(mixed $member): void

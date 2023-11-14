@@ -6,7 +6,6 @@ use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\Subscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -36,12 +35,13 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => 1,
+            'payment_token_id' => 'tok_1OCEI2A8m0obgGbqCNdCTlBt',
         ]);
 
         $response->assertForbidden();
     }
 
-    public function test_a_member_can_subscribe_a_fixed_period_membership()
+    public function test_a_member_can_subscribe_a_twelve_month_membership()
     {
         $member = $this->fakeMember();
 
@@ -61,6 +61,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => $membership->id,
+            'payment_token_id' => 'tok_1OCEI2A8m0obgGbqCNdCTlBt', // Regenerate a new payment token for each test.
         ]);
 
         $response->assertCreated()
@@ -74,19 +75,18 @@ class CreateSubscriptionTest extends TestCase
         $this->assertNotNull($subscription->stripe_id);
         $this->assertEquals(SubscriptionStatus::ACTIVE, $subscription->status);
         $this->assertNotNull($subscription->starts_at);
-        $this->assertEquals($subscription->starts_at->addYear(), $subscription->cancels_at);
-        $this->assertNull($subscription->canceled_at);
+        $this->assertEquals($subscription->starts_at->addMonths(12), $subscription->cancels_at);
+        $this->assertNotNull($subscription->current_period_starts_at);
+        $this->assertNotNull($subscription->current_period_ends_at);
+        $this->assertNotNull($subscription->canceled_at);
         $this->assertNull($subscription->ended_at);
         $this->assertNull($subscription->custom_user_limit);
 
         // Assert that the subscription was created in Stripe.
-        $marketId = $member->school->market->stripe_id;
+        $marketId = $member->school->market->id;
         $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
-        try {
-            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
+
         $this->assertEquals($subscription->stripe_id, $stripeSubscription->id);
         $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
         $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
@@ -94,8 +94,7 @@ class CreateSubscriptionTest extends TestCase
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->start_date);
         $this->assertEquals($subscription->cancels_at->timestamp, $stripeSubscription->current_period_end);
         $this->assertEquals($subscription->cancels_at->timestamp, $stripeSubscription->cancel_at);
-        $this->assertTrue($stripeSubscription->cancel_at_period_end);
-        $this->assertNull($stripeSubscription->canceled_at);
+        $this->assertEquals($subscription->canceled_at->timestamp, $stripeSubscription->canceled_at);
         $this->assertNull($stripeSubscription->ended_at);
         $this->assertEquals('active', $stripeSubscription->status);
     }
@@ -119,6 +118,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => $membership->id,
+            'payment_token_id' => 'tok_1OCEIBA8m0obgGbqxB53K9Pu', // Regenerate a new payment token for each test.
         ]);
 
         $response->assertCreated()
@@ -134,17 +134,16 @@ class CreateSubscriptionTest extends TestCase
         $this->assertNotNull($subscription->starts_at);
         $this->assertNull($subscription->cancels_at);
         $this->assertNull($subscription->canceled_at);
+        $this->assertEquals($subscription->starts_at, $subscription->current_period_starts_at);
+        $this->assertEquals($subscription->starts_at->addMonth(), $subscription->current_period_ends_at);
         $this->assertNull($subscription->ended_at);
         $this->assertNull($subscription->custom_user_limit);
 
         // Assert that the subscription was created in Stripe.
-        $marketId = $member->school->market->stripe_id;
+        $marketId = $member->school->market->id;
         $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
-        try {
-            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
+
         $this->assertEquals($subscription->stripe_id, $stripeSubscription->id);
         $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
         $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
@@ -152,7 +151,6 @@ class CreateSubscriptionTest extends TestCase
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->start_date);
         $this->assertEquals($subscription->starts_at->addMonth()->timestamp, $stripeSubscription->current_period_end);
         $this->assertNull($stripeSubscription->cancel_at);
-        $this->assertFalse($stripeSubscription->cancel_at_period_end);
         $this->assertNull($stripeSubscription->canceled_at);
         $this->assertNull($stripeSubscription->ended_at);
         $this->assertEquals('active', $stripeSubscription->status);

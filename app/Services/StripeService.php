@@ -16,6 +16,7 @@ class StripeService
      * Connect to the Stripe account.
      *
      * @param int $marketId
+     *
      * @return StripeClient
      */
     public function stripe(int $marketId): StripeClient
@@ -28,7 +29,9 @@ class StripeService
     /**
      * Create a new Stripe customer.
      * @param $attributes
+     *
      * @return Customer
+     *
      * @throws ApiErrorException
      */
     public function createCustomer($attributes): Customer
@@ -92,7 +95,9 @@ class StripeService
      *
      * @param School $school
      * @param Membership $membership
+     *
      * @return Subscription
+     *
      * @throws ApiErrorException
      */
     public function createSubscription(School $school, Membership $membership): Subscription
@@ -110,14 +115,37 @@ class StripeService
             ],
         ];
 
-        if ($membership->is_recurring) {
-            $params['cancel_at_period_end'] = false;
-        } else {
-            $params['cancel_at_period_end'] = true;
+        // Set the cancel time if the membership is not recurring.
+        if (!$membership->is_recurring) {
+            if ($membership->period_in_months) {
+                $params['cancel_at'] = now()->addMonths($membership->period_in_months)->timestamp;
+            } else if ($membership->period_in_days) {
+                $params['cancel_at'] = now()->addDays($membership->period_in_days)->timestamp;
+            }
         }
 
-
         return $stripe->subscriptions->create($params);
+    }
+
+    /**
+     * Set the default payment method for the given school.
+     *
+     * @param School $school
+     * @param string $paymentToken
+     *
+     * @return Customer
+     *
+     * @throws ApiErrorException
+     */
+    public function setDefaultPaymentMethod(School $school, string $paymentToken): Customer
+    {
+        $stripe = $this->stripe($school->market_id);
+
+        return $stripe->customers->update(
+            $school->stripe_id,
+            [
+                'source' => $paymentToken,
+            ]);
     }
 
 }
