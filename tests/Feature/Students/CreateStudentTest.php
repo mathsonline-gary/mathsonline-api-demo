@@ -12,14 +12,11 @@ use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
 use App\Models\Users\User;
 use App\Policies\StudentPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class CreateStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The payload to use for creating the student.
      *

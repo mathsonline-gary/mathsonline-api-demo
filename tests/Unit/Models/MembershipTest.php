@@ -6,13 +6,10 @@ use App\Models\Campaign;
 use App\Models\Membership;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MembershipTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see Membership::product()
      */

@@ -9,7 +9,6 @@ use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Models\Activity;
 use App\Models\Users\Teacher;
 use App\Policies\TeacherPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -18,8 +17,6 @@ use Tests\TestCase;
  */
 class CreateTeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The payload to use for creating the teacher.
      *

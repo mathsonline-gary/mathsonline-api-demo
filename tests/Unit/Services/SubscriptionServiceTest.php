@@ -5,13 +5,10 @@ namespace Tests\Unit\Services;
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SubscriptionServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The subscription service instance.
      *

@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Enums\ActivityType;
 use App\Services\ActivityService;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class ActivityServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected ActivityService $activityService;
 
     protected function setUp(): void

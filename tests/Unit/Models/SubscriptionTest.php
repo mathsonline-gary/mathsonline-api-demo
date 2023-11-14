@@ -4,13 +4,10 @@ namespace Tests\Unit\Models;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SubscriptionTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see Subscription::scopeActive()
      */

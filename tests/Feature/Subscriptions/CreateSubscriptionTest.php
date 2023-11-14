@@ -5,14 +5,11 @@ namespace Tests\Feature\Subscriptions;
 use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\Subscription;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
 class CreateSubscriptionTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_guest_is_unauthenticated_to_subscribe_a_membership()
     {
         $this->assertGuest();

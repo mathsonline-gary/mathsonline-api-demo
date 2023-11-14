@@ -5,7 +5,6 @@ namespace Tests\Feature\Classrooms;
 use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -13,8 +12,6 @@ use Tests\TestCase;
  */
 class UpdateClassroomTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The payload to use for updating the classroom.
      *
@@ -278,7 +275,7 @@ class UpdateClassroomTest extends TestCase
         // Assert that the activity was logged correctly.
         $activity = Activity::first();
         $classroom->refresh();
-        $this->assertEquals($adminTeacher->id, $activity->actor_id);
+        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
         $this->assertEquals(ActivityType::UPDATED_CLASSROOM, $activity->type);
         $this->assertEquals($classroom->updated_at, $activity->acted_at);
         $this->assertIsArray($activity->data);

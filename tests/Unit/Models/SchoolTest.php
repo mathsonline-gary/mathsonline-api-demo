@@ -15,13 +15,10 @@ use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class SchoolTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see School::teachers()
      */

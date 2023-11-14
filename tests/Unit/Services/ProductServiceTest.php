@@ -3,13 +3,10 @@
 namespace Tests\Unit\Services;
 
 use App\Services\ProductService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ProductServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @var ProductService
      */

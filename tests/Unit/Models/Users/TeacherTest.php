@@ -6,13 +6,10 @@ use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class TeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see Teacher::school()
      */

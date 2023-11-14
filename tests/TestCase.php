@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Database\Seeders\TestSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Traits\ActivityTestHelpers;
 use Tests\Traits\ClassroomTestHelpers;
@@ -14,7 +15,8 @@ use Tests\Traits\TeacherTestHelpers;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication,
+    use RefreshDatabase,
+        CreatesApplication,
         SchoolTestHelpers,
         TeacherTestHelpers,
         StudentTestHelpers,

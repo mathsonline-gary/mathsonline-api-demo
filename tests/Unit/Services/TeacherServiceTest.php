@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Models\Users\Teacher;
 use App\Services\TeacherService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class TeacherServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected TeacherService $teacherService;
 
     protected function setUp(): void

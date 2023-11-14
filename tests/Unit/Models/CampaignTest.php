@@ -3,13 +3,10 @@
 namespace Tests\Unit\Models;
 
 use App\Models\Campaign;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CampaignTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see Campaign::isActive()
      */

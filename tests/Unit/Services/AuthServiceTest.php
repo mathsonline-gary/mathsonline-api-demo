@@ -7,7 +7,6 @@ use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use Exception;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -17,8 +16,6 @@ use Tests\TestCase;
  */
 class AuthServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected AuthService $authService;
 
     protected function setUp(): void

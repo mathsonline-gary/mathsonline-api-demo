@@ -4,7 +4,6 @@ namespace Tests\Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Policies\TeacherPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -15,8 +14,6 @@ use Tests\TestCase;
  */
 class IndexTeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * Authentication test.
      */

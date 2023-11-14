@@ -2,13 +2,10 @@
 
 namespace Tests\Feature\Classrooms;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class IndexClassroomTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * Authorization test.
      */

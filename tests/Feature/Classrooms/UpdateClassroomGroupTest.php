@@ -4,13 +4,10 @@ namespace Tests\Feature\Classrooms;
 
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UpdateClassroomGroupTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The route name for the api endpoint.
      *

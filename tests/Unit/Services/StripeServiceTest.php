@@ -3,13 +3,10 @@
 namespace Tests\Unit\Services;
 
 use App\Services\StripeService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\TestCase;
 
 class StripeServiceTest extends TestCase
 {
-    use RefreshDatabase;
-    
     /**
      * @see StripeService::createCustomer()
      */

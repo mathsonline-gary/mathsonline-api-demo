@@ -4,15 +4,12 @@ namespace Feature\Students;
 
 use App\Enums\ActivityType;
 use App\Models\Activity;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UpdateStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The payload to use for updating the teacher.
      *

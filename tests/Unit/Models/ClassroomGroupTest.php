@@ -4,15 +4,11 @@ namespace Tests\Unit\Models;
 
 use App\Models\ClassroomGroup;
 use App\Models\Users\Student;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ClassroomGroupTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see ClassroomGroup::students()
      */

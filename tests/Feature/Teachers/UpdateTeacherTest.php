@@ -6,14 +6,11 @@ use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Models\Activity;
 use App\Policies\TeacherPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UpdateTeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The payload used to update the teacher.
      *
@@ -317,7 +314,7 @@ class UpdateTeacherTest extends TestCase
 
         // Assert that the activity was logged correctly.
         $activity = Activity::first();
-        $this->assertEquals($adminTeacher->id, $activity->actor_id);
+        $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
         $this->assertEquals(ActivityType::UPDATED_TEACHER, $activity->type);
         $this->assertEquals($teacher->updated_at, $activity->acted_at);
         $this->assertArrayHasKey('before', $activity->data);

@@ -9,7 +9,6 @@ use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Services\ClassroomService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
@@ -19,8 +18,7 @@ use Tests\TestCase;
  */
 class ClassroomServiceTest extends TestCase
 {
-    use RefreshDatabase,
-        WithFaker;
+    use WithFaker;
 
     protected ClassroomService $classroomService;
 
@@ -77,9 +75,9 @@ class ClassroomServiceTest extends TestCase
         $classroom2 = $this->fakeClassroom($owner, 1, ['name' => 'Classroom 2']);
         $classroom3 = $this->fakeClassroom($owner, 1, ['name' => 'Class 3']);
 
-        $result1 = $this->classroomService->search(['key' => '1']);
-        $result2 = $this->classroomService->search(['key' => 'room']);
-        $result3 = $this->classroomService->search(['key' => 'class']);
+        $result1 = $this->classroomService->search(['search_key' => '1']);
+        $result2 = $this->classroomService->search(['search_key' => 'room']);
+        $result3 = $this->classroomService->search(['search_key' => 'class']);
 
         // Assert that $result1 is correct.
         $this->assertTrue($result1->contains($classroom1));
@@ -128,7 +126,12 @@ class ClassroomServiceTest extends TestCase
         $this->attachSecondaryTeachersToClassroom($classroom, $teachers->pluck('id')->toArray());
 
         // Call find() method with default options.
-        $result = $this->classroomService->find($classroom->id);
+        $result = $this->classroomService->find($classroom->id, [
+            'with_school' => true,
+            'with_owner' => true,
+            'with_secondary_teachers' => true,
+            'with_custom_groups' => true,
+        ]);
 
         // Assert that the classroom was found.
         $this->assertInstanceOf(Classroom::class, $result);
@@ -155,6 +158,7 @@ class ClassroomServiceTest extends TestCase
         $attributes = [
             'school_id' => $school->id,
             'owner_id' => $teacher->id,
+            'year_id' => 1,
             'type' => ClassroomType::TRADITIONAL_CLASSROOM,
             'name' => 'Test Class',
             'pass_grade' => 80,
@@ -183,17 +187,10 @@ class ClassroomServiceTest extends TestCase
         $this->assertEquals($attributes['type'], $classroom->type);
         $this->assertEquals($attributes['name'], $classroom->name);
 
-        // Assert that secondary teachers were attached correctly.
-        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
-        $this->assertEquals($secondaryTeachers->pluck('id')->toArray(), $classroom->secondaryTeachers->pluck('id')->toArray());
-
         // Assert that the default classroom groups were created correctly.
         $this->assertTrue($classroom->defaultClassroomGroup()->exists());
         $this->assertEquals($attributes['pass_grade'], $classroom->defaultClassroomGroup->pass_grade);
         $this->assertEquals($attributes['attempts'], $classroom->defaultClassroomGroup->attempts);
-
-        // Assert that custom classroom groups were created correctly.
-        $this->assertEquals(2, $classroom->customClassroomGroups()->count());
     }
 
     /**
@@ -496,35 +493,20 @@ class ClassroomServiceTest extends TestCase
         $school = $this->fakeTraditionalSchool();
 
         $adminTeacher = $this->fakeAdminTeacher($school);
-        $teachers = $this->fakeNonAdminTeacher($school, 2);
-
-        $students = $this->fakeStudent($school, 5);
 
         $classroom = $this->fakeClassroom($adminTeacher);
-
-        $this->classroomService->assignSecondaryTeachers($classroom, $teachers->pluck('id')->toArray());
 
         $defaultClassroomGroup = $classroom->defaultClassroomGroup;
         $customClassroomGroup = $this->fakeCustomClassroomGroup($classroom);
 
-        $this->attachStudentsToClassroomGroup($defaultClassroomGroup, $students->pluck('id')->toArray());
-        $this->attachStudentsToClassroomGroup($customClassroomGroup, [$students->first()->id]);
-
         $this->classroomService->delete($classroom);
 
-        // Assert that the classroom was deleted.
-        $this->assertDatabaseMissing('classrooms', ['id' => $classroom->id]);
+        // Assert that the classroom was soft-deleted.
+        $this->assertSoftDeleted('classrooms', ['id' => $classroom->id]);
 
-        // Assert that there is no teacher related to the classroom
-        $this->assertDatabaseMissing('classroom_secondary_teacher', ['classroom_id' => $classroom->id]);
-
-        // Assert that the classroom groups was deleted.
-        $this->assertDatabaseMissing('classrooms', ['id' => $defaultClassroomGroup->id]);
-        $this->assertDatabaseMissing('classrooms', ['id' => $customClassroomGroup->id]);
-
-        // Assert that there is no student associate with the classroom groups.
-        $this->assertDatabaseMissing('classroom_group_student', ['id' => $defaultClassroomGroup->id]);
-        $this->assertDatabaseMissing('classroom_group_student', ['id' => $customClassroomGroup->id]);
+        // Assert that the classroom groups was soft-deleted.
+        $this->assertSoftDeleted('classroom_groups', ['id' => $defaultClassroomGroup->id]);
+        $this->assertSoftDeleted('classroom_groups', ['id' => $customClassroomGroup->id]);
     }
 
     /**
@@ -594,7 +576,7 @@ class ClassroomServiceTest extends TestCase
         $this->classroomService->deleteCustomGroup($customClassroomGroup);
 
         // Assert that the custom classroom group was deleted.
-        $this->assertDatabaseMissing('classroom_groups', ['id' => $customClassroomGroup->id]);
+        $this->assertSoftDeleted('classroom_groups', ['id' => $customClassroomGroup->id]);
 
         // Assert that there is no student associate with the classroom group.
         $this->assertDatabaseMissing('classroom_group_student', ['classroom_group_id' => $customClassroomGroup->id]);

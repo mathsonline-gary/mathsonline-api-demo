@@ -6,7 +6,6 @@ use App\Enums\SchoolType;
 use App\Models\Market;
 use App\Models\School;
 use App\Services\SchoolService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -16,8 +15,6 @@ use Tests\TestCase;
  */
 class SchoolServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected SchoolService $schoolService;
 
     protected function setUp(): void

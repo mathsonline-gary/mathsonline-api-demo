@@ -6,14 +6,11 @@ use App\Enums\UserType;
 use App\Models\Users\Member;
 use App\Models\Users\User;
 use App\Services\MemberService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class MemberServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The member service instance.
      *

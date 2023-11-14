@@ -7,14 +7,10 @@ use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Policies\StudentPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DeleteStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
-
     /**
      * Authentication test.
      *
@@ -54,7 +50,7 @@ class DeleteStudentTest extends TestCase
         $response->assertNoContent();
 
         // Assert that the student was soft-deleted.
-        $this->assertSoftDeleted('students', ['id' => $student->id,]);
+        $this->assertSoftDeleted('students', ['id' => $student->id]);
 
         // Assert that the student was not removed from the database.
         $this->assertDatabaseCount('students', $studentsCount);

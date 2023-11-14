@@ -7,14 +7,11 @@ use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
 use App\Models\Users\User;
 use App\Services\StudentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class StudentServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected StudentService $studentService;
 
     protected function setUp(): void
@@ -204,9 +201,9 @@ class StudentServiceTest extends TestCase
         $classroom2 = $this->fakeClassroom($teacher);
         $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, [$student->id]);
 
-        $result = $this->studentService->find($student->id, ['with_classroom_groups' => true]);
+        $result = $this->studentService->find($student->id, ['with_classrooms' => true]);
 
-        $this->assertNotNull($result->classroomGroups);
+        $this->assertTrue($result->relationLoaded('classroomGroups'));
         $this->assertCount(2, $result->classroomGroups);
     }
 

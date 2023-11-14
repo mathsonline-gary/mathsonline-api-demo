@@ -4,13 +4,10 @@ namespace Tests\Unit\Services;
 
 use App\Models\Membership;
 use App\Services\MembershipService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MembershipServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * The membership service instance.
      *
