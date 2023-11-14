@@ -115,12 +115,30 @@ class StripeService
             ],
         ];
 
+        // Set the start time for the subscription.
+        $startTime = now();
+
+        // Add "test_clock" parameter if the app is running in the "local" or "development" environment.
+        if (app()->environment('local', 'development')) {
+            $testClock = config("services.stripe.$school->market_id.test_clock");
+
+            if (!empty($testClock)) {
+                $params['test_clock'] = $testClock;
+
+                $clock = $stripe->testHelpers->testClocks->retrieve($testClock);
+
+                // set the subscription start date to the current time
+                $params['start_date'] = $clock->frozen_time;
+                $startTime = $clock->frozen_time;
+            }
+        }
+
         // Set the cancel time if the membership is not recurring.
         if (!$membership->is_recurring) {
             if ($membership->period_in_months) {
-                $params['cancel_at'] = now()->addMonths($membership->period_in_months)->timestamp;
+                $params['cancel_at'] = $startTime->addMonths($membership->period_in_months)->timestamp;
             } else if ($membership->period_in_days) {
-                $params['cancel_at'] = now()->addDays($membership->period_in_days)->timestamp;
+                $params['cancel_at'] = $startTime->addDays($membership->period_in_days)->timestamp;
             }
         }
 
