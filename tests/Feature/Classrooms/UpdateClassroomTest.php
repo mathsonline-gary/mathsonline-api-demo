@@ -283,6 +283,6 @@ class UpdateClassroomTest extends TestCase
         $this->assertEquals($classroom->updated_at, $activity->acted_at);
         $this->assertIsArray($activity->data);
         $this->assertEquals($classroom->id, $activity->data['id']);
-        $this->assertContains($this->payload['name'], $activity->data['request']);
+        $this->assertContains($this->payload['name'], $activity->data['payload']);
     }
 }

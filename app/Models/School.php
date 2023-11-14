@@ -35,7 +35,7 @@ class School extends Model
 
     protected $casts = [
         'market_id' => 'int',
-        'stripe_id' => 'int',
+        'stripe_id' => 'string',
         'type' => SchoolType::class,
     ];
 

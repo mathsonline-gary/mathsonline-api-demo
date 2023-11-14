@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\StudentController;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
 use App\Models\Users\Student;
-use App\Models\Users\Teacher;
 use App\Policies\StudentPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -26,7 +25,7 @@ class DeleteStudentTest extends TestCase
         $school = $this->fakeTraditionalSchool();
         $student = $this->fakeStudent($school);
 
-        $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
+        $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
         // Assert that the response has a 401 “Unauthorized” status code.
         $response->assertUnauthorized();
@@ -49,7 +48,7 @@ class DeleteStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
+        $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
         // Assert that the response has a 204 “No Content” status code.
         $response->assertNoContent();
@@ -64,8 +63,7 @@ class DeleteStudentTest extends TestCase
         $student->refresh();
         $this->assertDatabaseCount('activities', $activitiesCount + 1);
         $loggedActivity = Activity::first();
-        $this->assertEquals(Teacher::class, $loggedActivity->actable_type);
-        $this->assertEquals($adminTeacher->id, $loggedActivity->actable_id);
+        $this->assertEquals($adminTeacher->asUser()->id, $loggedActivity->actor_id);
         $this->assertEquals('deleted student', $loggedActivity->type);
         $this->assertArrayHasKey('student_id', $loggedActivity->data);
         $this->assertEquals($student->id, $loggedActivity->data['student_id']);
@@ -86,7 +84,7 @@ class DeleteStudentTest extends TestCase
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
+        $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
         // Assert that the response has a 404 “Not Found” status code.
         $response->assertNotFound();
@@ -107,7 +105,7 @@ class DeleteStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
+        $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
@@ -130,7 +128,7 @@ class DeleteStudentTest extends TestCase
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->deleteJson(route('api.teachers.v1.students.destroy', $student));
+        $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();

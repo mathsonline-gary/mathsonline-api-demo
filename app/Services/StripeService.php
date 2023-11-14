@@ -45,7 +45,6 @@ class StripeService
             'address_state',
             'address_postal_code',
             'address_country',
-            'payment_method',
         ]);
 
         $stripe = $this->stripe($attributes['market_id']);
@@ -73,10 +72,6 @@ class StripeService
                 ],
                 'name' => "{$attributes['first_name']} {$attributes['last_name']}",
                 'phone' => $attributes['phone'],
-            ],
-            'payment_method' => $attributes['payment_method'],
-            'invoice_settings' => [
-                'default_payment_method' => $attributes['payment_method'],
             ],
         ];
 

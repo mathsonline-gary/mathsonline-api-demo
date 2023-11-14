@@ -188,7 +188,6 @@ class StudentService
             // Update the associated student settings.
             {
                 $fillableSettingsAttributes = Arr::only($payload, [
-                    'expired_tasks_excluded',
                     'confetti_enabled',
                 ]);
 

@@ -58,8 +58,7 @@ class SubscriptionController extends Controller
                 return $this->subscriptionService->create([
                     'school_id' => $authenticatedMember->school->id,
                     'membership_id' => $membership->id,
-                    'stripe_subscription_id' => $stripeSubscription->id,
-                    'stripe_subscription_schedule_id' => $stripeSubscription->schedule,
+                    'stripe_id' => $stripeSubscription->id,
                     'starts_at' => $stripeSubscription->start_date,
                     'cancels_at' => $stripeSubscription->cancel_at,
                     'current_period_starts_at' => $stripeSubscription->current_period_start,

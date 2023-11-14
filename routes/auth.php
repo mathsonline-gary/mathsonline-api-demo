@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Auth\RegisteredMemberController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GoogleOAuthController;
+use App\Http\Controllers\Auth\RegisteredMemberController;
 use Illuminate\Support\Facades\Route;
 
 // Login route.
@@ -25,9 +25,9 @@ Route::get('/oauth/google/callback', [GoogleOAuthController::class, 'handle'])
     ->name('oauth.google.handle');
 
 // Register route for new members.
-Route::post('/members/register', [RegisteredMemberController::class, 'store'])
+Route::post('register/member', [RegisteredMemberController::class, 'store'])
     ->middleware('guest')
-    ->name('members.register');
+    ->name('register.member');
 
 //Route::post('/register', [RegisteredUserController::class, 'store'])
 //    ->middleware('guest')

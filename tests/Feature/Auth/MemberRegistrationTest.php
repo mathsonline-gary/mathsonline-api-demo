@@ -9,7 +9,6 @@ use App\Models\Users\Member;
 use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Stripe\Exception\ApiErrorException;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -49,10 +48,7 @@ class MemberRegistrationTest extends TestCase
             'address_state' => 'NSW',
             'address_postal_code' => '2000',
             'address_country' => 'Australia',
-            'payment_method' => 'tok_visa',
         ];
-
-        $this->payload['email_confirmation'] = $this->payload['email'];
 
         $secretKey = config("services.stripe.{$this->payload['market_id']}.secret");
 
@@ -63,10 +59,9 @@ class MemberRegistrationTest extends TestCase
     {
         $this->assertGuest();
 
-        $response = $this->post(route('members.register'), $this->payload);
+        $response = $this->post(route('register.member'), $this->payload);
 
-        $response->assertCreated()
-            ->assertJsonFragment(['success' => true]);
+        $response->assertNoContent();
     }
 
     public function test_it_registers_the_member()
@@ -77,9 +72,9 @@ class MemberRegistrationTest extends TestCase
         $userCount = User::count();
         $memberCount = Member::count();
 
-        $response = $this->post(route('members.register'), $this->payload);
+        $response = $this->post(route('register.member'), $this->payload);
 
-        $response->assertCreated();
+        $response->assertNoContent();
 
         // Assert that the school was created correctly.
         $this->assertDatabaseCount('schools', $schoolCount + 1);
@@ -98,21 +93,17 @@ class MemberRegistrationTest extends TestCase
         $this->assertNotNull($school->stripe_id);
 
         // Assert that the Stripe customer was created correctly.
-        try {
-            $stripeCustomer = $this->stripeClient->customers->retrieve($school->stripe_id);
-            $this->assertEquals($this->payload['email'], $stripeCustomer->email);
-            $this->assertEquals("{$this->payload['first_name']} {$this->payload['last_name']}", $stripeCustomer->name);
-            $this->assertEquals($this->payload['phone'], $stripeCustomer->phone);
-            $this->assertEquals($this->payload['email'], $stripeCustomer->email);
-            $this->assertEquals($this->payload['address_line_1'], $stripeCustomer->address->line1);
-            $this->assertEquals($this->payload['address_line_2'], $stripeCustomer->address->line2);
-            $this->assertEquals($this->payload['address_city'], $stripeCustomer->address->city);
-            $this->assertEquals($this->payload['address_state'], $stripeCustomer->address->state);
-            $this->assertEquals($this->payload['address_postal_code'], $stripeCustomer->address->postal_code);
-            $this->assertEquals($this->payload['address_country'], $stripeCustomer->address->country);
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $stripeCustomer = $this->stripeClient->customers->retrieve($school->stripe_id);
+        $this->assertEquals($this->payload['email'], $stripeCustomer->email);
+        $this->assertEquals("{$this->payload['first_name']} {$this->payload['last_name']}", $stripeCustomer->name);
+        $this->assertEquals($this->payload['phone'], $stripeCustomer->phone);
+        $this->assertEquals($this->payload['email'], $stripeCustomer->email);
+        $this->assertEquals($this->payload['address_line_1'], $stripeCustomer->address->line1);
+        $this->assertEquals($this->payload['address_line_2'], $stripeCustomer->address->line2);
+        $this->assertEquals($this->payload['address_city'], $stripeCustomer->address->city);
+        $this->assertEquals($this->payload['address_state'], $stripeCustomer->address->state);
+        $this->assertEquals($this->payload['address_postal_code'], $stripeCustomer->address->postal_code);
+        $this->assertEquals($this->payload['address_country'], $stripeCustomer->address->country);
 
         // Assert that the user was created correctly.
         $this->assertDatabaseCount('users', $userCount + 1);
@@ -135,9 +126,9 @@ class MemberRegistrationTest extends TestCase
     {
         $this->assertGuest();
 
-        $response = $this->post(route('members.register'), $this->payload);
+        $response = $this->post(route('register.member'), $this->payload);
 
-        $response->assertCreated();
+        $response->assertNoContent();
 
         $this->assertAuthenticatedAs(User::latest('id')->first());
     }

@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1\Auth;
+namespace App\Http\Controllers\Auth;
 
 use App\Enums\SchoolType;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Auth\RegisterMemberRequest;
-use App\Http\Resources\MemberResource;
 use App\Models\Users\Member;
 use App\Services\MemberService;
 use App\Services\SchoolService;
 use App\Services\StripeService;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RegisteredMemberController extends Controller
@@ -37,7 +38,6 @@ class RegisteredMemberController extends Controller
             'address_state',
             'address_postal_code',
             'address_country',
-            'payment_method',
         ]);
 
         /** @var Member $member */
@@ -60,18 +60,12 @@ class RegisteredMemberController extends Controller
             ]);
         });
 
-        // Create an API token for the member.
-        $token = $member->asUser()
-            ->createToken('member-registration', ['*'], now()->addMinutes(30))
-            ->plainTextToken;
+        $user = $member->asUser();
 
-        return $this->successResponse(
-            data: [
-                'member' => new MemberResource($member),
-                'token' => $token,
-            ],
-            message: 'Member registered successfully.',
-            status: 201,
-        );
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return response()->noContent();
     }
 }

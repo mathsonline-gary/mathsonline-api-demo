@@ -35,20 +35,21 @@ class ActivityServiceTest extends TestCase
     {
         $school = $this->fakeTraditionalSchool();
         $teacher = $this->fakeAdminTeacher($school);
+        $user = $teacher->asUser();
 
         $type = ActivityType::LOGGED_IN;
         $actedAt = Carbon::now();
         $data = ['key' => 'value'];
 
-        $this->activityService->create($teacher, $type, $actedAt, $data);
+        $this->activityService->create($user, $type, $actedAt, $data);
 
         // Assert that an activity was created.
         $this->assertDatabaseCount('activities', 1);
 
         // Assert that the created activity is correct.
-        $this->assertCount(1, $teacher->activities);
-        $this->assertEquals($type, $teacher->activities->first()->type);
-        $this->assertEquals($actedAt->timestamp, $teacher->activities->first()->acted_at->timestamp);
-        $this->assertEquals($data, $teacher->activities->first()->data);
+        $this->assertCount(1, $user->activities);
+        $this->assertEquals($type, $user->activities->first()->type);
+        $this->assertEquals($actedAt->timestamp, $user->activities->first()->acted_at->timestamp);
+        $this->assertEquals($data, $user->activities->first()->data);
     }
 }

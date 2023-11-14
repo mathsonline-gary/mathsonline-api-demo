@@ -18,7 +18,7 @@ class SubscriptionFactory extends Factory
     public function definition(): array
     {
         return [
-            'stripe_subscription_id' => 'sub_' . $this->faker->uuid,
+            'stripe_id' => 'sub_' . $this->faker->uuid,
             'current_period_starts_at' => now()->subDays($this->faker->numberBetween(1, 30)),
             'current_period_ends_at' => now()->addDays($this->faker->numberBetween(1, 30)),
         ];

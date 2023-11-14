@@ -27,11 +27,7 @@ class CreateSubscriptionTest extends TestCase
 
     public function test_a_member_in_unauthorized_to_subscribe_a_new_membership_if_he_already_has_an_active_subscription()
     {
-        try {
-            $member = $this->fakeMember();
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $member = $this->fakeMember();
 
         // Create a fake active subscription for the member.
         $this->fakeSubscription($member->school);
@@ -47,11 +43,7 @@ class CreateSubscriptionTest extends TestCase
 
     public function test_a_member_can_subscribe_a_fixed_period_membership()
     {
-        try {
-            $member = $this->fakeMember();
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $member = $this->fakeMember();
 
         $this->actingAsMember($member);
 
@@ -79,7 +71,7 @@ class CreateSubscriptionTest extends TestCase
         $subscription = Subscription::first();
         $this->assertEquals($member->school->id, $subscription->school_id);
         $this->assertEquals($membership->id, $subscription->membership_id);
-        $this->assertNotNull($subscription->stripe_subscription_id);
+        $this->assertNotNull($subscription->stripe_id);
         $this->assertEquals(SubscriptionStatus::ACTIVE, $subscription->status);
         $this->assertNotNull($subscription->starts_at);
         $this->assertEquals($subscription->starts_at->addYear(), $subscription->cancels_at);
@@ -89,13 +81,13 @@ class CreateSubscriptionTest extends TestCase
 
         // Assert that the subscription was created in Stripe.
         $marketId = $member->school->market->stripe_id;
-        $stripeClient = new StripeClient(config("services.stripe.{$marketId}.secret"));
+        $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
         try {
-            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_subscription_id);
+            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
         } catch (ApiErrorException $e) {
             $this->fail($e->getMessage());
         }
-        $this->assertEquals($subscription->stripe_subscription_id, $stripeSubscription->id);
+        $this->assertEquals($subscription->stripe_id, $stripeSubscription->id);
         $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
         $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->current_period_start);
@@ -110,11 +102,7 @@ class CreateSubscriptionTest extends TestCase
 
     public function test_a_member_can_subscribe_a_monthly_membership()
     {
-        try {
-            $member = $this->fakeMember();
-        } catch (ApiErrorException $e) {
-            $this->fail($e->getMessage());
-        }
+        $member = $this->fakeMember();
 
         $this->actingAsMember($member);
 
@@ -141,7 +129,7 @@ class CreateSubscriptionTest extends TestCase
         $subscription = Subscription::first();
         $this->assertEquals($member->school->id, $subscription->school_id);
         $this->assertEquals($membership->id, $subscription->membership_id);
-        $this->assertNotNull($subscription->stripe_subscription_id);
+        $this->assertNotNull($subscription->stripe_id);
         $this->assertEquals(SubscriptionStatus::ACTIVE, $subscription->status);
         $this->assertNotNull($subscription->starts_at);
         $this->assertNull($subscription->cancels_at);
@@ -151,13 +139,13 @@ class CreateSubscriptionTest extends TestCase
 
         // Assert that the subscription was created in Stripe.
         $marketId = $member->school->market->stripe_id;
-        $stripeClient = new StripeClient(config("services.stripe.{$marketId}.secret"));
+        $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
         try {
-            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_subscription_id);
+            $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
         } catch (ApiErrorException $e) {
             $this->fail($e->getMessage());
         }
-        $this->assertEquals($subscription->stripe_subscription_id, $stripeSubscription->id);
+        $this->assertEquals($subscription->stripe_id, $stripeSubscription->id);
         $this->assertEquals($member->school->stripe_id, $stripeSubscription->customer);
         $this->assertEquals($membership->stripe_id, $stripeSubscription->items->data[0]->price->id);
         $this->assertEquals($subscription->starts_at->timestamp, $stripeSubscription->current_period_start);

@@ -20,12 +20,8 @@ return new class extends Migration {
             $table->foreignId('school_id')
                 ->constrained();
 
-            $table->string('stripe_subscription_id')
+            $table->string('stripe_id')
                 ->unique();
-
-            $table->string('stripe_subscription_schedule_id')
-                ->nullable()
-                ->comment('The Stripe subscription schedule ID attached to the subscription. This is mainly used for upcoming subscriptions scheduled for a future date.');
 
             $table->timestamp('starts_at')
                 ->comment('The start date of the subscription.');

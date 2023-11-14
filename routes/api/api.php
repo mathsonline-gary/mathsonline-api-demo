@@ -27,9 +27,6 @@ Route::prefix('v1')
                     ->name('me');
             });
 
-        // Auth module routes.
-        require __DIR__ . '/api-auth.php';
-
         // Teacher module routes.
         require __DIR__ . '/api-teachers.php';
 

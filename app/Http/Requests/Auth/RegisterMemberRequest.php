@@ -36,7 +36,6 @@ class RegisterMemberRequest extends FormRequest
                 'required',
                 'string',
                 'email',
-                'confirmed',
                 'max:255',
                 Rule::unique('users', 'login')
                     ->where('type', UserType::MEMBER->value),
@@ -49,7 +48,6 @@ class RegisterMemberRequest extends FormRequest
             'address_state' => ['required', 'string', 'max:255'],
             'address_postal_code' => ['required', 'string', 'max:255'],
             'address_country' => ['required', 'string', 'max:255'],
-            'payment_method' => ['required', 'string'],
         ];
     }
 }

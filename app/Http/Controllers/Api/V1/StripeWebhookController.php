@@ -81,13 +81,13 @@ class StripeWebhookController extends Controller
         }
 
         // Check if the Stripe subscription already exists in our database by Stripe subscription ID.
-        if ($school->subscriptions->contains('stripe_subscription_id', $data['id'])) {
+        if ($school->subscriptions->contains('stripe_id', $data['id'])) {
             Log::channel('stripe')
                 ->error('[customer.subscription.created] The associated subscription already exists.', $payload);
 
             return $this->missingMethod();
         }
-        
+
         // Check if the Stripe subscription has a corresponding membership in our database.
         $plan = $data['items']['data'][0]['plan'];
         if (!$membership = $this->membershipService->findByStripeId($plan['id'])) {
@@ -101,11 +101,10 @@ class StripeWebhookController extends Controller
         // If so, it is a scheduled subscription, then update the subscription.
         if ($subscription = $this->subscriptionService->search([
             'school_id' => $school->id,
-            'stripe_subscription_id' => null,
-            'stripe_subscription_schedule_id' => $data['schedule'],
+            'stripe_id' => null,
         ])->first()) {
             $this->subscriptionService->update($subscription, [
-                'stripe_subscription_id' => $data['id'],
+                'stripe_id' => $data['id'],
                 'starts_at' => $data['start_date'],
                 'cancels_at' => $data['cancel_at'],
                 'current_period_starts_at' => $data['current_period_start'],
@@ -122,7 +121,7 @@ class StripeWebhookController extends Controller
         $this->subscriptionService->create([
             'school_id' => $school->id,
             'membership_id' => $membership->id,
-            'stripe_subscription_id' => $data['id'],
+            'stripe_id' => $data['id'],
             'starts_at' => $data['start_date'],
             'cancels_at' => $data['cancel_at'],
             'canceled_at' => $data['canceled_at'],
@@ -149,7 +148,7 @@ class StripeWebhookController extends Controller
         // Check if the Stripe subscription has a corresponding subscription in our database.
         if (!($subscription = $this->subscriptionService->search([
             'school_id' => $school->id,
-            'stripe_subscription_id' => $data['id'],
+            'stripe_id' => $data['id'],
         ])->first())) {
             Log::channel('stripe')
                 ->error('[customer.subscription.deleted] The associated subscription not found.', $payload);
@@ -177,7 +176,7 @@ class StripeWebhookController extends Controller
 
         // Check if the Stripe subscription has a corresponding subscription in our database. If not, create a new one.
         $subscription = $school->subscriptions()->firstOrNew([
-            'stripe_subscription_id' => $data['id'],
+            'stripe_id' => $data['id'],
         ]);
 
         // Check if the Stripe subscription has a corresponding membership in our database.
@@ -193,7 +192,7 @@ class StripeWebhookController extends Controller
         $attributes = [
             'school_id' => $school->id,
             'membership_id' => $membership->id,
-            'stripe_subscription_id' => $data['id'],
+            'stripe_id' => $data['id'],
             'starts_at' => $data['start_date'],
             'cancels_at' => $data['cancel_at'],
             'canceled_at' => $data['canceled_at'],

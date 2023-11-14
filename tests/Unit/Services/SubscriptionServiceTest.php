@@ -36,7 +36,7 @@ class SubscriptionServiceTest extends TestCase
         $attributes = [
             'school_id' => $school->id,
             'membership_id' => 1,
-            'stripe_subscription_id' => 'sub_123',
+            'stripe_id' => 'sub_123',
             'starts_at' => fake()->dateTime(),
             'cancels_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
@@ -57,7 +57,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertInstanceOf(Subscription::class, $subscription);
         $this->assertEquals($attributes['school_id'], $subscription->school_id);
         $this->assertEquals($attributes['membership_id'], $subscription->membership_id);
-        $this->assertEquals($attributes['stripe_subscription_id'], $subscription->stripe_subscription_id);
+        $this->assertEquals($attributes['stripe_id'], $subscription->stripe_id);
         $this->assertEquals($attributes['starts_at'], $subscription->starts_at);
         $this->assertEquals($attributes['cancels_at'], $subscription->cancels_at);
         $this->assertEquals($attributes['canceled_at'], $subscription->canceled_at);

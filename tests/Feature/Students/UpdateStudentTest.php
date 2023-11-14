@@ -30,7 +30,6 @@ class UpdateStudentTest extends TestCase
             'password' => 'new_password',
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
-            'expired_tasks_excluded' => fake()->boolean,
             'confetti_enabled' => fake()->boolean,
         ];
     }
@@ -46,7 +45,7 @@ class UpdateStudentTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_an_admin_teacher_can_update_details_of_a_student_in_the_their_school(): void
+    public function test_an_admin_teacher_can_update_details_of_a_student_in_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -379,7 +378,6 @@ class UpdateStudentTest extends TestCase
         $this->assertTrue(Hash::check($this->payload['password'], $student->asUser()->password));
 
         // Assert that the associated student settings are updated.
-        $this->assertEquals($this->payload['expired_tasks_excluded'], $student->settings->expired_tasks_excluded);
         $this->assertEquals($this->payload['confetti_enabled'], $student->settings->confetti_enabled);
     }
 
@@ -411,7 +409,6 @@ class UpdateStudentTest extends TestCase
             $this->assertEquals($this->payload['email'], $activity->data['payload']['email']);
             $this->assertEquals($this->payload['first_name'], $activity->data['payload']['first_name']);
             $this->assertEquals($this->payload['last_name'], $activity->data['payload']['last_name']);
-            $this->assertEquals($this->payload['expired_tasks_excluded'], $activity->data['payload']['expired_tasks_excluded']);
             $this->assertEquals($this->payload['confetti_enabled'], $activity->data['payload']['confetti_enabled']);
             $this->assertArrayNotHasKey('password', $activity->data['payload']);
         }

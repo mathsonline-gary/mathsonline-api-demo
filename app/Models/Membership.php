@@ -28,7 +28,7 @@ class Membership extends Model
         'period_in_months' => 'int',
         'price' => 'double',
         'user_limit' => 'int',
-        'stripe_id' => 'int',
+        'stripe_id' => 'string',
     ];
 
     /**

@@ -23,7 +23,7 @@ class IndexTeacherTest extends TestCase
     public function test_a_guest_cannot_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
-        $teachers = $this->fakeTeacher($school, 10);
+        $this->fakeTeacher($school, 10);
 
         $this->assertGuest();
 
