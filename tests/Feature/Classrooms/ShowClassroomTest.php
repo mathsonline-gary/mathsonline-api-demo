@@ -3,7 +3,6 @@
 namespace Tests\Feature\Classrooms;
 
 use App\Http\Controllers\Api\V1\ClassroomController;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -11,8 +10,6 @@ use Tests\TestCase;
  */
 class ShowClassroomTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * Authorization test.
      */

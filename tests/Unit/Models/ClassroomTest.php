@@ -6,18 +6,14 @@ use App\Models\Classroom;
 use App\Models\ClassroomGroup;
 use App\Models\School;
 use App\Models\Users\Teacher;
-use Database\Seeders\MarketSeeder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ClassroomTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @see Classroom::school()
      */

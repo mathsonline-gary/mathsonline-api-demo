@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\Users\Member;
+use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Exception;
 use Tests\TestCase;
 
 /**
@@ -14,8 +16,6 @@ use Tests\TestCase;
  */
 class AuthServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected AuthService $authService;
 
     protected function setUp(): void
@@ -46,8 +46,15 @@ class AuthServiceTest extends TestCase
      */
     public function test_it_gets_current_authenticated_student()
     {
-        // TODO
-        $this->assertTrue(true);
+        $school = $this->fakeSchool();
+        $student = $this->fakeStudent($school);
+
+        $this->actingAsStudent($student);
+
+        $authenticatedUser = $this->authService->student();
+
+        $this->assertInstanceOf(Student::class, $authenticatedUser);
+        $this->assertEquals($student->id, $authenticatedUser->id);
     }
 
     /**
@@ -55,8 +62,18 @@ class AuthServiceTest extends TestCase
      */
     public function test_it_gets_current_authenticated_member()
     {
-        // TODO
-        $this->assertTrue(true);
+        try {
+            $member = $this->fakeMember();
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        $this->actingAsMember($member);
+
+        $authenticatedUser = $this->authService->member();
+
+        $this->assertInstanceOf(Member::class, $authenticatedUser);
+        $this->assertEquals($member->id, $authenticatedUser->id);
     }
 
     /**

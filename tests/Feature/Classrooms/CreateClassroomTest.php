@@ -6,7 +6,6 @@ use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use App\Models\Classroom;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
@@ -15,8 +14,7 @@ use Tests\TestCase;
  */
 class CreateClassroomTest extends TestCase
 {
-    use RefreshDatabase,
-        WithFaker;
+    use WithFaker;
 
     /**
      * The payload to use for the request.

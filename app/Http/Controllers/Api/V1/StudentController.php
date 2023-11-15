@@ -14,6 +14,7 @@ use App\Models\Users\Student;
 use App\Models\Users\Teacher;
 use App\Services\AuthService;
 use App\Services\StudentService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
@@ -144,13 +145,12 @@ class StudentController extends Controller
             'first_name',
             'last_name',
             'password',
-            'expired_tasks_excluded',
             'confetti_enabled',
         ]);
 
         $updatedStudent = $this->studentService->update($student, $validated);
 
-        StudentUpdated::dispatch($request->user(), $request->except(['password']), $updatedStudent);
+        StudentUpdated::dispatch($request->user(), Arr::except($validated, ['password']), $updatedStudent);
 
         return $this->successResponse(
             data: new StudentResource($updatedStudent),

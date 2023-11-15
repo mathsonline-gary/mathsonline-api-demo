@@ -6,8 +6,6 @@ use App\Enums\SchoolType;
 use App\Models\Market;
 use App\Models\School;
 use App\Services\SchoolService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
@@ -17,8 +15,6 @@ use Tests\TestCase;
  */
 class SchoolServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected SchoolService $schoolService;
 
     protected function setUp(): void
@@ -49,9 +45,6 @@ class SchoolServiceTest extends TestCase
             'address_postal_code' => '2000',
             'address_country' => 'Australia',
         ];
-
-        // Enable logger.
-        Log::shouldReceive('info')->once();
 
         $school = $this->schoolService->create($attributes);
 

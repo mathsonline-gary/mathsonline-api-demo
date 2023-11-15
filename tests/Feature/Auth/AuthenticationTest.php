@@ -29,7 +29,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $this->assertAuthenticatedAs($teacher->asUser());
@@ -48,7 +48,7 @@ class AuthenticationTest extends TestCase
         $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $this->assertDatabaseCount('activities', 1);
@@ -75,7 +75,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'invalid-password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $response->assertUnprocessable();
@@ -89,7 +89,7 @@ class AuthenticationTest extends TestCase
      * @see AuthenticatedSessionController::store()
      * @see LoginRequest::authenticate()
      */
-    public function test_a_teacher_cannot_login_with_invalid_type_id(): void
+    public function test_a_teacher_cannot_login_with_invalid_type(): void
     {
         $teacher = $this->fakeTeacher();
 
@@ -98,7 +98,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'password',
-            'type_id' => 1,
+            'type' => 1,
         ]);
 
         $response->assertInvalid(['login' => __('auth.failed')]);
@@ -122,7 +122,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $response->assertOk()
@@ -149,7 +149,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
             'password' => 'invalid-password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $response->assertInvalid(['login' => __('auth.failed')]);
@@ -170,7 +170,7 @@ class AuthenticationTest extends TestCase
 
         $response = $this->postJson(route('login'), [
             'password' => 'password',
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $response->assertInvalid(['login' => __('validation.required', ['attribute' => 'login'])]);
@@ -191,7 +191,7 @@ class AuthenticationTest extends TestCase
 
         $response = $this->postJson(route('login'), [
             'login' => $teacher->asUser()->login,
-            'type_id' => 2,
+            'type' => 2,
         ]);
 
         $response->assertInvalid(['password' => __('validation.required', ['attribute' => 'password'])]);
@@ -204,7 +204,7 @@ class AuthenticationTest extends TestCase
      *
      * @see LoginRequest::rules()
      */
-    public function test_type_id_field_is_required()
+    public function test_type_field_is_required()
     {
         $teacher = $this->fakeTeacher();
 
@@ -215,7 +215,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertInvalid(['type_id' => __('validation.required', ['attribute' => 'type id'])]);
+        $response->assertInvalid(['type' => __('validation.required', ['attribute' => 'type'])]);
 
         $this->assertGuest();
     }

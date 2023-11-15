@@ -4,7 +4,6 @@ namespace Tests\Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Policies\TeacherPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -15,15 +14,13 @@ use Tests\TestCase;
  */
 class IndexTeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * Authentication test.
      */
     public function test_a_guest_cannot_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
-        $teachers = $this->fakeTeacher($school, 10);
+        $this->fakeTeacher($school, 10);
 
         $this->assertGuest();
 

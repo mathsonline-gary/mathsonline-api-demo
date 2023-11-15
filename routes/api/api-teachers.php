@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Teacher module routes.
-Route::prefix('/teachers')
+Route::middleware(['auth:sanctum'])
+    ->prefix('/teachers')
     ->name('teachers.')
     ->group(function () {
         Route::get('/', [TeacherController::class, 'index'])

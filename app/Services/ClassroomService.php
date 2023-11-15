@@ -136,10 +136,8 @@ class ClassroomService
             'name',
             'pass_grade',
             'attempts',
-            'secondary_teacher_ids',
             'mastery_enabled',
             'self_rating_enabled',
-            'groups',
         ]);
 
         return DB::transaction(function () use ($attributes) {

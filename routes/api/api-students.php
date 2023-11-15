@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('students')
+Route::middleware(['auth:sanctum'])
+    ->prefix('students')
     ->name('students.')
     ->group(function () {
         // List students.

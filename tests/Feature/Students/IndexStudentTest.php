@@ -2,13 +2,10 @@
 
 namespace Feature\Students;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class IndexStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_guest_cannot_get_the_list_of_students(): void
     {
         $this->fakeStudent(null, 5);

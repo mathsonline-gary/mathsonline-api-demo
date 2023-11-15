@@ -46,6 +46,11 @@ return new class extends Migration {
             $table->string('address_country')
                 ->nullable();
 
+            $table->string('stripe_id')
+                ->unique()
+                ->nullable()
+                ->comment('The connected Stripe Customer ID.');
+
             $table->timestamps();
         });
 

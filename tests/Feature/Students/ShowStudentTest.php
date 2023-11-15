@@ -3,7 +3,6 @@
 namespace Feature\Students;
 
 use App\Http\Controllers\Api\V1\StudentController;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -11,8 +10,6 @@ use Tests\TestCase;
  */
 class ShowStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_guest_is_unauthenticated_get_the_detail_of_a_student(): void
     {
         $student = $this->fakeStudent();

@@ -23,6 +23,9 @@ class DatabaseSeeder extends Seeder
             DeveloperSeeder::class,
             YearSeeder::class,
             ClassroomSeeder::class,
+            ProductSeeder::class,
+            CampaignSeeder::class,
+            MembershipSeeder::class,
         ]);
     }
 }

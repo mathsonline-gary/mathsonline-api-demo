@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserType;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -134,7 +135,7 @@ class TeacherService
             $user = User::create([
                 'login' => $attributes['username'],
                 'password' => Hash::make($attributes['password']),
-                'type' => User::TYPE_TEACHER,
+                'type' => UserType::TEACHER,
             ]);
 
             $teacher = new Teacher($attributes);

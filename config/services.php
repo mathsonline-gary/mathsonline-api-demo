@@ -37,4 +37,16 @@ return [
         'redirect' => env('GOOGLE_OAUTH_REDIRECT_URI')
     ],
 
+    'stripe' => [
+        1 => [
+            'key' => env('STRIPE_KEY_1'),
+            'secret' => env('STRIPE_SECRET_1'),
+            'webhook' => [
+                'secret' => env('STRIPE_WEBHOOK_SECRET_1'),
+                'tolerance' => env('STRIPE_WEBHOOK_TOLERANCE_1', 300),
+            ],
+            'test_clock' => env('STRIPE_TEST_CLOCK_1'),
+        ]
+    ],
+
 ];

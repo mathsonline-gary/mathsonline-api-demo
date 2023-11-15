@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\School;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 
 class SchoolService
 {
@@ -29,12 +28,20 @@ class SchoolService
             'address_state',
             'address_postal_code',
             'address_country',
+            'stripe_id',
         ]);
 
-        $school = School::create($attributes);
+        return School::create($attributes);
+    }
 
-        Log::info('New school created: ', $attributes);
-
-        return $school;
+    /**
+     * Find the school by the Stripe customer ID.
+     *
+     * @param string $stripeId
+     * @return School|null
+     */
+    public function findByStripeId(string $stripeId): ?School
+    {
+        return School::where('stripe_id', $stripeId)->first();
     }
 }

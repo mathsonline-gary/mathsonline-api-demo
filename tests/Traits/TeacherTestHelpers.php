@@ -6,7 +6,7 @@ use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 
-trait TestTeacherHelpers
+trait TeacherTestHelpers
 {
     public function fakeTeacher(School $school = null, int $count = 1, array $attributes = []): Collection|Teacher
     {

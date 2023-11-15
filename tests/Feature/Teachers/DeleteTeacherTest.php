@@ -6,13 +6,10 @@ use App\Enums\ActivityType;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
 use App\Policies\TeacherPolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DeleteTeacherTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * Authentication test.
      *

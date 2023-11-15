@@ -3,21 +3,27 @@
 namespace Tests;
 
 use Database\Seeders\TestSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Tests\Traits\TestActivityHelpers;
-use Tests\Traits\TestClassroomHelpers;
-use Tests\Traits\TestSchoolHelpers;
-use Tests\Traits\TestStudentHelpers;
-use Tests\Traits\TestTeacherHelpers;
+use Tests\Traits\ActivityTestHelpers;
+use Tests\Traits\ClassroomTestHelpers;
+use Tests\Traits\MemberTestHelpers;
+use Tests\Traits\SchoolTestHelpers;
+use Tests\Traits\StudentTestHelpers;
+use Tests\Traits\SubscriptionTestHelpers;
+use Tests\Traits\TeacherTestHelpers;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication,
-        TestSchoolHelpers,
-        TestTeacherHelpers,
-        TestStudentHelpers,
-        TestClassroomHelpers,
-        TestActivityHelpers;
+    use RefreshDatabase,
+        CreatesApplication,
+        SchoolTestHelpers,
+        TeacherTestHelpers,
+        StudentTestHelpers,
+        ClassroomTestHelpers,
+        ActivityTestHelpers,
+        MemberTestHelpers,
+        SubscriptionTestHelpers;
 
     /**
      * Indicates whether the default seeder should run before each test.

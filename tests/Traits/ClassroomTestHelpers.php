@@ -8,7 +8,7 @@ use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
-trait TestClassroomHelpers
+trait ClassroomTestHelpers
 {
     /**
      * Create fake classroom(s) for the given teacher, and add default classroom group(s) of each.

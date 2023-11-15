@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
+use Stripe\Exception\ApiErrorException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -41,8 +43,18 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        // Handle Stripe API errors.
+        $this->reportable(function (ApiErrorException $e) {
+            // Log the error.
+            Log::channel('stripe')->error($e->getMessage(), [
+                'code' => $e->getCode(),
+                'http_status' => $e->getHttpStatus(),
+                'json_body' => $e->getJsonBody(),
+                'exception' => $e,
+            ]);
+
+            // Send a notification to the developers.
+            // TODO
         });
     }
 }

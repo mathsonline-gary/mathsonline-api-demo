@@ -4,6 +4,10 @@ namespace Tests\Unit\Listeners;
 
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
+use App\Events\Classroom\ClassroomCreated;
+use App\Events\Classroom\ClassroomDeleted;
+use App\Events\Classroom\ClassroomGroupCreated;
+use App\Events\Classroom\ClassroomUpdated;
 use App\Events\Student\StudentCreated;
 use App\Events\Student\StudentDeleted;
 use App\Events\Student\StudentUpdated;
@@ -12,14 +16,11 @@ use App\Events\Teacher\TeacherDeleted;
 use App\Events\Teacher\TeacherUpdated;
 use App\Listeners\LogActivity;
 use App\Providers\EventServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class LogActivityTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @return void
      * @see EventServiceProvider::$listen
@@ -29,16 +30,28 @@ class LogActivityTest extends TestCase
     {
         Event::fake();
 
-        // Assert that it listens to correct events
-        Event::assertListening(LoggedIn::class, LogActivity::class);
-        Event::assertListening(LoggedOut::class, LogActivity::class);
+        // Events to test.
+        $events = [
+            LoggedIn::class,
+            LoggedOut::class,
 
-        Event::assertListening(TeacherCreated::class, LogActivity::class);
-        Event::assertListening(TeacherDeleted::class, LogActivity::class);
-        Event::assertListening(TeacherUpdated::class, LogActivity::class);
+            TeacherCreated::class,
+            TeacherDeleted::class,
+            TeacherUpdated::class,
 
-        Event::assertListening(StudentCreated::class, LogActivity::class);
-        Event::assertListening(StudentUpdated::class, LogActivity::class);
-        Event::assertListening(StudentDeleted::class, LogActivity::class);
+            ClassroomCreated::class,
+            ClassroomUpdated::class,
+            ClassroomDeleted::class,
+            ClassroomGroupCreated::class,
+
+            StudentCreated::class,
+            StudentUpdated::class,
+            StudentDeleted::class,
+        ];
+
+        // Assert that it listens to the events.
+        foreach ($events as $event) {
+            Event::assertListening($event, LogActivity::class);
+        }
     }
 }

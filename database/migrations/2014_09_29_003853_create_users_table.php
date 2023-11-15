@@ -22,8 +22,7 @@ return new class extends Migration {
                 ->nullable()
                 ->unique()
                 ->comment('The Google ID of the user for OAuth.');
-            $table->timestamp('deleted_at')
-                ->nullable();
+            $table->softDeletes();
         });
 
         // Create indexes.

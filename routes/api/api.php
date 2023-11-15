@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])
-    ->prefix('v1')
+Route::prefix('v1')
     ->name('api.v1.')
     ->group(function () {
 
         // Auth module routes
-        Route::prefix('/auth')
+        Route::middleware(['auth:sanctum'])
+            ->prefix('/auth')
             ->name('auth.')
             ->group(function () {
                 Route::get('/me', [AuthenticatedSessionController::class, 'show'])
@@ -35,4 +35,10 @@ Route::middleware(['auth:sanctum'])
 
         // Classroom module routes.
         require __DIR__ . '/api-classrooms.php';
+
+        // Subscription module routes.
+        require __DIR__ . '/api-subscriptions.php';
+
+        // Stripe API routes.
+        require __DIR__ . '/api-stripe.php';
     });

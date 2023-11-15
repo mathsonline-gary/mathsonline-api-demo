@@ -5,13 +5,10 @@ namespace Tests\Unit\Models\Users;
 use App\Models\School;
 use App\Models\Users\Member;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class MemberTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_member_belongs_to_a_homeschool(): void
     {
         $school = School::factory()

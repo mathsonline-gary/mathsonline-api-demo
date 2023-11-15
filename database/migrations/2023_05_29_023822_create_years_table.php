@@ -21,8 +21,7 @@ return new class extends Migration {
             $table->unsignedTinyInteger('order')
                 ->comment('The display order of the year.');
 
-            $table->timestamp('deleted_at')
-                ->nullable();
+            $table->softDeletes();
         });
     }
 

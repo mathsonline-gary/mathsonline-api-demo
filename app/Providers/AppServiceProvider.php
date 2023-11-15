@@ -22,17 +22,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Log SQL queries at "local" environment.
-        // ----------------------------------------------------------------------
-
-        if (app()->isLocal()) {
-            DB::listen(function ($query) {
-                Log::info(
-                    $query->sql,
-                    $query->bindings,
-                );
-            });
+        {
+            if (app()->isLocal()) {
+                DB::listen(function ($query) {
+                    Log::info(
+                        $query->sql,
+                        $query->bindings,
+                    );
+                });
+            }
         }
-
-        // ----------------------------------------------------------------------
     }
 }

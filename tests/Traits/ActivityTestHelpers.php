@@ -6,7 +6,7 @@ use App\Models\Activity;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;
 
-trait TestActivityHelpers
+trait ActivityTestHelpers
 {
     /**
      * Create fake activity(s) for given user.

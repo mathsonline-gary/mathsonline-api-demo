@@ -5,13 +5,10 @@ namespace Tests\Unit\Models\Users;
 use App\Models\School;
 use App\Models\Users\Student;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_student_belongs_to_a_school(): void
     {
         $school = School::factory()

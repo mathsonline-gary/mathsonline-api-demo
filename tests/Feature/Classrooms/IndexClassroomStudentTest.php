@@ -2,13 +2,10 @@
 
 namespace Tests\Feature\Classrooms;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class IndexClassroomStudentTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_a_guest_is_unauthenticated_to_get_the_list_of_students_in_a_classroom(): void
     {
         $this->assertGuest();

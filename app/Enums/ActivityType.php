@@ -23,4 +23,5 @@ enum ActivityType: string
     case CREATED_STUDENT = '401';
     case UPDATED_STUDENT = '402';
     case DELETED_STUDENT = '403';
+
 }
