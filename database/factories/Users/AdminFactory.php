@@ -24,7 +24,6 @@ class AdminFactory extends Factory
         return [
             'user_id' => User::factory()->admin()->create()->id,
             'market_id' => fake()->randomElement(Market::pluck('id')->all()),
-            'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -38,11 +37,15 @@ class AdminFactory extends Factory
     {
         return $this->afterMaking(function (Admin $admin) {
             $admin->asUser()->update([
-                'login' => $admin->username,
+                'login' => $admin->email,
+                'email' => $admin->email,
+                'email_verified_at' => now(),
             ]);
         })->afterCreating(function (Admin $admin) {
             $admin->asUser()->update([
-                'login' => $admin->username,
+                'login' => $admin->email,
+                'email' => $admin->email,
+                'email_verified_at' => now(),
             ]);
         });
     }

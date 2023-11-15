@@ -37,10 +37,14 @@ class MemberFactory extends Factory
         return $this->afterMaking(function (Member $member) {
             $member->asUser()->update([
                 'login' => $member->email,
+                'email' => $member->email,
+                'email_verified_at' => now(),
             ]);
         })->afterCreating(function (Member $member) {
             $member->asUser()->update([
                 'login' => $member->email,
+                'email' => $member->email,
+                'email_verified_at' => now(),
             ]);
         });
     }

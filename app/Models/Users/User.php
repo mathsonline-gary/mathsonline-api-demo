@@ -21,6 +21,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'login',
+        'email',
         'password',
         'type',
     ];
@@ -196,4 +197,5 @@ class User extends Authenticatable
     {
         return $this->developer;
     }
+
 }

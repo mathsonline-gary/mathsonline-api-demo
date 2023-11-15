@@ -22,7 +22,6 @@ class DeveloperFactory extends Factory
     {
         return [
             'user_id' => User::factory()->developer()->create()->id,
-            'username' => fake()->unique()->userName(),
             'email' => fake()->safeEmail(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
@@ -36,11 +35,15 @@ class DeveloperFactory extends Factory
     {
         return $this->afterMaking(function (Developer $developer) {
             $developer->asUser()->update([
-                'login' => $developer->username,
+                'login' => $developer->email,
+                'email' => $developer->email,
+                'email_verified_at' => now(),
             ]);
         })->afterCreating(function (Developer $developer) {
             $developer->asUser()->update([
-                'login' => $developer->username,
+                'login' => $developer->email,
+                'email' => $developer->email,
+                'email_verified_at' => now(),
             ]);
         });
     }

@@ -14,7 +14,6 @@ class DeveloperSeeder extends Seeder
     {
         Developer::factory()
             ->create([
-                'username' => 'developer1',
                 'email' => 'developer1@test.com',
                 'first_name' => 'Developer',
                 'last_name' => 'One',

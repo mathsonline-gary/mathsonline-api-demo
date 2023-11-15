@@ -13,7 +13,6 @@ class Admin extends Model
 
     protected $fillable = [
         'market_id',
-        'username',
         'email',
         'first_name',
         'last_name',
