@@ -32,7 +32,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => 1,
-            'payment_token_id' => 'tok_1OCEI2A8m0obgGbqCNdCTlBt',
+            'payment_token_id' => 'tok_mastercard',
         ]);
 
         $response->assertForbidden();
@@ -42,8 +42,12 @@ class CreateSubscriptionTest extends TestCase
     {
         $member = $this->fakeMember();
 
+        $marketId = $member->school->market->id;
+        $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
+
         $this->actingAsMember($member);
 
+        // Prepare a valid membership.
         $membership = Membership::whereHas('product', function ($query) use ($member) {
             $query->where('market_id', $member->school->market_id);
         })
@@ -58,7 +62,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => $membership->id,
-            'payment_token_id' => 'tok_1OCEI2A8m0obgGbqCNdCTlBt', // Regenerate a new payment token for each test.
+            'payment_token_id' => 'tok_mastercard',
         ]);
 
         $response->assertCreated()
@@ -80,8 +84,6 @@ class CreateSubscriptionTest extends TestCase
         $this->assertNull($subscription->custom_user_limit);
 
         // Assert that the subscription was created in Stripe.
-        $marketId = $member->school->market->id;
-        $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
         $stripeSubscription = $stripeClient->subscriptions->retrieve($subscription->stripe_id);
 
         $this->assertEquals($subscription->stripe_id, $stripeSubscription->id);
@@ -115,7 +117,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route('api.v1.subscriptions.store'), [
             'membership_id' => $membership->id,
-            'payment_token_id' => 'tok_1OCEIBA8m0obgGbqxB53K9Pu', // Regenerate a new payment token for each test.
+            'payment_token_id' => 'tok_mastercard',
         ]);
 
         $response->assertCreated()
