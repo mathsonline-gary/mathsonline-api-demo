@@ -1,7 +1,8 @@
 <?php
 
-namespace Feature\Students;
+namespace Tests\Feature\Students;
 
+use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\StudentController;
 use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
@@ -60,7 +61,7 @@ class DeleteStudentTest extends TestCase
         $this->assertDatabaseCount('activities', $activitiesCount + 1);
         $loggedActivity = Activity::first();
         $this->assertEquals($adminTeacher->asUser()->id, $loggedActivity->actor_id);
-        $this->assertEquals('deleted student', $loggedActivity->type);
+        $this->assertEquals(ActivityType::DELETED_STUDENT, $loggedActivity->type);
         $this->assertArrayHasKey('student_id', $loggedActivity->data);
         $this->assertEquals($student->id, $loggedActivity->data['student_id']);
         $this->assertEquals($student->deleted_at, $loggedActivity->acted_at);
@@ -82,8 +83,8 @@ class DeleteStudentTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.students.destroy', $student));
 
-        // Assert that the response has a 404 “Not Found” status code.
-        $response->assertNotFound();
+        // Assert that the response has a 403 “Forbidden” status code.
+        $response->assertForbidden();
 
         // Assert that the student was not soft-deleted.
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);

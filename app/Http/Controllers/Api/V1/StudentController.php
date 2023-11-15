@@ -161,10 +161,12 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         $this->authorize('delete', $student);
+        
+        $authenticatedUser = $this->authService->user();
 
         $this->studentService->delete($student);
 
-        StudentDeleted::dispatch($this->authService->teacher(), $student);
+        StudentDeleted::dispatch($authenticatedUser, $student);
 
         return response()->noContent();
     }
