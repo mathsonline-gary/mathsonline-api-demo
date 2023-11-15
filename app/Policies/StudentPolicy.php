@@ -3,9 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\Student;
-use App\Models\Users\Teacher;
 use App\Models\Users\User;
-use Illuminate\Auth\Access\Response;
 
 class StudentPolicy
 {
@@ -45,16 +43,14 @@ class StudentPolicy
         return false;
     }
 
-    public function delete(User $user, Student $student): Response
+    public function delete(User $user, Student $student): bool
     {
         // The user ia an admin teacher, and the student is from the same school.
-        if ($user instanceof Teacher &&
-            $user->isAdmin()) {
-            return $user->school_id === $student->school_id
-                ? Response::allow()
-                : Response::denyAsNotFound('No student found.');
+        if ($user->isTeacher()
+            && $user->asTeacher()->isAdmin()) {
+            return $user->asTeacher()->school_id === $student->school_id;
         }
 
-        return Response::deny();
+        return false;
     }
 }
