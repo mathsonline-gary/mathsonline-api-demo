@@ -119,7 +119,7 @@ class CreateTeacherTest extends TestCase
      *
      * @see TeacherController::store()
      */
-    public function test_it_create_the_teacher_correctly()
+    public function test_it_creates_the_teacher_correctly()
     {
         $school = $this->fakeTraditionalSchool();
         $adminTeacher = $this->fakeAdminTeacher($school);
@@ -131,11 +131,8 @@ class CreateTeacherTest extends TestCase
 
         $this->postJson(route('api.v1.teachers.store', $this->payload));
 
-        // Assert that the new teacher was created in the database.
-        $this->assertDatabaseCount('teachers', 2);
-        $this->assertDatabaseCount('users', 2);
-
         // Assert that the new teacher was created in the database with correct data.
+        $this->assertDatabaseCount('teachers', 2);
         $teacher = Teacher::latest('id')->first();
         $this->assertEquals($school->id, $teacher->school_id);
         $this->assertEquals($this->payload['username'], $teacher->username);
@@ -145,8 +142,13 @@ class CreateTeacherTest extends TestCase
         $this->assertEquals($this->payload['position'], $teacher->position);
         $this->assertEquals($this->payload['title'], $teacher->title);
         $this->assertEquals($this->payload['is_admin'], $teacher->is_admin);
-        $this->assertEquals($this->payload['username'], $teacher->asUser()->login);
-        $this->assertTrue(Hash::check($this->payload['password'], $teacher->asUser()->password));
+
+        // Assert that the associated user was created in the database with correct data.
+        $this->assertDatabaseCount('users', 2);
+        $user = $teacher->asUser();
+        $this->assertEquals($this->payload['username'], $user->login);
+        $this->assertEquals($this->payload['email'], $user->email);
+        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
     }
 
     /**

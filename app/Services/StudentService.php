@@ -130,6 +130,7 @@ class StudentService
             // Create a user.
             $user = User::create([
                 'login' => $attributes['username'],
+                'email' => $attributes['email'] ?? null,
                 'password' => Hash::make($attributes['password']),
                 'type' => UserType::STUDENT,
             ]);
@@ -175,6 +176,9 @@ class StudentService
 
                 if (isset($payload['username'])) {
                     $fillableUserAttributes['login'] = $payload['username'];
+                }
+                if (isset($payload['email'])) {
+                    $fillableUserAttributes['email'] = $payload['email'];
                 }
                 if (isset($payload['password'])) {
                     $fillableUserAttributes['password'] = Hash::make($payload['password']);

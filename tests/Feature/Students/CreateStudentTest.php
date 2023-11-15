@@ -587,6 +587,7 @@ class CreateStudentTest extends TestCase
         // Assert that the associated user is created correctly in the database.
         $user = $student->asUser();
         $this->assertEquals($this->payload['username'], $user->login);
+        $this->assertEquals($this->payload['email'], $user->email);
         $this->assertTrue(Hash::check($this->payload['password'], $user->password));
         $this->assertEquals(UserType::STUDENT, $user->type);
 

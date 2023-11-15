@@ -33,6 +33,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'type' => UserType::class,
+        'email_verified_at' => 'datetime',
     ];
 
     public $timestamps = false;
