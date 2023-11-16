@@ -7,8 +7,10 @@ use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Member;
 use App\Models\Users\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -131,5 +133,19 @@ class MemberRegistrationTest extends TestCase
         $response->assertNoContent();
 
         $this->assertAuthenticatedAs(User::latest('id')->first());
+    }
+
+    public function test_it_send_email_verification_to_the_member()
+    {
+        Notification::fake();
+
+        $this->assertGuest();
+
+        $this->post(route('register.member'), $this->payload);
+
+        Notification::assertSentTo(
+            User::latest('id')->first(),
+            VerifyEmail::class
+        );
     }
 }

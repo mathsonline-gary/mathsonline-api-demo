@@ -4,11 +4,8 @@ namespace Tests\Feature\Teachers;
 
 use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
-use App\Http\Middleware\SetAuthenticationDefaults;
-use App\Http\Requests\Teacher\StoreTeacherRequest;
 use App\Models\Activity;
 use App\Models\Users\Teacher;
-use App\Policies\TeacherPolicy;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -40,11 +37,6 @@ class CreateTeacherTest extends TestCase
         ];
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see SetAuthenticationDefaults
-     */
     public function test_a_guest_is_unauthenticated_to_create_a_teacher()
     {
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
@@ -53,12 +45,6 @@ class CreateTeacherTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::create()
-     * @see TeacherController::store()
-     */
     public function test_an_admin_teacher_can_add_a_teacher_into_their_school()
     {
         $school = $this->fakeTraditionalSchool();
@@ -72,11 +58,6 @@ class CreateTeacherTest extends TestCase
         $response->assertCreated()->assertJsonFragment(['success' => true]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::create()
-     */
     public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher()
     {
         $this->actingAsTeacher($this->fakeNonAdminTeacher());
@@ -87,11 +68,6 @@ class CreateTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Operational test.
-     *
-     * @see TeacherController::store()
-     */
     public function test_it_returns_expected_teacher_attributes()
     {
         $school = $this->fakeTraditionalSchool();
@@ -114,11 +90,6 @@ class CreateTeacherTest extends TestCase
         ])->assertJsonMissing(['password']);
     }
 
-    /**
-     * Operational test.
-     *
-     * @see TeacherController::store()
-     */
     public function test_it_creates_the_teacher_correctly()
     {
         $school = $this->fakeTraditionalSchool();
@@ -151,11 +122,6 @@ class CreateTeacherTest extends TestCase
         $this->assertTrue(Hash::check($this->payload['password'], $user->password));
     }
 
-    /**
-     * Operational test.
-     *
-     * @see TeacherController::store()
-     */
     public function test_it_logs_created_teacher_activity()
     {
         $school = $this->fakeTraditionalSchool();
@@ -181,11 +147,6 @@ class CreateTeacherTest extends TestCase
         $this->assertEquals($teacher->created_at, $activity->acted_at);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_username_field_is_unique()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -201,11 +162,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid('username');
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_username_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -219,11 +175,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid('username');
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_username_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -241,11 +192,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['username' => __('validation.max.string', ['attribute' => 'username', 'max' => 32])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_email_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -259,11 +205,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['email' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_email_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -277,11 +218,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['email' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_email_field_is_validated_as_email_address()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -293,11 +229,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['email' => __('validation.email', ['attribute' => 'email'])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_email_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -315,11 +246,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['email' => __('validation.max.string', ['attribute' => 'email', 'max' => 128])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_first_name_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -331,11 +257,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['first_name' => __('validation.required', ['attribute' => 'first name'])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_first_name_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -347,11 +268,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['first_name' => __('validation.max.string', ['attribute' => 'first name', 'max' => 32])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_last_name_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -363,11 +279,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['last_name' => __('validation.required', ['attribute' => 'last name'])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_last_name_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -379,11 +290,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['last_name' => __('validation.max.string', ['attribute' => 'last name', 'max' => 32])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_password_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -395,11 +301,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['password' => __('validation.required', ['attribute' => 'password'])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_password_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -417,11 +318,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['password' => __('validation.max.string', ['attribute' => 'password', 'max' => 32])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_title_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -435,11 +331,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['title' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_title_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -453,11 +344,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['title' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_title_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -469,11 +355,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['title' => __('validation.max.string', ['attribute' => 'title', 'max' => 16])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_position_field_is_optional()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -487,11 +368,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['position' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_position_field_is_nullable()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -505,11 +381,6 @@ class CreateTeacherTest extends TestCase
         $this->assertDatabaseHas('teachers', ['position' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_position_field_length_validation()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());
@@ -521,11 +392,6 @@ class CreateTeacherTest extends TestCase
             ->assertInvalid(['position' => __('validation.max.string', ['attribute' => 'position', 'max' => 128])]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreTeacherRequest::rules()
-     */
     public function test_is_admin_field_is_required()
     {
         $this->actingAsTeacher($this->fakeAdminTeacher());

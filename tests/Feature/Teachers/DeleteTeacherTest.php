@@ -3,18 +3,11 @@
 namespace Tests\Feature\Teachers;
 
 use App\Enums\ActivityType;
-use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
-use App\Policies\TeacherPolicy;
 use Tests\TestCase;
 
 class DeleteTeacherTest extends TestCase
 {
-    /**
-     * Authentication test.
-     *
-     * @see SetAuthenticationDefaults::handle()
-     */
     public function test_a_guest_is_unauthenticated_to_delete_a_teacher(): void
     {
         $teacher = $this->fakeNonAdminTeacher();
@@ -25,11 +18,6 @@ class DeleteTeacherTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_an_admin_teacher_can_delete_a_teacher_in_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -45,11 +33,6 @@ class DeleteTeacherTest extends TestCase
         $response->assertOk()->assertJsonFragment(['success' => true]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_an_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -72,11 +55,6 @@ class DeleteTeacherTest extends TestCase
         $this->assertNotSoftDeleted('teachers', ['id' => $teacher->id]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_their_school()
     {
         $school = $this->fakeTraditionalSchool();
@@ -95,11 +73,6 @@ class DeleteTeacherTest extends TestCase
         $this->assertNotSoftDeleted('teachers', ['id' => $teacher->id]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -119,11 +92,6 @@ class DeleteTeacherTest extends TestCase
         $this->assertNotSoftDeleted('teachers', ['id' => $teacher->id]);
     }
 
-    /**
-     * Operation test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_it_soft_deletes_the_teacher()
     {
         $school = $this->fakeTraditionalSchool();
@@ -143,11 +111,6 @@ class DeleteTeacherTest extends TestCase
         $this->assertSoftDeleted('users', ['id' => $teacher->asUser()->id]);
     }
 
-    /**
-     * Operation test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_it_logs_deleted_teacher_activity(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -172,11 +135,6 @@ class DeleteTeacherTest extends TestCase
         $this->assertEquals($teacher->id, $activity->data['teacher_id']);
     }
 
-    /**
-     * Operation test.
-     *
-     * @see TeacherPolicy::delete()
-     */
     public function test_it_detaches_classrooms_from_the_teacher(): void
     {
         $school = $this->fakeTraditionalSchool();

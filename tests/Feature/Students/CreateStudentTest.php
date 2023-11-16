@@ -4,14 +4,10 @@ namespace Feature\Students;
 
 use App\Enums\ActivityType;
 use App\Enums\UserType;
-use App\Http\Controllers\Api\V1\StudentController;
-use App\Http\Middleware\SetAuthenticationDefaults;
-use App\Http\Requests\Student\StoreStudentRequest;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
 use App\Models\Users\User;
-use App\Policies\StudentPolicy;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -40,11 +36,6 @@ class CreateStudentTest extends TestCase
         ];
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see SetAuthenticationDefaults::handle()
-     */
     public function test_a_guest_is_unauthenticated_to_create_a_student()
     {
         $response = $this->postJson(route('api.v1.students.store', $this->payload));
@@ -53,12 +44,6 @@ class CreateStudentTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see StudentPolicy::create()
-     * @see StudentController::store()
-     */
     public function test_an_admin_teacher_can_create_a_student_in_their_school(): void
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -72,12 +57,6 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['success' => true]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see StudentPolicy::create()
-     * @see StudentController::store()
-     */
     public function test_an_admin_teacher_can_only_create_a_student_in_their_school()
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -96,11 +75,6 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['school_id' => $school1->id]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see StudentPolicy::create()
-     */
     public function test_a_non_admin_teacher_can_create_a_student_in_classroom_groups_that_they_manage(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -130,11 +104,6 @@ class CreateStudentTest extends TestCase
             ->assertJsonFragment(['success' => true]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StudentPolicy::create()
-     */
     public function test_a_non_admin_teacher_cannot_create_a_student_in_classrooms_that_they_do_not_manage(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -161,9 +130,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('classroom_group_ids.0');
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_returns_the_created_student()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -182,11 +148,6 @@ class CreateStudentTest extends TestCase
             ->assertJsonMissing(['password']);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_username_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -201,11 +162,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username', __('validation.required', ['attribute' => 'username']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_username_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -220,11 +176,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username', __('validation.required', ['attribute' => 'username']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_username_must_be_unique(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -239,11 +190,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username', __('validation.unique', ['attribute' => 'username']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_username_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -263,11 +209,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('username');
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_email_is_optional(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -286,11 +227,6 @@ class CreateStudentTest extends TestCase
         $this->assertDatabaseHas('students', ['email' => null]);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_email_is_trimmed(): void
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -308,11 +244,6 @@ class CreateStudentTest extends TestCase
         $this->assertDatabaseHas('students', ['email' => 'test@test.com']);
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_email_must_be_valid(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -326,11 +257,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('email', __('validation.email', ['attribute' => 'email']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_first_name_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -344,11 +270,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name', __('validation.required', ['attribute' => 'first name']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_first_name_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -362,11 +283,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name', __('validation.required', ['attribute' => 'first name']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_first_name_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -380,11 +296,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('first_name', __('validation.max.string', ['attribute' => 'first name', 'max' => 32]));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_last_name_is_required(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -398,11 +309,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name', __('validation.required', ['attribute' => 'last name']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_last_name_must_be_string_and_trimmed(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -416,11 +322,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name', __('validation.required', ['attribute' => 'last name']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_last_name_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -434,11 +335,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('last_name', __('validation.max.string', ['attribute' => 'last name', 'max' => 32]));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_password_is_required(): void
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -452,11 +348,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('password', __('validation.required', ['attribute' => 'password']));
     }
 
-    /**
-     * Validation test.
-     *
-     * @see StoreStudentRequest::rules()
-     */
     public function test_password_length_validation(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -476,9 +367,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('password', __('validation.max.string', ['attribute' => 'password', 'max' => 32]));
     }
 
-    /**
-     * Validation test.
-     */
     public function test_classroom_group_ids_is_required_if_the_user_is_a_non_admin_teacher()
     {
         $nonAdminTeacher = $this->fakeNonAdminTeacher();
@@ -555,9 +443,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('classroom_group_ids.1');
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_creates_the_student()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -600,9 +485,6 @@ class CreateStudentTest extends TestCase
         $this->assertEquals($this->payload['confetti_enabled'], $studentSetting->confetti_enabled);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_logs_student_created_activity()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -626,9 +508,6 @@ class CreateStudentTest extends TestCase
         $this->assertEquals($student->created_at, $activity->acted_at);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_assigns_the_student_into_the_classroom_groups()
     {
         $adminTeacher = $this->fakeAdminTeacher();
