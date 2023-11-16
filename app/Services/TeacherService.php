@@ -63,10 +63,10 @@ class TeacherService
     {
         $query = Teacher::where('user_id', $userId);
 
-        return Teacher::when($options['throwable'] ?? true, function (Builder $query) use ($userId) {
-            return $query->where('user_id', $userId)->firstOrFail();
+        return $query->when($options['throwable'] ?? true, function (Builder $query) {
+            return $query->firstOrFail();
         }, function (Builder $query) use ($userId) {
-            return $query->where('user_id', $userId)->first();
+            return $query->first();
         });
     }
 
@@ -134,10 +134,12 @@ class TeacherService
             // Create a user.
             $user = User::create([
                 'login' => $attributes['username'],
+                'email' => $attributes['email'] ?? null,
                 'password' => Hash::make($attributes['password']),
                 'type' => UserType::TEACHER,
             ]);
 
+            // Create a teacher.
             $teacher = new Teacher($attributes);
 
             $teacher->is_admin = $attributes['is_admin'];
@@ -176,15 +178,15 @@ class TeacherService
      * Update a teacher with given valid attributes.
      *
      * @param Teacher $teacher
-     * @param array $attributes
+     * @param array $payload
      * @return Teacher
      */
-    public function update(Teacher $teacher, array $attributes): Teacher
+    public function update(Teacher $teacher, array $payload): Teacher
     {
-        return DB::transaction(function () use ($teacher, $attributes) {
+        return DB::transaction(function () use ($teacher, $payload) {
             // Update teacher attributes.
             {
-                $fillableAttributes = Arr::only($attributes, [
+                $fillableAttributes = Arr::only($payload, [
                     'username',
                     'email',
                     'first_name',
@@ -197,19 +199,28 @@ class TeacherService
                 $teacher->fill($fillableAttributes);
 
                 // Safely update attribute "is_admin".
-                $teacher->is_admin = $attributes['is_admin'] ?? $teacher->is_admin;
+                $teacher->is_admin = $payload['is_admin'] ?? $teacher->is_admin;
 
                 $teacher->save();
             }
 
             // Update associated user credentials.
             {
-                $user = $teacher->asUser();
+                $fillableUserAttributes = [];
 
-                $user->login = $attributes['username'] ?? $user->login;
-                $user->password = isset($attributes['password']) ? Hash::make($attributes['password']) : $user->password;
+                if (isset($payload['username'])) {
+                    $fillableUserAttributes['login'] = $payload['username'];
+                }
+                if (isset($payload['email'])) {
+                    $fillableUserAttributes['email'] = $payload['email'];
+                }
+                if (isset($payload['password'])) {
+                    $fillableUserAttributes['password'] = Hash::make($payload['password']);
+                }
 
-                $user->save();
+                if (count($fillableUserAttributes) > 0) {
+                    $teacher->user()->update($fillableUserAttributes);
+                }
             }
 
             return $teacher;

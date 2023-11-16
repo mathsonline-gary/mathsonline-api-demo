@@ -233,8 +233,12 @@ class UpdateTeacherTest extends TestCase
         $this->assertEquals($this->payload['position'], $teacher->position);
         $this->assertEquals($this->payload['title'], $teacher->title);
         $this->assertEquals($this->payload['is_admin'], $teacher->is_admin);
-        $this->assertEquals($this->payload['username'], $teacher->asUser()->login);
-        $this->assertTrue(Hash::check($this->payload['password'], $teacher->asUser()->password));
+
+        // Assert that the associate user was updated correctly.
+        $user = $teacher->asUser();
+        $this->assertEquals($this->payload['username'], $user->login);
+        $this->assertEquals($this->payload['email'], $user->email);
+        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
     }
 
     /**

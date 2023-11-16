@@ -372,6 +372,7 @@ class UpdateStudentTest extends TestCase
 
         // Assert that the associated user details are updated.
         $this->assertEquals($this->payload['username'], $student->asUser()->login);
+        $this->assertEquals($this->payload['email'], $student->asUser()->email);
         $this->assertTrue(Hash::check($this->payload['password'], $student->asUser()->password));
 
         // Assert that the associated student settings are updated.

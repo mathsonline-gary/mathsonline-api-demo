@@ -3,20 +3,12 @@
 namespace Tests\Feature\Students;
 
 use App\Enums\ActivityType;
-use App\Http\Controllers\Api\V1\StudentController;
-use App\Http\Middleware\SetAuthenticationDefaults;
 use App\Models\Activity;
 use App\Models\Users\Student;
-use App\Policies\StudentPolicy;
 use Tests\TestCase;
 
 class DeleteStudentTest extends TestCase
 {
-    /**
-     * Authentication test.
-     *
-     * @see SetAuthenticationDefaults::handle()
-     */
     public function test_a_guest_is_unauthenticated_to_delete_a_student()
     {
         $school = $this->fakeTraditionalSchool();
@@ -28,12 +20,6 @@ class DeleteStudentTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization & Operation test.
-     *
-     * @see StudentPolicy::destroy()
-     * @see StudentController::destroy()
-     */
     public function test_an_admin_teacher_can_delete_a_student_in_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -67,10 +53,6 @@ class DeleteStudentTest extends TestCase
         $this->assertEquals($student->deleted_at, $loggedActivity->acted_at);
     }
 
-    /**
-     * Authorization test.
-     * @see StudentPolicy::destroy()
-     */
     public function test_an_admin_teacher_cannot_delete_a_student_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -90,10 +72,6 @@ class DeleteStudentTest extends TestCase
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);
     }
 
-    /**
-     * Authorization test.
-     * @see StudentPolicy::destroy()
-     */
     public function test_a_non_admin_teacher_is_unauthorized_to_delete_a_student_in_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -111,10 +89,6 @@ class DeleteStudentTest extends TestCase
         $this->assertNotSoftDeleted('students', ['id' => $student->id]);
     }
 
-    /**
-     * Authorization test.
-     * @see StudentPolicy::destroy()
-     */
     public function test_a_non_admin_teacher_is_unauthorized_to_delete_a_student_in_another_school()
     {
         $school1 = $this->fakeTraditionalSchool();

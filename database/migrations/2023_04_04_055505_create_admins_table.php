@@ -16,10 +16,8 @@ return new class extends Migration {
                 ->constrained('users');
             $table->foreignId('market_id')
                 ->constrained('markets');
-            $table->string('username')
-                ->unique();
             $table->string('email')
-                ->nullable();
+                ->unique();
             $table->string('first_name')
                 ->nullable();
             $table->string('last_name')

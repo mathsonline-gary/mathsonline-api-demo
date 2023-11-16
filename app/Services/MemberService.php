@@ -33,6 +33,7 @@ class MemberService
             // Create a user.
             $user = User::create([
                 'login' => $attributes['email'],
+                'email' => $attributes['email'],
                 'password' => $attributes['password'],
                 'type' => UserType::MEMBER,
             ]);

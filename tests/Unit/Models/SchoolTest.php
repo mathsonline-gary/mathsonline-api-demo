@@ -247,11 +247,11 @@ class SchoolTest extends TestCase
      */
     public function test_it_returns_false_if_the_membership_is_in_another_market(): void
     {
-        $school = $this->fakeHomeschool();
+        $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
 
         $product = Product::factory()->create([
             'school_type' => $school->type,
-            'market_id' => $school->market_id + 1,
+            'market_id' => 2,
         ]);
 
         $campaign = Campaign::factory()->active()->create();

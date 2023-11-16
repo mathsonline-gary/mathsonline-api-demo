@@ -49,6 +49,7 @@ class TeacherFactory extends Factory
         return $this->afterMaking(function (Teacher $teacher) {
             $teacher->asUser()->update([
                 'login' => $teacher->username,
+                'email' => $teacher->email,
             ]);
             if ($teacher->deleted_at) {
                 $teacher->asUser()->delete();
@@ -56,6 +57,7 @@ class TeacherFactory extends Factory
         })->afterCreating(function (Teacher $teacher) {
             $teacher->asUser()->update([
                 'login' => $teacher->username,
+                'email' => $teacher->email,
             ]);
             if ($teacher->deleted_at) {
                 $teacher->asUser()->delete();

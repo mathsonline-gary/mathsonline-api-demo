@@ -15,7 +15,6 @@ class AdminSeeder extends Seeder
         Admin::factory()
             ->create([
                 'market_id' => 1,
-                'username' => 'admin1',
                 'email' => 'admin1@test.com',
                 'first_name' => 'Admin',
                 'last_name' => 'One',
