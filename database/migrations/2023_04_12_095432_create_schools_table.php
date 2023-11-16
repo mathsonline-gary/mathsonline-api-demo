@@ -44,7 +44,8 @@ return new class extends Migration {
                 ->nullable();
 
             $table->string('address_country')
-                ->nullable();
+                ->nullable()
+                ->comment('Two-letter country code (ISO 3166-1 alpha-2).');
 
             $table->string('stripe_id')
                 ->unique()

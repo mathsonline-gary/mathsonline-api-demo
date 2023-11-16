@@ -21,7 +21,27 @@ class CreateSubscriptionTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_a_member_in_unauthorized_to_subscribe_a_new_membership_if_he_already_has_an_active_subscription()
+    public function test_a_member_cannot_subscribe_to_a_new_membership_without_email_verified()
+    {
+        $member = $this->fakeMember();
+
+        // Set the member's email_verified_at to null.
+        $user = $member->asUser();
+        $user->email_verified_at = null;
+        $user->save();
+
+        $this->actingAsMember($member);
+
+        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+            'membership_id' => 1,
+            'payment_token_id' => 'tok_mastercard',
+        ]);
+
+        // Assert that it responds the email verification is required.
+        $response->assertEmailVerificationRequired();
+    }
+
+    public function test_a_member_is_unauthorized_to_subscribe_to_a_new_membership_if_he_already_has_an_active_subscription()
     {
         $member = $this->fakeMember();
 

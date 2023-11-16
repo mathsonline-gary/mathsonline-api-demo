@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Api\V1\SubscriptionController;
 
-Route::middleware(['auth:sanctum'])
+Route::middleware(['auth:sanctum', 'verified'])
     ->prefix('subscriptions')
     ->name('subscriptions.')
     ->group(function () {

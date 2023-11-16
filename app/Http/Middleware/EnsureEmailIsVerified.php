@@ -16,9 +16,18 @@ class EnsureEmailIsVerified
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Skip this middleware if the user is a student or a teacher.
+        if ($request->user() &&
+            $request->user() instanceof MustVerifyEmail &&
+            ($request->user()->isStudent() || $request->user()->isTeacher())) {
+
+            return $next($request);
+        }
+
         if (!$request->user() ||
             ($request->user() instanceof MustVerifyEmail &&
                 !$request->user()->hasVerifiedEmail())) {
+
             return response()->json(['message' => 'Your email address is not verified.'], 409);
         }
 

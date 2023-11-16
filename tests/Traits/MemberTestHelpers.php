@@ -3,11 +3,10 @@
 namespace Tests\Traits;
 
 use App\Enums\SchoolType;
+use App\Models\School;
 use App\Models\Users\Member;
-use App\Services\MemberService;
-use App\Services\SchoolService;
-use App\Services\StripeService;
 use Stripe\Exception\ApiErrorException;
+use Stripe\StripeClient;
 
 trait MemberTestHelpers
 {
@@ -23,43 +22,45 @@ trait MemberTestHelpers
      */
     public function fakeMember(int $marketId = 1, array $attributes = []): Member
     {
-        $attributes = [
+        // Fake a homeschool.
+        $school = School::factory()->make([
+            ...$attributes,
             'market_id' => $marketId,
-            'email' => $attributes['email'] ?? fake()->safeEmail,
-            'password' => $attributes['password'] ?? 'password',
-            'first_name' => $attributes['first_name'] ?? fake()->firstName,
-            'last_name' => $attributes['last_name'] ?? fake()->lastName,
-            'phone' => $attributes['phone'] ?? fake()->phoneNumber,
-            'address_line_1' => $attributes['address_line_1'] ?? fake()->streetAddress,
-            'address_line_2' => $attributes['address_line_2'] ?? null,
-            'address_city' => $attributes['address_city'] ?? fake()->city,
-            'address_state' => $attributes['address_state'] ?? fake()->city,
-            'address_postal_code' => $attributes['address_postal_code'] ?? fake()->postcode,
-            'address_country' => $attributes['address_country'] ?? fake()->country,
-        ];
+            'type' => SchoolType::HOMESCHOOL,
+        ]);
+
+        // Fake a member.
+        $member = Member::factory()->make([
+            ...$attributes,
+            'email' => $school->email,
+        ]);
 
         // Create a Stripe customer.
-        $stripeService = new StripeService();
+        $stripeClient = new StripeClient(config("services.stripe.$marketId.secret"));
 
-        $stripeCustomer = $stripeService->createCustomer($attributes);
-
-        // Create a homeschool.
-        $schoolService = new SchoolService();
-
-        $school = $schoolService->create([
-            ... $attributes,
-            'type' => SchoolType::HOMESCHOOL->value,
-            'stripe_id' => $stripeCustomer->id,
-            'name' => "Homeschool of {$attributes['first_name']} {$attributes['last_name']}",
+        $stripeCustomer = $stripeClient->customers->create([
+            'name' => "PHPUnit Test Customer",
+            'email' => $school->email,
+            'phone' => $school->phone,
+            'address' => [
+                'line1' => $school->address_line_1,
+                'line2' => $school->address_line_2,
+                'city' => $school->address_city,
+                'state' => $school->address_state,
+                'postal_code' => $school->address_postal_code,
+                'country' => $school->address_country,
+            ],
         ]);
 
-        // Create a member.
-        $memberService = new MemberService();
+        // Save the school.
+        $school->stripe_id = $stripeCustomer->id;
+        $school->save();
 
-        return $memberService->create([
-            ...$attributes,
-            'school_id' => $school->id,
-        ]);
+        // Save the member.
+        $member->school_id = $school->id;
+        $member->save();
+
+        return $member->refresh();
     }
 
     /**
