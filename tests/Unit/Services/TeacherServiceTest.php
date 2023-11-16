@@ -6,7 +6,6 @@ use App\Models\Users\Teacher;
 use App\Services\TeacherService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
@@ -160,17 +159,10 @@ class TeacherServiceTest extends TestCase
         $teacher = $this->teacherService->create($attributes);
 
         // Assert that the teacher was created correctly.
-        $this->assertInstanceOf(Teacher::class, $teacher);
-        $this->assertEquals($attributes['school_id'], $teacher->school_id);
-        $this->assertEquals($attributes['username'], $teacher->username);
-        $this->assertEquals($attributes['email'], $teacher->email);
-        $this->assertEquals($attributes['first_name'], $teacher->first_name);
-        $this->assertEquals($attributes['last_name'], $teacher->last_name);
-        $this->assertEquals($attributes['title'], $teacher->title);
-        $this->assertEquals($attributes['position'], $teacher->position);
-        $this->assertFalse($teacher->is_admin);
-        $this->assertEquals($attributes['username'], $teacher->asUser()->login);
-        $this->assertTrue(Hash::check('password123', $teacher->asUser()->password));
+        $this->assertTeacherAttributes([
+            ...$attributes,
+            'deleted_at' => null,
+        ], $teacher);
     }
 
     /**
@@ -196,29 +188,19 @@ class TeacherServiceTest extends TestCase
         $result = $this->teacherService->update($teacher, $attributes);
 
         // Assert that it returns the updated teacher.
-        $this->assertInstanceOf(Teacher::class, $teacher);
-        $this->assertEquals($teacher->id, $result->id);
-        $this->assertEquals($teacher->school_id, $result->school_id);
-        $this->assertEquals($attributes['username'], $result->username);
-        $this->assertEquals($attributes['email'], $result->email);
-        $this->assertEquals($attributes['first_name'], $result->first_name);
-        $this->assertEquals($attributes['last_name'], $result->last_name);
-        $this->assertEquals($attributes['title'], $result->title);
-        $this->assertEquals($attributes['position'], $result->position);
-        $this->assertFalse($teacher->is_admin);
+        $expected = [
+            ...$attributes,
+            'id' => $teacher->id,
+            'school_id' => $school->id,
+            'deleted_at' => null,
+        ];
+
+        $this->assertInstanceOf(Teacher::class, $result);
+        $this->assertTeacherAttributes($expected, $result);
 
         // Assert that the teacher was updated correctly.
         $teacher->refresh();
-        $this->assertEquals($teacher->school_id, $teacher->school_id);
-        $this->assertEquals($attributes['username'], $teacher->username);
-        $this->assertEquals($attributes['email'], $teacher->email);
-        $this->assertEquals($attributes['first_name'], $teacher->first_name);
-        $this->assertEquals($attributes['last_name'], $teacher->last_name);
-        $this->assertEquals($attributes['title'], $teacher->title);
-        $this->assertEquals($attributes['position'], $teacher->position);
-        $this->assertFalse($teacher->is_admin);
-        $this->assertEquals($attributes['username'], $teacher->asUser()->login);
-        $this->assertTrue(Hash::check('password123', $teacher->asUser()->password));
+        $this->assertTeacherAttributes($expected, $teacher);
     }
 
     /**

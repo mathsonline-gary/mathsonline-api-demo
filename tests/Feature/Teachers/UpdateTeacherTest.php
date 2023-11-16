@@ -60,7 +60,17 @@ class UpdateTeacherTest extends TestCase
         $response = $this->putJson(route('api.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
+
+        // Assert that the teacher was updated correctly.
+        $expected = [
+            ...$this->payload,
+            'id' => $teacher->id,
+            'school_id' => $teacher->school_id,
+            'deleted_at' => null,
+        ];
+
+        $this->assertTeacherAttributes($expected, $teacher->refresh());
     }
 
     /**

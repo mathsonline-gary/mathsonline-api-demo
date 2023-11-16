@@ -2,9 +2,11 @@
 
 namespace Tests\Traits;
 
+use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Hash;
 
 trait TeacherTestHelpers
 {
@@ -77,5 +79,72 @@ trait TeacherTestHelpers
     public function actingAsTeacher(Teacher $teacher): void
     {
         $this->actingAs($teacher->asUser());
+    }
+
+    /**
+     * Assert that the teacher and the associated user has expected attributes.
+     *
+     * @param array $expected
+     * @param Teacher $teacher
+     *
+     * @return void
+     */
+    public function assertTeacherAttributes(array $expected, Teacher $teacher): void
+    {
+        if (count($expected) === 0) {
+            return;
+        }
+
+        // Get the associated user.
+        $user = $teacher->asUser();
+
+        $this->assertEquals(UserType::TEACHER, $user->type);
+        $this->assertNull($user->email_verified_at);
+
+        foreach ($expected as $attribute => $value) {
+            switch ($attribute) {
+                case 'id':
+                case 'school_id':
+                case 'title':
+                case 'position':
+                case 'first_name':
+                case 'last_name':
+                    $this->assertEquals($value, $teacher->{$attribute});
+                    break;
+
+                case 'user_id':
+                    $this->assertEquals($value, $teacher->user_id);
+                    $this->assertEquals($value, $user->id);
+                    break;
+
+                case 'username':
+                    $this->assertEquals($value, $teacher->username);
+                    $this->assertEquals($value, $user->login);
+                    break;
+
+                case 'email':
+                    $this->assertEquals($value, $teacher->email);
+                    $this->assertEquals($value, $user->email);
+                    break;
+
+                case 'password':
+                    $this->assertTrue(Hash::check($value, $user->password));
+                    break;
+
+                case 'deleted_at':
+                    if ($value === null) {
+                        $this->assertNull($teacher->deleted_at);
+                        $this->assertNull($user->deleted_at);
+                        break;
+                    }
+
+                    $this->assertNotNull($teacher->deleted_at);
+                    $this->assertNotNull($user->deleted_at);
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 }

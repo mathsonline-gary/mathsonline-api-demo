@@ -223,7 +223,7 @@ class TeacherService
                 }
             }
 
-            return $teacher;
+            return $teacher->refresh();
         });
     }
 }

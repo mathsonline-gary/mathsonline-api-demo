@@ -28,5 +28,9 @@ class TestResponseMacroServiceProvider extends ServiceProvider
             $this->assertStatus(409)
                 ->assertJson(['message' => 'Your email address is not verified.']);
         });
+
+        TestResponse::macro('assertJsonSuccess', function (): void {
+            $this->assertJsonFragment(['success' => true]);
+        });
     }
 }

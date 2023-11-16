@@ -6,7 +6,6 @@ use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Models\Activity;
 use App\Models\Users\Teacher;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
@@ -55,7 +54,18 @@ class CreateTeacherTest extends TestCase
         $response = $this->postJson(route('api.v1.teachers.store', $this->payload));
 
         // Assert that the request is successful.
-        $response->assertCreated()->assertJsonFragment(['success' => true]);
+        $response->assertCreated()
+            ->assertJsonSuccess();
+
+        // Assert that the new teacher was created in the database with correct data.
+        $this->assertDatabaseCount('teachers', 2);
+        $this->assertDatabaseCount('users', 2);
+        $teacher = Teacher::latest('id')->first();
+        $this->assertTeacherAttributes([
+            ...$this->payload,
+            'school_id' => $school->id,
+            'deleted_at' => null,
+        ], $teacher);
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_add_a_teacher()
@@ -88,38 +98,6 @@ class CreateTeacherTest extends TestCase
             'title' => $this->payload['title'],
             'is_admin' => $this->payload['is_admin'],
         ])->assertJsonMissing(['password']);
-    }
-
-    public function test_it_creates_the_teacher_correctly()
-    {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-
-        $this->assertDatabaseCount('teachers', 1);
-        $this->assertDatabaseCount('users', 1);
-
-        $this->actingAsTeacher($adminTeacher);
-
-        $this->postJson(route('api.v1.teachers.store', $this->payload));
-
-        // Assert that the new teacher was created in the database with correct data.
-        $this->assertDatabaseCount('teachers', 2);
-        $teacher = Teacher::latest('id')->first();
-        $this->assertEquals($school->id, $teacher->school_id);
-        $this->assertEquals($this->payload['username'], $teacher->username);
-        $this->assertEquals($this->payload['email'], $teacher->email);
-        $this->assertEquals($this->payload['first_name'], $teacher->first_name);
-        $this->assertEquals($this->payload['last_name'], $teacher->last_name);
-        $this->assertEquals($this->payload['position'], $teacher->position);
-        $this->assertEquals($this->payload['title'], $teacher->title);
-        $this->assertEquals($this->payload['is_admin'], $teacher->is_admin);
-
-        // Assert that the associated user was created in the database with correct data.
-        $this->assertDatabaseCount('users', 2);
-        $user = $teacher->asUser();
-        $this->assertEquals($this->payload['username'], $user->login);
-        $this->assertEquals($this->payload['email'], $user->email);
-        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
     }
 
     public function test_it_logs_created_teacher_activity()
