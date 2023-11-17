@@ -3,7 +3,6 @@
 namespace Tests\Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
-use App\Policies\TeacherPolicy;
 use Tests\TestCase;
 
 /**
@@ -14,9 +13,6 @@ use Tests\TestCase;
  */
 class ShowTeacherTest extends TestCase
 {
-    /**
-     * Authentication test.
-     */
     public function test_a_guest_cannot_get_the_details_of_a_teacher(): void
     {
         $teacher = $this->fakeTeacher();
@@ -29,11 +25,6 @@ class ShowTeacherTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::view()
-     */
     public function test_an_admin_teacher_can_get_the_details_of_a_teacher_in_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -46,17 +37,12 @@ class ShowTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
 
         // Assert that the teacher profile is correct.
         $response->assertJsonFragment(['id' => $teacher->id]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::view()
-     */
     public function test_a_non_admin_teacher_are_unauthorised_to_get_the_details_of_another_teacher_in_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -72,11 +58,6 @@ class ShowTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::view()
-     */
     public function test_an_admin_teacher_is_unauthorized_to_get_the_details_of_a_teacher_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -93,11 +74,6 @@ class ShowTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::view()
-     */
     public function test_a_non_admin_teacher_is_unauthorised_to_view_the_details_of_a_teacher_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -114,11 +90,6 @@ class ShowTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::view()
-     */
     public function test_an_admin_teacher_cannot_view_the_details_of_a_soft_deleted_teacher_in_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -133,9 +104,6 @@ class ShowTeacherTest extends TestCase
         $response->assertNotFound();
     }
 
-    /**
-     * Operational test.
-     */
     public function test_an_admin_teacher_can_view_limited_attributes_of_the_teacher_by_default(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -172,9 +140,6 @@ class ShowTeacherTest extends TestCase
         ]);
     }
 
-    /**
-     * Operational test.
-     */
     public function test_an_admin_teacher_can_view_the_school_of_the_teacher_if_explicitly_requested(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -197,9 +162,6 @@ class ShowTeacherTest extends TestCase
         ]);
     }
 
-    /**
-     * Operational test.
-     */
     public function test_an_admin_teacher_can_view_the_classrooms_of_the_teacher_if_explicitly_requested(): void
     {
         $school = $this->fakeTraditionalSchool();

@@ -140,7 +140,14 @@ class StudentService
             $user->student()->save($student);
 
             // Create the student settings.
-            $student->settings()->create($attributes['settings'] ?? []);
+            $student->settings()->create(
+                $attributes['settings']
+                    ? Arr::only($attributes['settings'], [
+                    'confetti_enabled',
+                    'expired_tasks_excluded',
+                ])
+                    : []
+            );
 
             return $student;
         });
@@ -238,19 +245,11 @@ class StudentService
      */
     public function addToClassroomGroups(Student $student, array $classroomGroupIds, array $options = []): void
     {
-        $classroomGroups = [];
-
-        foreach ($classroomGroupIds as $classroomGroupId) {
-            $classroomGroups[$classroomGroupId] = [
-                'expired_tasks_excluded' => $options['expired_tasks_excluded'] ?? true,
-            ];
-        }
-
         if ($options['detaching'] ?? true) {
-            $student->classroomGroups()->sync($classroomGroups);
+            $student->classroomGroups()->sync($classroomGroupIds);
         } else {
-            if (count($classroomGroups) > 0) {
-                $student->classroomGroups()->syncWithoutDetaching($classroomGroups);
+            if (count($classroomGroupIds) > 0) {
+                $student->classroomGroups()->syncWithoutDetaching($classroomGroupIds);
             }
         }
     }

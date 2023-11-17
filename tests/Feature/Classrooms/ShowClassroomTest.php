@@ -43,7 +43,7 @@ class ShowClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
 
         // Assert that the response returns the correct classroom.
         $response->assertJsonFragment(['id' => $classroom->id]);
@@ -83,7 +83,7 @@ class ShowClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
 
         // Assert that the response returns the correct classroom details.
         $response->assertJsonFragment(['id' => $classroom->id]);

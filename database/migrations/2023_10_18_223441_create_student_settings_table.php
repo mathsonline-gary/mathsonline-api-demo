@@ -16,6 +16,11 @@ return new class extends Migration {
             $table->foreignId('student_id')
                 ->constrained('students');
 
+            $table->boolean('expired_tasks_excluded')
+                ->default(true)
+                ->comment('Whether this student should receive expired tasks from the classroom group. The student will still receive active and future tasks.');
+
+
             $table->boolean('balloon_tips_enabled')
                 ->default(true)
                 ->comment('Whether this student should receive balloon tips.');
@@ -28,16 +33,12 @@ return new class extends Migration {
                 ->default(true)
                 ->comment('Whether celebrate achievements by displaying confetti.');
 
-            $table->unsignedTinyInteger('colour')
-                ->default(255)
-                ->comment('The colour to use for the student.');
-
             $table->string('background_color', 6)
-                ->nullable()
+                ->default('F8F8F8')
                 ->comment('The HEX background colour for the student.');
 
             $table->string('accent_color', 6)
-                ->nullable()
+                ->default('1E90FF')
                 ->comment('The HEX accent colour for the student.');
 
             $table->string('closed_captions_language')

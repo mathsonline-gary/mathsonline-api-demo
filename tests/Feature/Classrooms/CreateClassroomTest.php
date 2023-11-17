@@ -66,7 +66,7 @@ class CreateClassroomTest extends TestCase
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated()->assertJsonFragment(['success' => true]);
+        $response->assertCreated()->assertJsonSuccess();
     }
 
     /**
@@ -85,7 +85,7 @@ class CreateClassroomTest extends TestCase
         $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
 
         // Assert that the response has a 201 “Created” status code.
-        $response->assertCreated()->assertJsonFragment(['success' => true]);
+        $response->assertCreated()->assertJsonSuccess();
     }
 
     /**

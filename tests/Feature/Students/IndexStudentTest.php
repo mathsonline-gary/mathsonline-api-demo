@@ -35,7 +35,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students1->count(), 'data');
@@ -86,7 +86,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students2->count() + $students3->count(), 'data');
@@ -146,7 +146,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount(2, 'data');
@@ -184,7 +184,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students1->count(), 'data');
@@ -241,7 +241,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount($students2->count() + $students3->count(), 'data');
@@ -311,7 +311,7 @@ class IndexStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the response contains the correct number of students.
         $response->assertJsonCount(2, 'data');

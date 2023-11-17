@@ -115,7 +115,7 @@ class UpdateClassroomGroupTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
     }
 
     /**
@@ -157,7 +157,7 @@ class UpdateClassroomGroupTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
     }
 
     /**
@@ -204,7 +204,7 @@ class UpdateClassroomGroupTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the classroom groups have updated successfully.
         $this->assertDatabaseCount('classroom_groups', 3);
@@ -241,7 +241,7 @@ class UpdateClassroomGroupTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the classroom groups have added successfully.
         $this->assertDatabaseCount('classroom_groups', 4);
@@ -282,7 +282,7 @@ class UpdateClassroomGroupTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccess();
 
         // Assert that the classroom groups have removed successfully.
         $this->assertDatabaseCount('classroom_groups', 3);

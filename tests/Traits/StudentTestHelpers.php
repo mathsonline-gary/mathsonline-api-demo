@@ -2,10 +2,12 @@
 
 namespace Tests\Traits;
 
+use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Hash;
 
 trait StudentTestHelpers
 {
@@ -46,4 +48,80 @@ trait StudentTestHelpers
     {
         $this->actingAs($student->asUser());
     }
+
+    /**
+     * Assert that the given student has the expected attributes.
+     *
+     * @param array $expected
+     * @param Student $student
+     * @return void
+     */
+    public function assertStudentAttributes(array $expected, Student $student): void
+    {
+        // Get the associated user.
+        $user = $student->asUser();
+
+        $this->assertEquals(UserType::STUDENT, $user->type);
+        $this->assertNull($user->email_verified_at);
+
+        // Get the student settings.
+        $settings = $student->settings;
+
+        foreach ($expected as $attribute => $value) {
+            switch ($attribute) {
+                case 'user_id':
+                    $this->assertEquals($value, $student->user_id);
+                    $this->assertEquals($value, $user->id);
+                    break;
+
+                case 'username':
+                    $this->assertEquals($value, $student->username);
+                    $this->assertEquals($value, $user->login);
+                    break;
+
+                case 'email':
+                    $this->assertEquals($value, $student->email);
+                    $this->assertEquals($value, $user->email);
+                    break;
+
+                case 'password':
+                    $this->assertTrue(Hash::check($value, $user->password));
+                    break;
+
+                case 'deleted_at':
+                    if ($value === null) {
+                        $this->assertNull($student->deleted_at);
+                        $this->assertNull($user->deleted_at);
+                        break;
+                    }
+
+                    $this->assertNotNull($student->deleted_at);
+                    $this->assertNotNull($user->deleted_at);
+                    break;
+
+                case 'settings':
+                    $this->assertStudentSettingsAttributes($value, $settings);
+                    break;
+
+                default:
+                    $this->assertEquals($value, $student->{$attribute});
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Assert that the given student settings have the expected attributes.
+     *
+     * @param array $expected
+     * @param StudentSetting $settings
+     * @return void
+     */
+    public function assertStudentSettingsAttributes(array $expected, StudentSetting $settings): void
+    {
+        foreach ($expected as $attribute => $value) {
+            $this->assertEquals($value, $settings->{$attribute});
+        }
+    }
+
 }

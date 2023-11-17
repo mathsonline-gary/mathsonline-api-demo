@@ -18,10 +18,10 @@ class StudentSettingFactory extends Factory
     public function definition(): array
     {
         return [
+            'expired_tasks_excluded' => fake()->boolean,
             'balloon_tips_enabled' => fake()->boolean,
             'results_enabled' => fake()->boolean,
             'confetti_enabled' => fake()->boolean,
-            'colour' => fake()->numberBetween(0, 255),
             'closed_captions_language' => fake()->randomElement(['en', 'es']),
         ];
     }

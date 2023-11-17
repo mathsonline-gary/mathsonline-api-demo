@@ -3,7 +3,6 @@
 namespace Tests\Feature\Teachers;
 
 use App\Http\Controllers\Api\V1\TeacherController;
-use App\Policies\TeacherPolicy;
 use Tests\TestCase;
 
 /**
@@ -14,9 +13,6 @@ use Tests\TestCase;
  */
 class IndexTeacherTest extends TestCase
 {
-    /**
-     * Authentication test.
-     */
     public function test_a_guest_cannot_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -30,11 +26,6 @@ class IndexTeacherTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherController::index()
-     */
     public function test_an_admin_teacher_can_only_get_the_list_of_teachers_in_same_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
@@ -49,7 +40,7 @@ class IndexTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
 
         // Assert that the response contains the correct number of teachers.
         $response->assertJsonCount(11, 'data');
@@ -60,11 +51,6 @@ class IndexTeacherTest extends TestCase
         ]);
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherController::index()
-     */
     public function test_an_admin_teacher_cannot_view_soft_deleted_teachers_in_the_list(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -76,7 +62,7 @@ class IndexTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.index'));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccess();
 
         // Assert that the response contains the correct number of teachers.
         $response->assertJsonCount(1, 'data');
@@ -89,11 +75,6 @@ class IndexTeacherTest extends TestCase
         }
     }
 
-    /**
-     * Authorization test.
-     *
-     * @see TeacherPolicy::viewAny()
-     */
     public function test_non_admin_teachers_are_unauthorised_to_get_the_list_of_teachers(): void
     {
         $school = $this->fakeTraditionalSchool();
@@ -109,11 +90,6 @@ class IndexTeacherTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Operation test.
-     *
-     * @see TeacherController::index()
-     */
     public function test_it_returns_limited_attributes_by_default()
     {
         $school = $this->fakeTraditionalSchool();
@@ -138,9 +114,6 @@ class IndexTeacherTest extends TestCase
         ]);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_returns_the_school_details_if_explicitly_requested()
     {
         $school = $this->fakeTraditionalSchool();
@@ -166,9 +139,6 @@ class IndexTeacherTest extends TestCase
             ]);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_returns_classrooms_details_if_explicitly_requested()
     {
         $school = $this->fakeTraditionalSchool();
@@ -204,11 +174,6 @@ class IndexTeacherTest extends TestCase
             ]);
     }
 
-    /**
-     * Operation test.
-     *
-     * @see TeacherController::index()
-     */
     public function test_it_returns_fuzzy_search_results_by_teacher_names(): void
     {
         $school = $this->fakeTraditionalSchool();
