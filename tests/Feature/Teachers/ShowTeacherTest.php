@@ -37,7 +37,7 @@ class ShowTeacherTest extends TestCase
         $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
 
         // Assert that the teacher profile is correct.
         $response->assertJsonFragment(['id' => $teacher->id]);

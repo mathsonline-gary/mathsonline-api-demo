@@ -33,7 +33,7 @@ class IndexClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assertions
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -50,7 +50,7 @@ class IndexClassroomTest extends TestCase
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assert a successful response.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**

@@ -55,7 +55,7 @@ class CreateTeacherTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertCreated()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the new teacher was created in the database with correct data.
         $this->assertDatabaseCount('teachers', 2);

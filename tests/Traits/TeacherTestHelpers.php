@@ -103,15 +103,6 @@ trait TeacherTestHelpers
 
         foreach ($expected as $attribute => $value) {
             switch ($attribute) {
-                case 'id':
-                case 'school_id':
-                case 'title':
-                case 'position':
-                case 'first_name':
-                case 'last_name':
-                    $this->assertEquals($value, $teacher->{$attribute});
-                    break;
-
                 case 'user_id':
                     $this->assertEquals($value, $teacher->user_id);
                     $this->assertEquals($value, $user->id);
@@ -143,6 +134,7 @@ trait TeacherTestHelpers
                     break;
 
                 default:
+                    $this->assertEquals($value, $teacher->{$attribute});
                     break;
             }
         }

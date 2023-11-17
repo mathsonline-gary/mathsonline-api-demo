@@ -9,6 +9,7 @@ use Tests\Traits\ActivityTestHelpers;
 use Tests\Traits\ClassroomTestHelpers;
 use Tests\Traits\MemberTestHelpers;
 use Tests\Traits\SchoolTestHelpers;
+use Tests\Traits\StripeTestHelpers;
 use Tests\Traits\StudentTestHelpers;
 use Tests\Traits\SubscriptionTestHelpers;
 use Tests\Traits\TeacherTestHelpers;
@@ -23,7 +24,8 @@ abstract class TestCase extends BaseTestCase
         ClassroomTestHelpers,
         ActivityTestHelpers,
         MemberTestHelpers,
-        SubscriptionTestHelpers;
+        SubscriptionTestHelpers,
+        StripeTestHelpers;
 
     /**
      * Indicates whether the default seeder should run before each test.

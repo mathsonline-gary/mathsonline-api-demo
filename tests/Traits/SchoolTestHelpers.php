@@ -56,4 +56,40 @@ trait SchoolTestHelpers
 
         return $count === 1 ? $schools->first() : $schools;
     }
+
+    /**
+     * Assert that the given school has the given expected attributes.
+     *
+     * @param array $expected
+     * @param School $school
+     * @return void
+     */
+    public function assertSchoolAttributes(array $expected, School $school): void
+    {
+        foreach ($expected as $attribute => $value) {
+            switch ($attribute) {
+                case 'type':
+                    is_int($value)
+                        ? $this->assertEquals(
+                        $value,
+                        $school->type->value,
+                        'The school attribute type does not match the expected value.'
+                    )
+                        : $this->assertEquals(
+                        $value,
+                        $school->type,
+                        'The school attribute type does not match the expected value.'
+                    );
+                    break;
+
+                default:
+                    $this->assertEquals(
+                        $value,
+                        $school->{$attribute},
+                        "The school attribute '$attribute' does not match the expected value."
+                    );
+                    break;
+            }
+        }
+    }
 }

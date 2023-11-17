@@ -40,7 +40,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_an_admin_teacher_is_unauthorized_to_get_the_list_of_students_in_a_classroom_from_another_school()
@@ -89,7 +89,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         $response = $this->getJson(
             route('api.v1.classrooms.students.index', [
@@ -99,7 +99,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_get_the_list_of_students_in_a_classroom_that_is_not_managed_by_them()
@@ -161,7 +161,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the response data has the expected structure.
         $response->assertJsonStructure([
@@ -210,7 +210,7 @@ class IndexClassroomStudentTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the response is correct.
         $response->assertJsonCount(5, 'data');
@@ -251,7 +251,7 @@ class IndexClassroomStudentTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the response is correct.
         $response->assertJsonCount(5, 'data');

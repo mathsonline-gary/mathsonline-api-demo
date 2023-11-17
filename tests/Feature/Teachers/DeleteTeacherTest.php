@@ -30,7 +30,7 @@ class DeleteTeacherTest extends TestCase
         $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     public function test_an_admin_teacher_is_unauthorised_to_delete_a_teacher_in_another_school(): void
@@ -104,7 +104,7 @@ class DeleteTeacherTest extends TestCase
         $response = $this->deleteJson(route('api.v1.teachers.destroy', $teacher));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
 
         // Assert that $teacher is soft-deleted.
         $this->assertSoftDeleted('teachers', ['id' => $teacher->id]);

@@ -51,7 +51,7 @@ class UpdateClassroomTest extends TestCase
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -90,7 +90,7 @@ class UpdateClassroomTest extends TestCase
         $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
 
         // Assert that the response has a 200 “OK” status code.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**

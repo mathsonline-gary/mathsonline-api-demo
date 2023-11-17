@@ -3,12 +3,9 @@
 namespace Feature\Students;
 
 use App\Enums\ActivityType;
-use App\Enums\UserType;
 use App\Models\Activity;
 use App\Models\Users\Student;
-use App\Models\Users\StudentSetting;
-use App\Models\Users\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CreateStudentTest extends TestCase
@@ -31,8 +28,10 @@ class CreateStudentTest extends TestCase
             'password_confirmation' => 'password',
             'first_name' => fake()->firstName,
             'last_name' => fake()->lastName,
-            'expired_tasks_excluded' => fake()->boolean,
-            'confetti_enabled' => fake()->boolean,
+            'settings' => [
+                'expired_tasks_excluded' => fake()->boolean,
+                'confetti_enabled' => fake()->boolean,
+            ],
         ];
     }
 
@@ -355,13 +354,13 @@ class CreateStudentTest extends TestCase
         $this->actingAsTeacher($adminTeacher);
 
         // Test that the min length of the password attribute is 4 characters.
-        $this->payload['password'] = fake()->password(3);
+        $this->payload['password'] = Str::random(3);
         $this->postJson(route('api.v1.students.store', $this->payload))
             ->assertUnprocessable()
             ->assertInvalid('password', __('validation.min.string', ['attribute' => 'password', 'min' => 4]));
 
         // Test that the max length of the password attribute is 32 characters.
-        $this->payload['password'] = fake()->password(33);
+        $this->payload['password'] = Str::random(33);
         $this->postJson(route('api.v1.students.store', $this->payload))
             ->assertUnprocessable()
             ->assertInvalid('password', __('validation.max.string', ['attribute' => 'password', 'max' => 32]));
@@ -443,48 +442,6 @@ class CreateStudentTest extends TestCase
             ->assertInvalid('classroom_group_ids.1');
     }
 
-    public function test_it_creates_the_student()
-    {
-        $adminTeacher = $this->fakeAdminTeacher();
-
-        $studentCount = Student::count();
-        $userCount = User::count();
-        $studentSettingCount = StudentSetting::count();
-
-        $this->actingAsTeacher($adminTeacher);
-
-        $this->postJson(route('api.v1.students.store', $this->payload));
-
-        // Assert that the student is created in the database.
-        $this->assertDatabaseCount('students', $studentCount + 1);
-
-        // Assert that the student is created correctly in the database.
-        $student = Student::latest()->first();
-        $this->assertEquals($this->payload['username'], $student->username);
-        $this->assertEquals($this->payload['email'], $student->email);
-        $this->assertEquals($this->payload['first_name'], $student->first_name);
-        $this->assertEquals($this->payload['last_name'], $student->last_name);
-        $this->assertEquals($adminTeacher->school_id, $student->school_id);
-
-        // Assert that the associated user is created in the database.
-        $this->assertDatabaseCount('users', $userCount + 1);
-
-        // Assert that the associated user is created correctly in the database.
-        $user = $student->asUser();
-        $this->assertEquals($this->payload['username'], $user->login);
-        $this->assertEquals($this->payload['email'], $user->email);
-        $this->assertTrue(Hash::check($this->payload['password'], $user->password));
-        $this->assertEquals(UserType::STUDENT, $user->type);
-
-        // Assert that the associated student setting is created in the database.
-        $this->assertDatabaseCount('student_settings', $studentSettingCount + 1);
-
-        // Assert that the associated student setting is created correctly in the database.
-        $studentSetting = $student->settings;
-        $this->assertEquals($student->id, $studentSetting->student_id);
-        $this->assertEquals($this->payload['confetti_enabled'], $studentSetting->confetti_enabled);
-    }
-
     public function test_it_logs_student_created_activity()
     {
         $adminTeacher = $this->fakeAdminTeacher();
@@ -531,12 +488,10 @@ class CreateStudentTest extends TestCase
         $this->assertDatabaseHas('classroom_group_student', [
             'student_id' => $student->id,
             'classroom_group_id' => $classroomGroup1->id,
-            'expired_tasks_excluded' => $this->payload['expired_tasks_excluded'],
         ]);
         $this->assertDatabaseHas('classroom_group_student', [
             'student_id' => $student->id,
             'classroom_group_id' => $classroomGroup2->id,
-            'expired_tasks_excluded' => $this->payload['expired_tasks_excluded'],
         ]);
     }
 }

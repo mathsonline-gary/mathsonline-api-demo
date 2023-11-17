@@ -77,7 +77,7 @@ class StripeWebhookController extends Controller
             Log::channel('stripe')
                 ->error('[customer.subscription.created] The associated school not found.', $payload);
 
-            return $this->missingMethod();
+            return $this->successMethod('The associated school not found.');
         }
 
         // Check if the Stripe subscription already exists in our database by Stripe subscription ID.
@@ -85,7 +85,7 @@ class StripeWebhookController extends Controller
             Log::channel('stripe')
                 ->error('[customer.subscription.created] The associated subscription already exists.', $payload);
 
-            return $this->missingMethod();
+            return $this->successMethod('The associated subscription already exists.');
         }
 
         // Check if the Stripe subscription has a corresponding membership in our database.
@@ -94,36 +94,18 @@ class StripeWebhookController extends Controller
             Log::channel('stripe')
                 ->error('[customer.subscription.created] The associated membership not found.', $payload);
 
-            return $this->missingMethod();
+            return $this->successMethod('The associated membership not found.');
         }
 
-        // Check if the Stripe subscription already exists in our database by Stripe subscription schedule ID.
-        // If so, it is a scheduled subscription, then update the subscription.
-        if ($subscription = $this->subscriptionService->search([
-            'school_id' => $school->id,
-            'stripe_id' => null,
-        ])->first()) {
-            $this->subscriptionService->update($subscription, [
-                'stripe_id' => $data['id'],
-                'starts_at' => $data['start_date'],
-                'cancels_at' => $data['cancel_at'],
-                'current_period_starts_at' => $data['current_period_start'],
-                'current_period_ends_at' => $data['current_period_end'],
-                'canceled_at' => $data['canceled_at'],
-                'ended_at' => $data['ended_at'],
-                'status' => $data['status'],
-            ]);
-
-            return $this->successMethod();
-        }
-
-        // Create a new subscription.
+        // Otherwise, create a new subscription.
         $this->subscriptionService->create([
             'school_id' => $school->id,
             'membership_id' => $membership->id,
             'stripe_id' => $data['id'],
             'starts_at' => $data['start_date'],
             'cancels_at' => $data['cancel_at'],
+            'current_period_starts_at' => $data['current_period_start'],
+            'current_period_ends_at' => $data['current_period_end'],
             'canceled_at' => $data['canceled_at'],
             'ended_at' => $data['ended_at'],
             'status' => $data['status'],
@@ -263,24 +245,26 @@ class StripeWebhookController extends Controller
     /**
      * Respond with "Webhook handled" message.
      *
+     * @param string $message
      * @return JsonResponse
      */
-    protected function successMethod(): JsonResponse
+    protected function successMethod(string $message = 'Webhook handled.'): JsonResponse
     {
         return $this->successResponse(
-            message: 'Webhook handled.',
+            message: $message,
         );
     }
 
     /**
      * Respond with "Webhook unhandled" message.
      *
+     * @param string $message
      * @return JsonResponse
      */
-    protected function missingMethod(): JsonResponse
+    protected function missingMethod(string $message = 'Webhook unhandled.'): JsonResponse
     {
         return $this->successResponse(
-            message: 'Webhook unhandled.',
+            message: $message,
         );
     }
 }

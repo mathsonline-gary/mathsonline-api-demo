@@ -60,7 +60,7 @@ class UpdateTeacherTest extends TestCase
         $response = $this->putJson(route('api.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
 
         // Assert that the teacher was updated correctly.
         $expected = [
@@ -88,7 +88,7 @@ class UpdateTeacherTest extends TestCase
         $response = $this->putJson(route('api.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -110,7 +110,7 @@ class UpdateTeacherTest extends TestCase
         $response = $this->putJson(route('api.v1.teachers.update', ['teacher' => $teacher]), $this->payload);
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**

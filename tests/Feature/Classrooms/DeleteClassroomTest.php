@@ -44,7 +44,7 @@ class DeleteClassroomTest extends TestCase
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
         // Assert that the response has 200 status code.
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -81,7 +81,7 @@ class DeleteClassroomTest extends TestCase
 
         $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
 
-        $response->assertOk()->assertJsonSuccess();
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**

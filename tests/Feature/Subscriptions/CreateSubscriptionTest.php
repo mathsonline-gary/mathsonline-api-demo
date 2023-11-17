@@ -86,7 +86,7 @@ class CreateSubscriptionTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the subscription was created in the database.
         $this->assertDatabaseCount('subscriptions', 1);
@@ -141,7 +141,7 @@ class CreateSubscriptionTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
 
         // Assert that the subscription was created in the database.
         $this->assertDatabaseCount('subscriptions', 1);

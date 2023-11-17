@@ -33,7 +33,7 @@ class ShowStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_an_admin_teacher_is_unauthorized_to_get_the_detail_of_a_student_in_another_school(): void
@@ -69,7 +69,7 @@ class ShowStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_a_non_admin_teacher_can_get_the_detail_of_a_student_who_is_in_the_classroom_where_the_teacher_is_a_secondary_teacher()
@@ -91,7 +91,7 @@ class ShowStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_a_non_admin_teacher_cannot_get_the_detail_of_a_student_in_another_school(): void

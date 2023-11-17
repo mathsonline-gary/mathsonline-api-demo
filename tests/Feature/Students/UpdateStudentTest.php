@@ -54,7 +54,7 @@ class UpdateStudentTest extends TestCase
 
         // Assert that the response is successful with updated student profile.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_an_admin_teacher_is_unauthorized_to_update_details_of_a_student_in_another_school(): void
@@ -91,7 +91,7 @@ class UpdateStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonSuccess();
+            ->assertJsonSuccessful();
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_update_details_of_a_student_who_is_not_managed_by_them(): void

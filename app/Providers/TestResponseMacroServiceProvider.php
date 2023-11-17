@@ -24,13 +24,25 @@ class TestResponseMacroServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        TestResponse::macro('assertEmailVerificationRequired', function (): void {
-            $this->assertStatus(409)
+        TestResponse::macro('assertEmailVerificationRequired', function () {
+            return $this->assertStatus(409)
                 ->assertJson(['message' => 'Your email address is not verified.']);
         });
 
-        TestResponse::macro('assertJsonSuccess', function (): void {
-            $this->assertJsonFragment(['success' => true]);
+        TestResponse::macro('assertJsonSuccessful', function () {
+            return $this->assertJsonFragment(['success' => true]);
+        });
+
+        TestResponse::macro('assertStripeWebhookSuccessful', function (string $message = 'Webhook handled.') {
+            return $this->assertOk()
+                ->assertJsonSuccessful()
+                ->assertJsonFragment(['message' => $message]);
+        });
+
+        TestResponse::macro('assertStripeWebhookMissing', function (string $message = 'Webhook unhandled.') {
+            return $this->assertOk()
+                ->assertJsonSuccessful()
+                ->assertJsonFragment(['message' => $message]);
         });
     }
 }
