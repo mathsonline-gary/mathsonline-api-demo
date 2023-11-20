@@ -7,6 +7,7 @@ use App\Models\Market;
 use App\Services\MembershipService;
 use App\Services\ProductService;
 use App\Services\SchoolService;
+use App\Services\StripeService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class StripeWebhookController extends Controller
         protected SubscriptionService $subscriptionService,
         protected MembershipService   $membershipService,
         protected ProductService      $productService,
+        protected StripeService       $stripeService,
     )
     {
     }
@@ -153,37 +155,46 @@ class StripeWebhookController extends Controller
             Log::channel('stripe')
                 ->error('[customer.subscription.updated] The associated school not found.', $payload);
 
-            return $this->missingMethod();
+            return $this->successMethod('The associated school not found.');
         }
 
-        // Check if the Stripe subscription has a corresponding subscription in our database. If not, create a new one.
-        $subscription = $school->subscriptions()->firstOrNew([
-            'stripe_id' => $data['id'],
-        ]);
+        // Get the latest values of the Stripe subscription.
+        $stripeSubscription = $this->stripeService->stripe($school->market_id)->subscriptions->retrieve($data['id']);
 
         // Check if the Stripe subscription has a corresponding membership in our database.
-        $plan = $data['items']['data'][0]['price'];
-        if (!($membership = $this->membershipService->findByStripeId($plan['id']))) {
+        $plan = $stripeSubscription->items->first()->plan;
+        if (!($membership = $this->membershipService->findByStripeId($plan->id))) {
             Log::channel('stripe')
                 ->error('[customer.subscription.updated] The associated membership not found.', $payload);
 
-            return $this->missingMethod();
+            return $this->successMethod('The associated membership not found.');
         }
 
-        // Set the subscription attributes.
         $attributes = [
             'school_id' => $school->id,
             'membership_id' => $membership->id,
-            'stripe_id' => $data['id'],
-            'starts_at' => $data['start_date'],
-            'cancels_at' => $data['cancel_at'],
-            'canceled_at' => $data['canceled_at'],
-            'ended_at' => $data['ended_at'],
-            'status' => $data['status'],
+            'stripe_id' => $stripeSubscription->id,
+            'starts_at' => $stripeSubscription->start_date,
+            'cancels_at' => $stripeSubscription->cancel_at,
+            'current_period_starts_at' => $stripeSubscription->current_period_start,
+            'current_period_ends_at' => $stripeSubscription->current_period_end,
+            'canceled_at' => $stripeSubscription->canceled_at,
+            'ended_at' => $stripeSubscription->ended_at,
+            'status' => $stripeSubscription->status,
         ];
 
-        // Update the subscription.
-        $this->subscriptionService->update($subscription, $attributes);
+        // Check if the Stripe subscription has a corresponding subscription in our database. If not, create a new one.
+        if (
+            $subscription = $school->subscriptions()
+                ->where([
+                    'stripe_id' => $stripeSubscription->id,
+                ])->first()
+        ) {
+            // Update the subscription.
+            $this->subscriptionService->update($subscription, $attributes);
+        } else {
+            $this->subscriptionService->create($attributes);
+        }
 
         return $this->successMethod();
     }

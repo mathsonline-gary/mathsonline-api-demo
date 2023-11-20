@@ -93,6 +93,8 @@ class SubscriptionService
             'stripe_id',
             'starts_at',
             'cancels_at',
+            'current_period_starts_at',
+            'current_period_ends_at',
             'canceled_at',
             'ended_at',
             'status',
