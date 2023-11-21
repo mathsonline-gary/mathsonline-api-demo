@@ -12,9 +12,7 @@ class Subscription extends Model
     use HasFactory;
 
     protected $fillable = [
-        'school_id',
         'membership_id',
-        'stripe_id',
         'starts_at',
         'cancels_at',
         'current_period_starts_at',
@@ -47,5 +45,15 @@ class Subscription extends Model
     public function scopeActive(Builder $query): void
     {
         $query->where('status', SubscriptionStatus::ACTIVE->value);
+    }
+
+    /**
+     * Determine if the subscription has been canceled.
+     *
+     * @return bool
+     */
+    public function isCanceled(): bool
+    {
+        return $this->status === SubscriptionStatus::CANCELED;
     }
 }

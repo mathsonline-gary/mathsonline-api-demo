@@ -23,9 +23,6 @@ class SubscriptionServiceTest extends TestCase
         $this->subscriptionService = new SubscriptionService();
     }
 
-    /**
-     * @see SubscriptionService::create()
-     */
     public function test_it_creates_the_subscription(): void
     {
         $school = $this->fakeHomeschool();
@@ -36,6 +33,8 @@ class SubscriptionServiceTest extends TestCase
             'stripe_id' => 'sub_123',
             'starts_at' => fake()->dateTime(),
             'cancels_at' => fake()->dateTime(),
+            'current_period_starts_at' => fake()->dateTime(),
+            'current_period_ends_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
             'status' => SubscriptionStatus::ACTIVE,
@@ -52,22 +51,99 @@ class SubscriptionServiceTest extends TestCase
 
         // Assert it returns the subscription instance.
         $this->assertInstanceOf(Subscription::class, $subscription);
-        $this->assertEquals($attributes['school_id'], $subscription->school_id);
-        $this->assertEquals($attributes['membership_id'], $subscription->membership_id);
-        $this->assertEquals($attributes['stripe_id'], $subscription->stripe_id);
-        $this->assertEquals($attributes['starts_at'], $subscription->starts_at);
-        $this->assertEquals($attributes['cancels_at'], $subscription->cancels_at);
-        $this->assertEquals($attributes['canceled_at'], $subscription->canceled_at);
-        $this->assertEquals($attributes['ended_at'], $subscription->ended_at);
-        $this->assertEquals($attributes['status'], $subscription->status);
-        $this->assertEquals($attributes['custom_user_limit'], $subscription->custom_user_limit);
+        $this->assertSubscriptionAttributes($attributes, $subscription);
     }
 
-    /**
-     * @see SubscriptionService::update()
-     */
     public function test_it_updates_the_subscription(): void
     {
-        // TODO
+        $school = $this->fakeHomeschool(1, ['market_id' => 1]);
+
+        $subscription = $this->fakeSubscription($school);
+
+        $attributes = [
+            'membership_id' => 1,
+            'starts_at' => fake()->dateTime(),
+            'cancels_at' => fake()->dateTime(),
+            'current_period_starts_at' => fake()->dateTime(),
+            'current_period_ends_at' => fake()->dateTime(),
+            'canceled_at' => fake()->dateTime(),
+            'ended_at' => fake()->dateTime(),
+            'status' => SubscriptionStatus::INCOMPLETE,
+            'custom_user_limit' => fake()->numberBetween(1, 100)
+        ];
+
+        $subscription = $this->subscriptionService->update($subscription, $attributes);
+
+        // Assert that no new subscriptions were created.
+        $this->assertDatabaseCount('subscriptions', 1);
+
+        // Assert the subscription has the correct values.
+        $this->assertDatabaseHas('subscriptions', [
+            'id' => $subscription->id,
+            'school_id' => $school->id,
+            ...$attributes
+        ]);
+    }
+
+    public function test_it_does_not_update_school_id()
+    {
+        $school = $this->fakeHomeschool(1, ['market_id' => 1]);
+
+        $subscription = $this->fakeSubscription($school);
+
+        $attributes = [
+            'school_id' => $school->id + 1,
+            'membership_id' => 1,
+            'starts_at' => fake()->dateTime(),
+            'cancels_at' => fake()->dateTime(),
+            'current_period_starts_at' => fake()->dateTime(),
+            'current_period_ends_at' => fake()->dateTime(),
+            'canceled_at' => fake()->dateTime(),
+            'ended_at' => fake()->dateTime(),
+            'status' => SubscriptionStatus::INCOMPLETE,
+            'custom_user_limit' => fake()->numberBetween(1, 100)
+        ];
+
+        $subscription = $this->subscriptionService->update($subscription, $attributes);
+
+        // Assert that no new subscriptions were created.
+        $this->assertDatabaseCount('subscriptions', 1);
+
+        // Assert that 'school_id' was not updated.
+        $this->assertDatabaseMissing('subscriptions', [
+            'id' => $subscription->id,
+            'school_id' => $attributes['school_id'],
+        ]);
+    }
+
+    public function test_it_does_not_update_stripe_id()
+    {
+        $school = $this->fakeHomeschool(1, ['market_id' => 1]);
+
+        $subscription = $this->fakeSubscription($school);
+
+        $attributes = [
+            'stripe_id' => 'sub_' . fake()->text(),
+            'membership_id' => 1,
+            'starts_at' => fake()->dateTime(),
+            'cancels_at' => fake()->dateTime(),
+            'current_period_starts_at' => fake()->dateTime(),
+            'current_period_ends_at' => fake()->dateTime(),
+            'canceled_at' => fake()->dateTime(),
+            'ended_at' => fake()->dateTime(),
+            'status' => SubscriptionStatus::INCOMPLETE,
+            'custom_user_limit' => fake()->numberBetween(1, 100)
+        ];
+
+        $subscription = $this->subscriptionService->update($subscription, $attributes);
+
+        // Assert that no new subscriptions were created.
+        $this->assertDatabaseCount('subscriptions', 1);
+
+        // Assert that 'stripe_id' was not updated.
+        $this->assertDatabaseMissing('subscriptions', [
+            'id' => $subscription->id,
+            'stripe_id' => $attributes['stripe_id'],
+        ]);
     }
 }

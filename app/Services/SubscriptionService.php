@@ -2,12 +2,9 @@
 
 namespace App\Services;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
-use Stripe\Subscription as StripeSubscription;
 
 class SubscriptionService
 {
@@ -33,23 +30,14 @@ class SubscriptionService
             'custom_user_limit'
         ]);
 
-        return Subscription::create($attributes);
-    }
+        $subscription = new Subscription($attributes);
 
-    public function createWithStripeSubscription(int $schoolId, int $membershipId, StripeSubscription $stripeSubscription)
-    {
-        return $this->create([
-            'school_id' => $schoolId,
-            'membership_id' => $membershipId,
-            'stripe_id' => $stripeSubscription->id,
-            'starts_at' => $stripeSubscription->start_date,
-            'cancels_at' => $stripeSubscription->cancel_at,
-            'current_period_starts_at' => $stripeSubscription->current_period_start,
-            'current_period_ends_at' => $stripeSubscription->current_period_end,
-            'canceled_at' => $stripeSubscription->canceled_at,
-            'ended_at' => $stripeSubscription->ended_at,
-            'status' => $stripeSubscription->status,
-        ]);
+        $subscription->school_id = $attributes['school_id'];
+        $subscription->stripe_id = $attributes['stripe_id'];
+
+        $subscription->save();
+
+        return $subscription;
     }
 
     /**
@@ -87,19 +75,7 @@ class SubscriptionService
      */
     public function update(Subscription $subscription, array $attributes): Subscription
     {
-        $attributes = Arr::only($attributes, [
-            'school_id',
-            'membership_id',
-            'stripe_id',
-            'starts_at',
-            'cancels_at',
-            'current_period_starts_at',
-            'current_period_ends_at',
-            'canceled_at',
-            'ended_at',
-            'status',
-            'custom_user_limit',
-        ]);
+        $attributes = Arr::only($attributes, $subscription->getFillable());
 
         $subscription->update($attributes);
 
@@ -107,17 +83,13 @@ class SubscriptionService
     }
 
     /**
-     * Cancel a subscription.
+     * Find a subscription by its Stripe ID.
      *
-     * @param Subscription $subscription
-     * @param Carbon|null $canceled_at
-     * @return void
+     * @param string $stripeId
+     * @return Subscription|null
      */
-    public function cancel(Subscription $subscription, Carbon $canceled_at = null): void
+    public function findByStripeId(string $stripeId): ?Subscription
     {
-        $subscription->update([
-            'canceled_at' => $canceled_at ?? now(),
-            'status' => SubscriptionStatus::CANCELED,
-        ]);
+        return Subscription::where('stripe_id', $stripeId)->first();
     }
 }
