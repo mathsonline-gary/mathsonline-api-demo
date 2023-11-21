@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StripeWebhookRequest;
 use App\Services\MembershipService;
@@ -183,16 +184,25 @@ class StripeWebhookController extends Controller
             'status' => $stripeSubscription->status,
         ];
 
-        // Check if the Stripe subscription has a corresponding subscription in our database. If not, create a new one.
+        // Update the subscription conditionally.
         if (
             $subscription = $school->subscriptions()
                 ->where([
                     'stripe_id' => $stripeSubscription->id,
                 ])->first()
         ) {
+            // Skip if the subscription has been cancelled.
+            if ($subscription->status === SubscriptionStatus::CANCELED) {
+                Log::channel('stripe')
+                    ->error('[customer.subscription.updated] The subscription has been canceled.', $event->toArray());
+
+                return $this->successMethod('The subscription has been canceled.');
+            }
+
             // Update the subscription.
             $this->subscriptionService->update($subscription, $attributes);
         } else {
+            // Create a new subscription if it doesn't exist.
             $this->subscriptionService->create($attributes);
         }
 
