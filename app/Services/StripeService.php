@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Membership;
 use App\Models\School;
 use Illuminate\Support\Arr;
+use Stripe\ApiResource;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
+use Stripe\Stripe;
 use Stripe\StripeClient;
 use Stripe\Subscription;
 
@@ -153,4 +155,20 @@ class StripeService
             ]);
     }
 
+    /**
+     * Get the refreshed Stripe resource.
+     *
+     * @param ApiResource $resource
+     * @param int $marketId
+     *
+     * @return ApiResource
+     *
+     * @throws ApiErrorException
+     */
+    public function refreshResource(ApiResource $resource, int $marketId): ApiResource
+    {
+        Stripe::setApiKey(config("services.stripe.$marketId.secret"));
+
+        return $resource->refresh();
+    }
 }
