@@ -55,6 +55,57 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
         $this->assertDatabaseCount('subscriptions', 0);
     }
 
+    public function test_it_skips_if_the_associated_subscription_has_been_canceled(): void
+    {
+        // Get a "customer.subscription.deleted" event.
+        $payload = $this->stripe->events->all([
+            'type' => 'customer.subscription.deleted',
+            'limit' => 1,
+        ])->data[0]->toArray();
+
+        $stripeSubscription = $payload['data']['object'];
+        $stripePriceId = $stripeSubscription['items']['data'][0]['price']['id'];
+
+        // Fake the related school.
+        $school = $this->fakeHomeschool(1, [
+            'market_id' => $this->marketId,
+            'stripe_id' => $stripeSubscription['customer']
+        ]);
+
+        // Fake the related membership if it doesn't exist.
+        if (!$membership = Membership::where('stripe_id', $stripePriceId)->exists()) {
+            $membership = Membership::factory()->create([
+                'stripe_id' => $stripePriceId,
+            ]);
+        }
+
+        // Fake the existing subscription.
+        $subscription = $this->fakeSubscription($school, SubscriptionStatus::CANCELED, $membership);
+        $subscription->stripe_id = $stripeSubscription['id'];
+        $subscription->save();
+
+        // Assert that the school already exists.
+        $this->assertDatabaseCount('schools', 1);
+        $this->assertDatabaseHas('schools', ['stripe_id' => $stripeSubscription['customer']]);
+
+        // Assert that the membership already exists.
+        $this->assertDatabaseHas('memberships', ['stripe_id' => $stripePriceId]);
+
+        // Assert that the subscriptions already exists.
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', ['stripe_id' => $stripeSubscription['id']]);
+
+        // Send the event to the webhook.
+        $response = $this->postJson(
+            route('api.v1.stripe.webhook.handle', ['marketId' => $this->marketId]),
+            $payload,
+            ['Stripe-Signature' => $this->generateStripeSignature($this->marketId, $payload)],
+        );
+
+        // Assert that the webhook was handled successfully.
+        $response->assertStripeWebhookSuccessful('The subscription has been canceled.');
+    }
+
     public function test_it_creates_a_canceled_subscription_if_no_subscription_connects_to_the_deleted_stripe_subscription(): void
     {
         // Get a "customer.subscription.deleted" event.

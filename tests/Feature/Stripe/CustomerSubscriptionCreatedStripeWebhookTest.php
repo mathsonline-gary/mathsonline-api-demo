@@ -68,7 +68,8 @@ class CustomerSubscriptionCreatedStripeWebhookTest extends TestCase
             'stripe_id' => $payload['data']['object']['customer']
         ]);
         $subscription = $this->fakeSubscription($school);
-        $subscription->update(['stripe_id' => $payload['data']['object']['id']]);
+        $subscription->stripe_id = $payload['data']['object']['id'];
+        $subscription->save();
 
         // Assert that the school already exists.
         $this->assertDatabaseCount('schools', 1);

@@ -149,5 +149,4 @@ class School extends Model
             && !$this->hasActiveSubscription()
             && $this->type === $membership->product->school_type;
     }
-
 }

@@ -73,52 +73,30 @@ class StripeWebhookController extends Controller
         $stripeSubscription = $event->data['object'];
 
         if (!$stripeSubscription instanceof StripeSubscription) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] Invalid event data.', $event->toArray());
-
-            return $this->successMethod('Invalid event data.');
+            return $this->handleEventError($event, 'Invalid event data.');
         }
 
-        // Check if the Stripe customer has a corresponding school in our database.
-        if (!($school = $this->schoolService->findByStripeId($stripeSubscription->customer))) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] The associated school not found.', $event->toArray());
+        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
 
-            return $this->successMethod('The associated school not found.');
+        // Check if the Stripe customer has an associated school.
+        if (is_null($attributes['school'])) {
+            return $this->handleEventError($event, 'The associated school not found.');
         }
 
-        // Check if the Stripe subscription already exists in our database by Stripe subscription ID.
-        if ($school->subscriptions->contains('stripe_id', $stripeSubscription->id)) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] The associated subscription already exists.', $event->toArray());
-
-            return $this->successMethod('The associated subscription already exists.');
+        // Check if the Stripe subscription already exists.
+        if ($attributes['subscription']) {
+            return $this->handleEventError($event, 'The associated subscription already exists.');
         }
 
-        // Check if the Stripe subscription has a corresponding membership in our database.
-        $plan = $stripeSubscription->items->first()->plan;
-
-        if (!$membership = $this->membershipService->findByStripeId($plan->id)) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] The associated membership not found.', $event->toArray());
-
-            return $this->successMethod('The associated membership not found.');
+        // Check if the Stripe subscription has an associated membership with an active campaign.
+        if (is_null($attributes['membership'])) {
+            return $this->handleEventError($event, 'The associated membership not found.');
+        } else if (!$attributes['membership']->campaign->isActive()) {
+            return $this->handleEventError($event, 'The associated membership campaign is not active.');
         }
 
         // Otherwise, create a new subscription.
-        $this->subscriptionService->create([
-            'school_id' => $school->id,
-            'membership_id' => $membership->id,
-            'stripe_id' => $stripeSubscription->id,
-            'starts_at' => $stripeSubscription->start_date,
-            'cancels_at' => $stripeSubscription->cancel_at,
-            'current_period_starts_at' => $stripeSubscription->current_period_start,
-            'current_period_ends_at' => $stripeSubscription->current_period_end,
-            'canceled_at' => $stripeSubscription->canceled_at,
-            'ended_at' => $stripeSubscription->ended_at,
-            'status' => $stripeSubscription->status,
-            'custom_user_limit' => null,
-        ]);
+        $this->subscriptionService->create($attributes);
 
         return $this->successMethod();
     }
@@ -128,61 +106,34 @@ class StripeWebhookController extends Controller
         $stripeSubscription = $event->data['object'];
 
         if (!$stripeSubscription instanceof StripeSubscription) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] Invalid event data.', $event->toArray());
-
-            return $this->successMethod('Invalid event data.');
+            return $this->handleEventError($event, 'Invalid event data.');
         }
 
-        // Check if the Stripe customer has a corresponding school in our database.
-        if (!($school = $this->schoolService->findByStripeId($stripeSubscription->customer))) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.created] The associated school not found.', $event->toArray());
+        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
 
-            return $this->successMethod('The associated school not found.');
+        // Check if the Stripe customer has an associated school.
+        if (is_null($attributes['school'])) {
+            return $this->handleEventError($event, 'The associated school not found.');
         }
-        // If the Stripe subscription has a corresponding subscription in our database, cancel it if it's not canceled.
-        // Otherwise, create a canceled subscription.
-        if ($subscription = $this->subscriptionService->findByStripeId($stripeSubscription->id)) {
+
+        // Check if the Stripe subscription has an associated subscription.
+        if ($subscription = $attributes['subscription']) {
+
+            // Skip if the subscription has been canceled.
             if ($subscription->isCanceled()) {
-                Log::channel('stripe')
-                    ->error('[customer.subscription.deleted] The subscription has been canceled.', $event->toArray());
-
-                return $this->successMethod('The subscription has been canceled.');
+                return $this->handleEventError($event, 'The subscription has been canceled.');
             }
 
-            $this->subscriptionService->update($subscription, [
-                'starts_at' => $stripeSubscription->start_date,
-                'cancels_at' => $stripeSubscription->cancel_at,
-                'current_period_starts_at' => $stripeSubscription->current_period_start,
-                'current_period_ends_at' => $stripeSubscription->current_period_end,
-                'canceled_at' => $stripeSubscription->canceled_at,
-                'ended_at' => $stripeSubscription->ended_at,
-                'status' => SubscriptionStatus::CANCELED,
-            ]);
+            // Otherwise, update the subscription.
+            $this->subscriptionService->update($subscription, $attributes);
         } else {
-            // Check if the Stripe subscription has a corresponding membership in our database.
-            $plan = $stripeSubscription->items->first()->plan;
-            if (!($membership = $this->membershipService->findByStripeId($plan->id))) {
-                Log::channel('stripe')
-                    ->error('[customer.subscription.deleted] The associated membership not found.', $event->toArray());
 
-                return $this->successMethod('The associated membership not found.');
+            // If the subscription doesn't exist, create a canceled subscription.
+            if (is_null($attributes['membership'])) {
+                return $this->handleEventError($event, 'The associated membership not found.');
             }
 
-            $this->subscriptionService->create([
-                'school_id' => $school->id,
-                'membership_id' => $membership->id,
-                'stripe_id' => $stripeSubscription->id,
-                'starts_at' => $stripeSubscription->start_date,
-                'cancels_at' => $stripeSubscription->cancel_at,
-                'current_period_starts_at' => $stripeSubscription->current_period_start,
-                'current_period_ends_at' => $stripeSubscription->current_period_end,
-                'canceled_at' => $stripeSubscription->canceled_at,
-                'ended_at' => $stripeSubscription->ended_at,
-                'status' => SubscriptionStatus::CANCELED,
-                'custom_user_limit' => null,
-            ]);
+            $this->subscriptionService->create($attributes);
         }
 
         return $this->successMethod();
@@ -193,65 +144,36 @@ class StripeWebhookController extends Controller
         $stripeSubscription = $event->data['object'];
 
         if (!$stripeSubscription instanceof StripeSubscription) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.updated] Invalid event data.', $event->toArray());
-
-            return $this->successMethod('Invalid event data.');
+            return $this->handleEventError($event, 'Invalid event data.');
         }
 
-        // Check if the Stripe customer has a corresponding school in our database.
-        if (!($school = $this->schoolService->findByStripeId($stripeSubscription->customer))) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.updated] The associated school not found.', $event->toArray());
+        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
 
-            return $this->successMethod('The associated school not found.');
+        // Check if the Stripe customer has an associated school.
+        if (is_null($school = $attributes['school'])) {
+            return $this->handleEventError($event, 'The associated school not found.');
         }
 
         // Get the refreshed Stripe subscription resource.
         $this->stripeService->refreshResource($stripeSubscription, $school->market_id);
 
-        // Check if the Stripe subscription has a corresponding membership in our database.
-        $plan = $stripeSubscription->items->first()->plan;
-        if (!($membership = $this->membershipService->findByStripeId($plan->id))) {
-            Log::channel('stripe')
-                ->error('[customer.subscription.updated] The associated membership not found.', $event->toArray());
-
-            return $this->successMethod('The associated membership not found.');
+        // Check if the Stripe subscription has an associated membership.
+        if (is_null($attributes['membership'])) {
+            return $this->handleEventError($event, 'The associated membership not found.');
         }
 
-        $attributes = [
-            'school_id' => $school->id,
-            'membership_id' => $membership->id,
-            'stripe_id' => $stripeSubscription->id,
-            'starts_at' => $stripeSubscription->start_date,
-            'cancels_at' => $stripeSubscription->cancel_at,
-            'current_period_starts_at' => $stripeSubscription->current_period_start,
-            'current_period_ends_at' => $stripeSubscription->current_period_end,
-            'canceled_at' => $stripeSubscription->canceled_at,
-            'ended_at' => $stripeSubscription->ended_at,
-            'status' => $stripeSubscription->status,
-        ];
-
-        // Update the subscription conditionally.
-        if (
-            $subscription = $school->subscriptions()
-                ->where([
-                    'stripe_id' => $stripeSubscription->id,
-                ])->first()
-        ) {
-            // Skip if the subscription has been cancelled.
-            if ($subscription->status === SubscriptionStatus::CANCELED) {
-                Log::channel('stripe')
-                    ->error('[customer.subscription.updated] The subscription has been canceled.', $event->toArray());
-
-                return $this->successMethod('The subscription has been canceled.');
-            }
-
-            // Update the subscription.
-            $this->subscriptionService->update($subscription, $attributes);
-        } else {
+        // Check if the Stripe subscription has an associated subscription.
+        if (is_null($subscription = $attributes['subscription'])) {
             // Create a new subscription if it doesn't exist.
             $this->subscriptionService->create($attributes);
+        } else {
+            // Skip if the subscription has been cancelled.
+            if ($subscription->status === SubscriptionStatus::CANCELED) {
+                return $this->handleEventError($event, 'The subscription has been canceled.');
+            }
+
+            // Otherwise, update the subscription.
+            $this->subscriptionService->update($subscription, $attributes);
         }
 
         return $this->successMethod();
@@ -300,5 +222,23 @@ class StripeWebhookController extends Controller
         return $this->successResponse(
             message: $message,
         );
+    }
+
+    /**
+     * Handle the event error:
+     * 1. Log the error.
+     * 2. Skip the further processing and respond immediately.
+     *
+     * @param Event $event
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    protected function handleEventError(Event $event, string $message): JsonResponse
+    {
+        Log::channel('stripe')
+            ->error("[$event->type] $message", $event->toArray());
+
+        return $this->successMethod($message);
     }
 }
