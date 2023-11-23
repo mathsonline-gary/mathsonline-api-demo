@@ -72,7 +72,7 @@ class StripeServiceTest extends TestCase
         $member = $this->fakeMember($this->marketId);
 
         $membership = Membership::whereIn('product_id', Product::where('market_id', $this->marketId)->pluck('id'))
-            ->where('is_recurring', true)
+            ->where('iterations', null)
             ->firstOrFail();
 
         $subscription = $this->stripeService->createSubscription($member->school, $membership);
@@ -90,7 +90,7 @@ class StripeServiceTest extends TestCase
         $member = $this->fakeMember($this->marketId);
 
         $membership = Membership::whereIn('product_id', Product::where('market_id', $this->marketId)->pluck('id'))
-            ->where('is_recurring', false)
+            ->where('iterations', 1)
             ->firstOrFail();
 
         $subscription = $this->stripeService->createSubscription($member->school, $membership);

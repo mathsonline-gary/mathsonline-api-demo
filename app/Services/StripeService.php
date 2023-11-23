@@ -109,7 +109,7 @@ class StripeService
         $stripe = $this->stripe($school->market_id);
 
         // Create the Stripe subscription conditionally.
-        if ($membership->is_recurring) {
+        if ($membership->isRecurring()) {
             // If the membership is recurring, create a subscription.
             $subscription = $stripe->subscriptions->create([
                 'customer' => $school->stripe_id,
@@ -133,10 +133,10 @@ class StripeService
                         'items' => [
                             [
                                 'price' => $membership->stripe_id,
-                                'quantity' => "1",
+                                'quantity' => 1,
                             ],
                         ],
-                        'iterations' => "1",
+                        'iterations' => $membership->iterations,
                     ],
                 ],
                 'expand' => ['subscription'],

@@ -126,7 +126,7 @@ class CreateSubscriptionTest extends TestCase
                 $query->whereNotNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
-            ->where('is_recurring', false)
+            ->where('iterations', 1)
             ->where('period_in_months', 12)
             ->get()
             ->random();
@@ -151,7 +151,7 @@ class CreateSubscriptionTest extends TestCase
                 $query->whereNotNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
-            ->where('is_recurring', true)
+            ->where('iterations', null)
             ->get()
             ->random();
 

@@ -19,7 +19,7 @@ class MembershipFactory extends Factory
             'price' => fake()->randomFloat(2, 0, 500),
             'period_in_months' => 12,
             'period_in_days' => null,
-            'is_recurring' => fake()->boolean(),
+            'iterations' => null,
             'user_limit' => fake()->numberBetween(0, 200),
             'stripe_id' => 'price_' . fake()->uuid,
             'note' => fake()->optional()->text(),

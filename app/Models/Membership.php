@@ -23,7 +23,7 @@ class Membership extends Model
      * @var array
      */
     protected $casts = [
-        'is_recurring' => 'bool',
+        'iterations' => 'int',
         'period_in_days' => 'int',
         'period_in_months' => 'int',
         'price' => 'double',
@@ -49,6 +49,16 @@ class Membership extends Model
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
+    }
+
+    /**
+     * Indicates if the membership is recurring.
+     *
+     * @return bool
+     */
+    public function isRecurring(): bool
+    {
+        return is_null($this->iterations);
     }
 
 }
