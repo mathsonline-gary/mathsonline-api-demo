@@ -57,10 +57,6 @@ class ClassroomFactory extends Factory
      */
     public function ownedBy(Teacher $teacher): ClassroomFactory
     {
-        return $this->state(function () use ($teacher) {
-            return [
-                'owner_id' => $teacher->id,
-            ];
-        });
+        return $this->for($teacher, 'owner');
     }
 }
