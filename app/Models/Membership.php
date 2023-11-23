@@ -51,14 +51,4 @@ class Membership extends Model
         return $this->belongsTo(Campaign::class);
     }
 
-    /**
-     * Determine if the membership is recurring.
-     *
-     * @return bool
-     */
-    public function isRecurring(): bool
-    {
-        return $this->is_recurring;
-    }
-
 }

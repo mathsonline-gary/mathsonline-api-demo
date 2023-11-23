@@ -50,6 +50,7 @@ trait MemberTestHelpers
                 'postal_code' => $school->address_postal_code,
                 'country' => $school->address_country,
             ],
+            'source' => 'tok_visa',
         ]);
 
         // Save the school.

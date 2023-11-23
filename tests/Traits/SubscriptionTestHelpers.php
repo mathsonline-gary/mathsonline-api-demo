@@ -58,7 +58,7 @@ trait SubscriptionTestHelpers
         }
 
         // Set 'cancels_at' based on membership.
-        if ($membership->isRecurring()) {
+        if ($membership->is_recurring) {
             $attributes['cancels_at'] = null;
         } elseif ($membership->period_in_months) {
             $attributes['cancels_at'] = $attributes['starts_at']->addMonths($membership->period_in_months);

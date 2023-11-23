@@ -8,7 +8,7 @@ use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Stripe\ApiResource;
-use Stripe\Customer;
+use Stripe\Customer as StripeCustomer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
@@ -34,11 +34,11 @@ class StripeService
      * Create a new Stripe customer.
      * @param $attributes
      *
-     * @return Customer
+     * @return StripeCustomer
      *
      * @throws ApiErrorException
      */
-    public function createCustomer($attributes): Customer
+    public function createCustomer($attributes): StripeCustomer
     {
         $attributes = Arr::only($attributes, [
             'market_id',
@@ -100,29 +100,18 @@ class StripeService
      * @param School $school
      * @param Membership $membership
      *
-     * @return Subscription
+     * @return StripeSubscription
      *
      * @throws ApiErrorException
      */
-    public function createSubscription(School $school, Membership $membership): Subscription
+    public function createSubscription(School $school, Membership $membership): StripeSubscription
     {
         $stripe = $this->stripe($school->market_id);
 
-        // Set the parameters for the Stripe subscription.
+        // Initialize parameters for the Stripe subscription.
         $params = [
             'customer' => $school->stripe_id,
-            'items' => [
-                [
-                    'price' => $membership->stripe_id,
-                    'quantity' => 1,
-                ],
-            ],
         ];
-
-        // Set the cancel time if the membership is not recurring.
-        if (!$membership->is_recurring) {
-            $params['cancel_at_period_end'] = true;
-        }
 
         // Add "test_clock" parameter if the app is running in the "local" or "development" environment.
         if (app()->environment('local', 'development')) {
@@ -133,7 +122,44 @@ class StripeService
             }
         }
 
-        return $stripe->subscriptions->create($params);
+        // Create the Stripe subscription conditionally.
+        if ($membership->is_recurring) {
+            // If the membership is recurring, create a subscription.
+            $subscription = $stripe->subscriptions->create([
+                ...$params,
+                'enable_incomplete_payments' => "false",
+                'off_session' => "true",
+                'items' => [
+                    [
+                        'price' => $membership->stripe_id,
+                        'quantity' => "1",
+                    ],
+                ],
+            ]);
+        } else {
+            // Otherwise, create a subscription schedule.
+            $subscriptionSchedule = $stripe->subscriptionSchedules->create([
+                ...$params,
+                'end_behavior' => 'cancel',
+                'start_date' => 'now',
+                'phases' => [
+                    [
+                        'items' => [
+                            [
+                                'price' => $membership->stripe_id,
+                                'quantity' => "1",
+                            ],
+                        ],
+                        'iterations' => "1",
+                    ],
+                ],
+                'expand' => ['subscription'],
+            ]);
+
+            $subscription = $subscriptionSchedule->subscription;
+        }
+
+        return $subscription;
     }
 
     /**
@@ -142,11 +168,11 @@ class StripeService
      * @param School $school
      * @param string $paymentToken
      *
-     * @return Customer
+     * @return StripeCustomer
      *
      * @throws ApiErrorException
      */
-    public function setDefaultPaymentMethod(School $school, string $paymentToken): Customer
+    public function setDefaultPaymentMethod(School $school, string $paymentToken): StripeCustomer
     {
         $stripe = $this->stripe($school->market_id);
 

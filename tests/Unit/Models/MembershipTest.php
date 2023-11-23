@@ -41,25 +41,4 @@ class MembershipTest extends TestCase
         $this->assertInstanceOf(Campaign::class, $membership->campaign);
         $this->assertEquals($associatedCampaign->id, $membership->campaign->id);
     }
-
-    public function test_it_indicates_whether_it_is_recurring(): void
-    {
-        // Retrieve a random recurring membership.
-        $membership = Membership::where('is_recurring', true)->inRandomOrder()->first();
-
-        // Ensure that the $membership variable is not null
-        $this->assertNotNull($membership);
-
-        // Test the isRecurring method for the retrieved membership
-        $this->assertTrue($membership->isRecurring());
-
-        // Retrieve a random non-recurring membership.
-        $membership = Membership::where('is_recurring', false)->inRandomOrder()->first();
-
-        // Ensure that the $membership variable is not null
-        $this->assertNotNull($membership);
-
-        // Test the isRecurring method for the retrieved membership
-        $this->assertFalse($membership->isRecurring());
-    }
 }
