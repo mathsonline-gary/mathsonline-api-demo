@@ -131,22 +131,4 @@ class School extends Model
         return $this->subscriptions()->active()->exists();
     }
 
-    /**
-     * Indicate if the school is permitted to subscribe to the given membership.
-     * The school can subscribe to a membership if:
-     * 1. The school is in the same market as the membership's product
-     * 2. The membership's campaign is active
-     * 3. The school has no active subscription
-     * 4. The school's type matches the membership's product type
-     *
-     * @param Membership $membership
-     * @return bool
-     */
-    public function canSubscribeToMembership(Membership $membership): bool
-    {
-        return $this->market_id === $membership->product->market_id
-            && $membership->campaign->isActive()
-            && !$this->hasActiveSubscription()
-            && $this->type === $membership->product->school_type;
-    }
 }

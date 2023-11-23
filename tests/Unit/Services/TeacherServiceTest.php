@@ -90,17 +90,40 @@ class TeacherServiceTest extends TestCase
     {
         $school = $this->fakeTraditionalSchool();
 
-        $teacher1 = $this->fakeAdminTeacher($school, 1, ['username' => 'john']);
-        $teacher2 = $this->fakeAdminTeacher($school, 1, ['username' => 'gary']);
+        $teacher1 = $this->fakeAdminTeacher($school, 1, [
+            'username' => 'test',
+            'email' => 'teacher1@test.com',
+            'first_name' => 'Test',
+            'last_name' => 'Test',
+        ]);
 
-        $teacher3 = $this->fakeNonAdminTeacher($school, 1, ['first_name' => 'John']);
-        $teacher4 = $this->fakeNonAdminTeacher($school, 1, ['first_name' => 'Gary']);
+        $teacher2 = $this->fakeAdminTeacher($school, 1, [
+            'username' => 'john',
+            'email' => 'teacher2@test.com',
+            'first_name' => 'Test',
+            'last_name' => 'Test',
+        ]);
 
-        $teacher5 = $this->fakeNonAdminTeacher($school, 1, ['last_name' => 'John']);
-        $teacher6 = $this->fakeNonAdminTeacher($school, 1, ['last_name' => 'Gary']);
+        $teacher3 = $this->fakeNonAdminTeacher($school, 1, [
+            'first_name' => 'John',
+            'username' => 'teacher3',
+            'email' => 'teacher3@test.com',
+            'last_name' => 'Test',
+        ]);
 
-        $teacher7 = $this->fakeNonAdminTeacher($school, 1, ['email' => 'john@test.com']);
-        $teacher8 = $this->fakeNonAdminTeacher($school, 1, ['email' => 'gary@test.com']);
+        $teacher4 = $this->fakeNonAdminTeacher($school, 1, [
+            'last_name' => 'John',
+            'username' => 'teacher4',
+            'email' => 'teacher4@test.com',
+            'first_name' => 'Test',
+        ]);
+
+        $teacher5 = $this->fakeNonAdminTeacher($school, 1, [
+            'email' => 'john@test.com',
+            'username' => 'teacher5',
+            'first_name' => 'Test',
+            'last_name' => 'Test',
+        ]);
 
         $result = $this->teacherService->search([
             'key' => 'joh',
@@ -110,14 +133,11 @@ class TeacherServiceTest extends TestCase
         $this->assertInstanceOf(LengthAwarePaginator::class, $result);
 
         // Assert that teachers in the result are correct.
-        $this->assertTrue($result->contains($teacher1));
-        $this->assertFalse($result->contains($teacher2));
+        $this->assertFalse($result->contains($teacher1));
+        $this->assertTrue($result->contains($teacher2));
         $this->assertTrue($result->contains($teacher3));
-        $this->assertFalse($result->contains($teacher4));
+        $this->assertTrue($result->contains($teacher4));
         $this->assertTrue($result->contains($teacher5));
-        $this->assertFalse($result->contains($teacher6));
-        $this->assertTrue($result->contains($teacher7));
-        $this->assertFalse($result->contains($teacher8));
     }
 
     /**

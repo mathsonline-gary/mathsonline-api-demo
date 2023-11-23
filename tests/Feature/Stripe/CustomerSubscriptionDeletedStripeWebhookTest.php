@@ -73,7 +73,7 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
         ]);
 
         // Fake the related membership if it doesn't exist.
-        if (!$membership = Membership::where('stripe_id', $stripePriceId)->exists()) {
+        if (!$membership = Membership::where('stripe_id', $stripePriceId)->first()) {
             $membership = Membership::factory()->create([
                 'stripe_id' => $stripePriceId,
             ]);
@@ -187,7 +187,7 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
         ]);
 
         // Fake the related membership if it doesn't exist.
-        if (!$membership = Membership::where('stripe_id', $stripePriceId)->exists()) {
+        if (!$membership = Membership::where('stripe_id', $stripePriceId)->first()) {
             $membership = Membership::factory()->create([
                 'stripe_id' => $stripePriceId,
             ]);

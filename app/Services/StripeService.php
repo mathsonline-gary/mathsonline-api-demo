@@ -108,25 +108,11 @@ class StripeService
     {
         $stripe = $this->stripe($school->market_id);
 
-        // Initialize parameters for the Stripe subscription.
-        $params = [
-            'customer' => $school->stripe_id,
-        ];
-
-        // Add "test_clock" parameter if the app is running in the "local" or "development" environment.
-        if (app()->environment('local', 'development')) {
-            $testClock = config("services.stripe.$school->market_id.test_clock");
-
-            if (!empty($testClock)) {
-                $params['test_clock'] = $testClock;
-            }
-        }
-
         // Create the Stripe subscription conditionally.
         if ($membership->is_recurring) {
             // If the membership is recurring, create a subscription.
             $subscription = $stripe->subscriptions->create([
-                ...$params,
+                'customer' => $school->stripe_id,
                 'enable_incomplete_payments' => "false",
                 'off_session' => "true",
                 'items' => [
@@ -139,7 +125,7 @@ class StripeService
         } else {
             // Otherwise, create a subscription schedule.
             $subscriptionSchedule = $stripe->subscriptionSchedules->create([
-                ...$params,
+                'customer' => $school->stripe_id,
                 'end_behavior' => 'cancel',
                 'start_date' => 'now',
                 'phases' => [

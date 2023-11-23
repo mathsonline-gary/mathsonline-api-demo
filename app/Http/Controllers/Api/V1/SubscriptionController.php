@@ -31,26 +31,11 @@ class SubscriptionController extends Controller
             /** @var Member $authenticatedMember */
             $authenticatedMember = $authenticatedUser->asMember();
 
-            // Authorize if the member can subscribe to the membership.
-            {
-                $membershipId = $request->integer('membership_id');
+            // Validate the membership.
+            $membership = $request->validateMembership($authenticatedMember->school);
 
-                $membership = $this->membershipService->find($membershipId, [
-                    'throwable' => true,
-                    'with_product' => true,
-                    'with_campaign' => true,
-                ]);
-
-                if (!$authenticatedMember->school->canSubscribeToMembership($membership)) {
-                    return $this->errorResponse(
-                        message: 'The member is unauthorized to subscribe to the membership.',
-                        status: 403,
-                    );
-                }
-            }
-
-            // Create a subscription for the member.
-            $subscription = DB::transaction(function () use ($authenticatedMember, $membership, $request) {
+            // Create a Stripe subscription for the member.
+            DB::transaction(function () use ($authenticatedMember, $membership, $request) {
                 // Set the default payment method for the member.
                 $this->stripeService->setDefaultPaymentMethod(
                     $authenticatedMember->school,
@@ -58,27 +43,13 @@ class SubscriptionController extends Controller
                 );
 
                 // Create a Stripe subscription for the member.
-                $stripeSubscription = $this->stripeService->createSubscription($authenticatedMember->school, $membership);
+                $this->stripeService->createSubscription($authenticatedMember->school, $membership);
 
-                // Create a subscription for the member.
-                return $this->subscriptionService->create([
-                    'school_id' => $authenticatedMember->school->id,
-                    'membership_id' => $membership->id,
-                    'stripe_id' => $stripeSubscription->id,
-                    'starts_at' => $stripeSubscription->start_date,
-                    'cancels_at' => $stripeSubscription->cancel_at,
-                    'current_period_starts_at' => $stripeSubscription->current_period_start,
-                    'current_period_ends_at' => $stripeSubscription->current_period_end,
-                    'canceled_at' => $stripeSubscription->canceled_at,
-                    'ended_at' => $stripeSubscription->ended_at,
-                    'status' => $stripeSubscription->status,
-                ]);
+                // DO NOT CREATE A SUBSCRIPTION IN THE DATABASE HERE.
+                // THE SUBSCRIPTION WILL BE CREATED IN THE WEBHOOK.
             });
 
             return $this->successResponse(
-                data: [
-                    'subscription' => $subscription,
-                ],
                 message: 'Subscribed to the membership successfully.',
                 status: 201,
             );

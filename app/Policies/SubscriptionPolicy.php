@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
+use Illuminate\Auth\Access\Response;
 
 class SubscriptionPolicy
 {
@@ -10,12 +11,22 @@ class SubscriptionPolicy
      * Determine whether the user can create a subscription.
      *
      * @param User $user
-     * @return bool
+     * @return bool|Response
      */
-    public function create(User $user): bool
+    public function create(User $user): bool|Response
     {
         if ($user->isMember()) {
-            return !is_null($user->asMember()->school->stripe_id);
+            // The member should be our Stripe customer.
+            if (is_null($user->asMember()->school->stripe_id)) {
+                return Response::deny('The member is not connected to Stripe.');
+            }
+
+            // The member should not currently have any active subscription.
+            if ($user->asMember()->school->hasActiveSubscription()) {
+                return Response::deny('The member already has an active subscription.');
+            }
+
+            return true;
         }
 
         return false;
