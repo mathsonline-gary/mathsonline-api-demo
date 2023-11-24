@@ -7,6 +7,22 @@ use Illuminate\Auth\Access\Response;
 
 class SubscriptionPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        if ($user->isMember()) {
+            // The member can only view their own subscriptions. This is enforced in the controller.
+            return true;
+        }
+
+        if ($user->isTeacher()
+            && $user->asTeacher()->isAdmin()) {
+            // The admin teacher can only view their own subscriptions. This is enforced in the controller.
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Determine whether the user can create a subscription.
      *

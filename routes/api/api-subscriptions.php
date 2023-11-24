@@ -10,4 +10,8 @@ Route::middleware(['auth:sanctum', 'verified'])
         Route::post('/', [SubscriptionController::class, 'store'])
             ->name('store');
 
+        // View subscriptions.
+        Route::get('/', [SubscriptionController::class, 'index'])
+            ->name('index');
+
     });

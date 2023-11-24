@@ -46,6 +46,8 @@ class SubscriptionService
      * @param array{
      *     school_id?: int,
      *     stripe_id?: string,
+     *     pagination?: bool,
+     *     with_membership?: bool,
      * } $options
      * @return Collection<Subscription>
      */
@@ -54,6 +56,8 @@ class SubscriptionService
         $options = Arr::only($options, [
             'school_id',
             'stripe_id',
+            'pagination',
+            'with_membership',
         ]);
 
         $query = Subscription::when(isset($options['school_id']), function ($query) use ($options) {
@@ -61,9 +65,14 @@ class SubscriptionService
         })
             ->when(isset($options['stripe_id']), function ($query) use ($options) {
                 $query->where('stripe_id', $options['stripe_id']);
+            })
+            ->when(isset($options['with_membership']), function ($query) {
+                $query->with('membership');
             });
 
-        return $query->get();
+        return $options['pagination'] ?? true
+            ? $query->paginate($options['per_page'] ?? 20)->withQueryString()
+            : $query->get();
     }
 
     /**
@@ -82,14 +91,4 @@ class SubscriptionService
         return $subscription;
     }
 
-    /**
-     * Find a subscription by its Stripe ID.
-     *
-     * @param string $stripeId
-     * @return Subscription|null
-     */
-    public function findByStripeId(string $stripeId): ?Subscription
-    {
-        return Subscription::where('stripe_id', $stripeId)->first();
-    }
 }

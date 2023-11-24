@@ -36,17 +36,21 @@ class AdminFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Admin $admin) {
-            $admin->asUser()->update([
-                'login' => $admin->email,
-                'email' => $admin->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $admin->asUser();
+
+            $user->login = $admin->email;
+            $user->email = $admin->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         })->afterCreating(function (Admin $admin) {
-            $admin->asUser()->update([
-                'login' => $admin->email,
-                'email' => $admin->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $admin->asUser();
+
+            $user->login = $admin->email;
+            $user->email = $admin->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         });
     }
 }

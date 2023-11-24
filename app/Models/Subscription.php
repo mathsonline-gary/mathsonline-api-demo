@@ -6,6 +6,7 @@ use App\Enums\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Subscription extends Model
 {
@@ -40,6 +41,7 @@ class Subscription extends Model
      * Scope a query to only include active subscriptions.
      *
      * @param Builder $query
+     *
      * @return void
      */
     public function scopeActive(Builder $query): void
@@ -55,5 +57,15 @@ class Subscription extends Model
     public function isCanceled(): bool
     {
         return $this->status === SubscriptionStatus::CANCELED;
+    }
+
+    /**
+     * Get the associated membership.
+     *
+     * @return BelongsTo
+     */
+    public function membership(): BelongsTo
+    {
+        return $this->belongsTo(Membership::class);
     }
 }

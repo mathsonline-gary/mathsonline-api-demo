@@ -6,7 +6,9 @@ use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Traits\ActivityTestHelpers;
+use Tests\Traits\AdminTestHelpers;
 use Tests\Traits\ClassroomTestHelpers;
+use Tests\Traits\DeveloperTestHelpers;
 use Tests\Traits\MemberTestHelpers;
 use Tests\Traits\SchoolTestHelpers;
 use Tests\Traits\StripeTestHelpers;
@@ -25,7 +27,9 @@ abstract class TestCase extends BaseTestCase
         ActivityTestHelpers,
         MemberTestHelpers,
         SubscriptionTestHelpers,
-        StripeTestHelpers;
+        StripeTestHelpers,
+        DeveloperTestHelpers,
+        AdminTestHelpers;
 
     /**
      * Indicates whether the default seeder should run before each test.
