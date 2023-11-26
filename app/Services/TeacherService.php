@@ -24,7 +24,8 @@ class TeacherService
      *     throwable?: bool,
      *     with_school?: bool,
      *     with_classrooms?: bool
-     * } $options
+     * }          $options
+     *
      * @return Teacher|null
      */
     public function find(int $id, array $options = []): ?Teacher
@@ -61,6 +62,7 @@ class TeacherService
      *     with_school?: bool,
      *     with_classrooms?: bool
      * } $options
+     *
      * @return LengthAwarePaginator|Collection<Teacher>
      */
     public function search(array $options = []): Collection|LengthAwarePaginator
@@ -94,6 +96,7 @@ class TeacherService
      * Create a teacher by given attributes.
      *
      * @param array $attributes
+     *
      * @return Teacher
      */
     public function create(array $attributes): Teacher
@@ -158,7 +161,8 @@ class TeacherService
      * Update a teacher with given valid attributes.
      *
      * @param Teacher $teacher
-     * @param array $payload
+     * @param array   $payload
+     *
      * @return Teacher
      */
     public function update(Teacher $teacher, array $payload): Teacher

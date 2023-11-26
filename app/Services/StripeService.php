@@ -32,6 +32,7 @@ class StripeService
 
     /**
      * Create a new Stripe customer.
+     *
      * @param $attributes
      *
      * @return StripeCustomer
@@ -97,7 +98,7 @@ class StripeService
     /**
      * Create a new Stripe subscription for the given school with the given membership.
      *
-     * @param School $school
+     * @param School     $school
      * @param Membership $membership
      *
      * @return StripeSubscription
@@ -173,7 +174,7 @@ class StripeService
      * Get the refreshed Stripe resource.
      *
      * @param ApiResource $resource
-     * @param int $marketId
+     * @param int         $marketId
      *
      * @return ApiResource
      *

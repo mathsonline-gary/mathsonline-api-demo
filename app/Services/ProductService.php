@@ -10,6 +10,7 @@ class ProductService
      * Find a product by given Stripe product ID.
      *
      * @param string $stripeId
+     *
      * @return Product|null
      */
     public function findByStripeId(string $stripeId): ?Product

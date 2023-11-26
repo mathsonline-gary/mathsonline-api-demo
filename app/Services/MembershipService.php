@@ -15,7 +15,8 @@ class MembershipService
      *     throwable?: bool,
      *     with_product?: bool,
      *     with_campaign?: bool,
-     * } $options
+     * }            $options
+     *
      * @return Membership|null
      */
     public function find(mixed $id, array $options = []): ?Membership
@@ -45,6 +46,7 @@ class MembershipService
      * Find a membership by its Stripe Price ID.
      *
      * @param string $stripeId
+     *
      * @return Membership|null
      */
     public function findByStripeId(string $stripeId): ?Membership

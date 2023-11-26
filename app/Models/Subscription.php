@@ -68,4 +68,14 @@ class Subscription extends Model
     {
         return $this->belongsTo(Membership::class);
     }
+
+    /**
+     * Get the associated school.
+     *
+     * @return BelongsTo
+     */
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(School::class);
+    }
 }

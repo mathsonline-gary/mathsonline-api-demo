@@ -10,8 +10,9 @@ trait SchoolTestHelpers
     /**
      * Create fake school(s).
      *
-     * @param int $count
+     * @param int   $count
      * @param array $attributes
+     *
      * @return Collection|School
      */
     public function fakeSchool(int $count = 1, array $attributes = []): Collection|School
@@ -26,8 +27,9 @@ trait SchoolTestHelpers
     /**
      * Create fake traditional school(s).
      *
-     * @param int $count
+     * @param int   $count
      * @param array $attributes
+     *
      * @return Collection<School>|School
      */
     public function fakeTraditionalSchool(int $count = 1, array $attributes = []): Collection|School
@@ -43,8 +45,9 @@ trait SchoolTestHelpers
     /**
      * Create fake homeschool(s).
      *
-     * @param int $count
+     * @param int   $count
      * @param array $attributes
+     *
      * @return Collection<School>|School
      */
     public function fakeHomeschool(int $count = 1, array $attributes = []): Collection|School
@@ -60,8 +63,9 @@ trait SchoolTestHelpers
     /**
      * Assert that the given school has the given expected attributes.
      *
-     * @param array $expected
+     * @param array  $expected
      * @param School $school
+     *
      * @return void
      */
     public function assertSchoolAttributes(array $expected, School $school): void

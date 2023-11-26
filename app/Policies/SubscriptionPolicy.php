@@ -27,6 +27,7 @@ class SubscriptionPolicy
      * Determine whether the user can create a subscription.
      *
      * @param User $user
+     *
      * @return bool|Response
      */
     public function create(User $user): bool|Response

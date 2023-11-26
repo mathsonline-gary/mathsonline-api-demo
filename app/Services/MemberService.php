@@ -15,6 +15,7 @@ class MemberService
      * Create a new member and the associated instances.
      *
      * @param array $attributes
+     *
      * @return Member
      */
     public function create(array $attributes): Member

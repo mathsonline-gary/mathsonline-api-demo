@@ -12,6 +12,7 @@ class SubscriptionService
      * Create a new subscription.
      *
      * @param array $attributes
+     *
      * @return Subscription
      */
     public function create(array $attributes): Subscription
@@ -49,6 +50,7 @@ class SubscriptionService
      *     pagination?: bool,
      *     with_membership?: bool,
      * } $options
+     *
      * @return Collection<Subscription>
      */
     public function search(array $options): Collection
@@ -79,7 +81,8 @@ class SubscriptionService
      * Update a subscription.
      *
      * @param Subscription $subscription
-     * @param array $attributes
+     * @param array        $attributes
+     *
      * @return Subscription
      */
     public function update(Subscription $subscription, array $attributes): Subscription
