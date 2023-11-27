@@ -12,6 +12,8 @@ use Tests\TestCase;
  */
 class UpdateClassroomTest extends TestCase
 {
+    protected string $routeName = 'api.v1.classrooms.update';
+
     /**
      * The payload to use for updating the classroom.
      *
@@ -32,58 +34,115 @@ class UpdateClassroomTest extends TestCase
         ];
     }
 
-    /**
-     * Authorization test: admin teacher.
-     */
-    public function test_an_admin_teacher_can_update_a_classroom_in_the_same_school(): void
+    public function test_a_guest_is_unauthenticated_to_update_a_classroom(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $teacher = $this->fakeNonAdminTeacher($school);
 
-        $this->actingAsTeacher($adminTeacher);
+            $classroom = $this->fakeClassroom($teacher);
+        }
 
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
+        $this->assertGuest();
 
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
-        // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccessful();
+        // Assert that the response has a 401 “Unauthorized” status code.
+        $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test: admin teacher.
-     */
-    public function test_an_admin_teacher_is_unauthorized_to_update_a_classroom_in_another_school(): void
+    public function test_a_teacher_in_an_unsubscribed_school_cannot_update_a_classroom(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school1);
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $school2 = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeNonAdminTeacher($school2);
-        $classroom = $this->fakeClassroom($teacher);
+            $teacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($teacher);
+        }
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
+
+        $response->assertUnsubscribed();
+    }
+
+    public function test_an_admin_teacher_can_update_a_classroom_in_the_same_school(): void
+    {
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $this->payload['owner_id'] = $nonAdminTeacher->id;
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
+
+        $response->assertOk()
+            ->assertJsonSuccessful();
+    }
+
+    public function test_an_admin_teacher_is_unauthorized_to_update_a_classroom_in_another_school(): void
+    {
+        {
+            $school1 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school1);
+
+            $adminTeacher = $this->fakeAdminTeacher($school1);
+
+            $school2 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school2);
+
+            $teacher = $this->fakeNonAdminTeacher($school2);
+
+            $classroom = $this->fakeClassroom($teacher);
+        }
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
     }
 
-    /**
-     * Authorization test: non-admin teacher.
-     */
     public function test_a_non_admin_teacher_can_update_a_classroom_that_they_own(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->fakeAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher);
+            $nonAdminTeacher = $this->fakeAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($nonAdminTeacher);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -93,88 +152,109 @@ class UpdateClassroomTest extends TestCase
         $response->assertOk()->assertJsonSuccessful();
     }
 
-    /**
-     * Authorization test: non-admin teacher.
-     */
     public function test_a_non_admin_teacher_is_unauthorized_to_update_classroom_that_they_do_not_own(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
-        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher2);
+            $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+            $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($nonAdminTeacher2);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
     }
 
-    /**
-     * Validation test: field "owner_id".
-     */
     public function test_it_does_not_allow_an_admin_teacher_to_update_the_classroom_owner_to_a_teacher_in_another_school(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school1);
-        $classroom = $this->fakeClassroom($adminTeacher);
+        {
+            $school1 = $this->fakeTraditionalSchool();
 
-        $school2 = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeNonAdminTeacher($school2);
+            $this->fakeSubscription($school1);
 
-        $this->payload['owner_id'] = $teacher->id;
+            $adminTeacher = $this->fakeAdminTeacher($school1);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $school2 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school2);
+
+            $teacher = $this->fakeNonAdminTeacher($school2);
+
+            $this->payload['owner_id'] = $teacher->id;
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the response has a "422" status code.
         $response->assertUnprocessable();
     }
 
-    /**
-     * Validation test: field "owner_id".
-     */
     public function test_it_does_not_allow_a_non_admin_teacher_to_update_the_classroom_owner_to_another_teacher(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
-        $teacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $teacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($nonAdminTeacher);
+
+            $this->payload['owner_id'] = $teacher->id;
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $this->payload['owner_id'] = $teacher->id;
-
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the response has a 422 status code.
         $response->assertUnprocessable();
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_returns_the_updated_classroom()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $this->payload['owner_id'] = $nonAdminTeacher->id;
+            $this->payload['year_id'] = $school->market->years->random()->id;
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
-        $this->payload['year_id'] = $school->market->years->random()->id;
-
-        $response = $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $response = $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the response returns the updated classroom details.
         $responseData = $response->json()['data'];
@@ -192,24 +272,28 @@ class UpdateClassroomTest extends TestCase
         $this->assertEquals($nonAdminTeacher->first_name, $responseData['owner']['first_name']);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_updates_the_classroom(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $this->payload['owner_id'] = $nonAdminTeacher->id;
+            $this->payload['year_id'] = $school->market->years->random()->id;
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
-        $this->payload['year_id'] = $school->market->years->random()->id;
-
-        $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the classroom was updated correctly.
         $classroom->refresh();
@@ -222,52 +306,61 @@ class UpdateClassroomTest extends TestCase
         $this->assertEquals($this->payload['year_id'], $classroom->year_id);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_updates_secondary_teachers()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
-        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
+            $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $this->payload['secondary_teacher_ids'] = [$nonAdminTeacher1->id, $nonAdminTeacher2->id];
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $this->payload['secondary_teacher_ids'] = [$nonAdminTeacher1->id, $nonAdminTeacher2->id];
-
-        $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         $classroom->refresh();
 
+        // Assert that the classroom has the correct secondary teachers.
         $this->assertEquals(2, $classroom->secondaryTeachers->count());
         $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher1));
         $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher2));
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_logs_updated_classroom_activity(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+
+            $this->payload['owner_id'] = $nonAdminTeacher->id;
+            $this->payload['year_id'] = $school->market->years->random()->id;
+
+            $this->assertDatabaseCount('activities', 0);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $this->payload['owner_id'] = $nonAdminTeacher->id;
-        $this->payload['year_id'] = $school->market->years->random()->id;
-
-        $this->assertDatabaseCount('activities', 0);
-
-        $this->putJson(route('api.v1.classrooms.update', ['classroom' => $classroom]), $this->payload);
+        $this->putJson(
+            route($this->routeName, ['classroom' => $classroom]),
+            $this->payload
+        );
 
         // Assert that the activity was logged.
         $this->assertDatabaseCount('activities', 1);

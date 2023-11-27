@@ -36,9 +36,6 @@ class CreateClassroomTest extends TestCase
         ];
     }
 
-    /**
-     * Authentication test.
-     */
     public function test_a_guest_cannot_create_a_classroom()
     {
         $this->assertGuest();
@@ -49,12 +46,21 @@ class CreateClassroomTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     */
+    public function test_a_teacher_in_the_unsubscribed_school_cannot_create_a_classroom(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $this->actingAsTeacher($this->fakeTeacher($school));
+
+        $response = $this->postJson(route('api.v1.classrooms.store', $this->payload));
+
+        // Assert that the response has unsubscription error.
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_create_a_classroom(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
@@ -69,12 +75,10 @@ class CreateClassroomTest extends TestCase
         $response->assertCreated()->assertJsonSuccessful();
     }
 
-    /**
-     * Authorization test.
-     */
     public function test_a_non_admin_teachers_can_create_a_classroom_for_himself(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
         $this->actingAsTeacher($nonAdminTeacher);
@@ -88,15 +92,14 @@ class CreateClassroomTest extends TestCase
         $response->assertCreated()->assertJsonSuccessful();
     }
 
-    /**
-     * Validation test.
-     */
     public function test_it_does_not_allow_an_admin_teacher_to_create_a_classroom_for_a_teacher_from_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school1);
         $adminTeacher = $this->fakeAdminTeacher($school1);
 
         $school2 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school2);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school2);
 
         $this->actingAsTeacher($adminTeacher);
@@ -110,12 +113,10 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /**
-     * Validation test.
-     */
     public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_the_same_school(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
 
@@ -130,15 +131,14 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /**
-     * Validation test.
-     */
     public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school1);
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
 
         $school2 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school2);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school2);
 
         $this->actingAsTeacher($nonAdminTeacher1);
@@ -152,12 +152,10 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
     }
 
-    /**
-     * Operational test.
-     */
     public function test_it_creates_the_classroom_correctly()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
@@ -181,12 +179,10 @@ class CreateClassroomTest extends TestCase
         $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
     }
 
-    /**
-     * Operational test.
-     */
     public function test_it_assigns_secondary_teachers()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
@@ -208,12 +204,10 @@ class CreateClassroomTest extends TestCase
         $this->assertTrue($classroom->secondaryTeachers->contains($nonAdminTeacher2));
     }
 
-    /**
-     * Operational test.
-     */
     public function test_it_add_classroom_groups()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
 
         $this->actingAsTeacher($adminTeacher);

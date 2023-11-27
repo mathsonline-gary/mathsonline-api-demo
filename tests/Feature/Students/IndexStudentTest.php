@@ -1,35 +1,63 @@
 <?php
 
-namespace Feature\Students;
+namespace Tests\Feature\Students;
 
 use Tests\TestCase;
 
 class IndexStudentTest extends TestCase
 {
+    protected string $routeName = 'api.v1.students.index';
+
     public function test_a_guest_cannot_get_the_list_of_students(): void
     {
         $this->fakeStudent(null, 5);
 
         $this->assertGuest();
 
-        $response = $this->getJson(route('api.v1.students.index'));
+        $response = $this->getJson(route($this->routeName));
 
         // Assert that the request is unauthorized.
         $response->assertUnauthorized();
     }
 
+    public function test_a_teacher_in_an_unsubscribed_school_cannot_get_the_list_of_students(): void
+    {
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $teacher = $this->fakeTeacher($school);
+
+            $this->fakeStudent($school, 5);
+        }
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->getJson(route($this->routeName));
+
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_get_the_list_of_all_students_who_are_in_the_same_school_as_the_teacher(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school1);
-        $students1 = $this->fakeStudent($school1, 5);
+        {
+            $school1 = $this->fakeTraditionalSchool();
 
-        $school2 = $this->fakeTraditionalSchool();
-        $students2 = $this->fakeStudent($school2, 5);
+            $this->fakeSubscription($school1);
+
+            $adminTeacher = $this->fakeAdminTeacher($school1);
+
+            $students1 = $this->fakeStudent($school1, 5);
+
+            $school2 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school2);
+
+            $students2 = $this->fakeStudent($school2, 5);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'all' => true,
         ]));
 
@@ -57,30 +85,34 @@ class IndexStudentTest extends TestCase
 
     public function test_an_admin_teacher_can_get_the_list_of_students_who_are_in_the_classrooms_of_which_he_is_the_owner_or_the_secondary_teacher()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        // Add students to a classroom that is not related to the admin teacher.
-        $classroom1 = $this->fakeClassroom($nonAdminTeacher);
-        $students1 = $this->fakeStudent($school, 5);
-        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        // Add students to a classroom that is owned by the admin teacher.
-        $classroom2 = $this->fakeClassroom($adminTeacher);
-        $students2 = $this->fakeStudent($school, 5);
-        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+            // Add students to a classroom that is not related to the admin teacher.
+            $classroom1 = $this->fakeClassroom($nonAdminTeacher);
+            $students1 = $this->fakeStudent($school, 5);
+            $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
 
-        // Add students to a classroom fo which the admin teacher is a secondary teacher.
-        $classroom3 = $this->fakeClassroom($nonAdminTeacher);
-        $this->attachSecondaryTeachersToClassroom($classroom3, [$adminTeacher->id]);
-        $students3 = $this->fakeStudent($school, 5);
-        $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+            // Add students to a classroom that is owned by the admin teacher.
+            $classroom2 = $this->fakeClassroom($adminTeacher);
+            $students2 = $this->fakeStudent($school, 5);
+            $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+
+            // Add students to a classroom fo which the admin teacher is a secondary teacher.
+            $classroom3 = $this->fakeClassroom($nonAdminTeacher);
+            $this->attachSecondaryTeachersToClassroom($classroom3, [$adminTeacher->id]);
+            $students3 = $this->fakeStudent($school, 5);
+            $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'all' => false,
         ]));
 
@@ -115,31 +147,35 @@ class IndexStudentTest extends TestCase
 
     public function test_an_admin_teacher_can_fuzzy_search_students(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $student1 = $this->fakeStudent($school, 1, [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'username' => 'john.doe',
-        ]);
+            $adminTeacher = $this->fakeAdminTeacher($school);
 
-        $student2 = $this->fakeStudent($school, 1, [
-            'first_name' => 'Jane',
-            'last_name' => 'Doe',
-            'username' => 'jane.doe',
-        ]);
+            $student1 = $this->fakeStudent($school, 1, [
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'username' => 'john.doe',
+            ]);
 
-        $student3 = $this->fakeStudent($school, 1, [
-            'first_name' => 'John',
-            'last_name' => 'Smith',
-            'username' => 'john.smith',
-        ]);
+            $student2 = $this->fakeStudent($school, 1, [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'username' => 'jane.doe',
+            ]);
+
+            $student3 = $this->fakeStudent($school, 1, [
+                'first_name' => 'John',
+                'last_name' => 'Smith',
+                'username' => 'john.smith',
+            ]);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'all' => true,
             'search_key' => 'john',
         ]));
@@ -169,16 +205,25 @@ class IndexStudentTest extends TestCase
 
     public function test_a_non_admin_teacher_can_get_the_list_of_all_students_who_are_in_the_same_school_as_the_teacher(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
-        $students1 = $this->fakeStudent($school1, 5);
+        {
+            $school1 = $this->fakeTraditionalSchool();
 
-        $school2 = $this->fakeTraditionalSchool();
-        $students2 = $this->fakeStudent($school2, 5);
+            $this->fakeSubscription($school1);
+
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
+
+            $students1 = $this->fakeStudent($school1, 5);
+
+            $school2 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school2);
+
+            $students2 = $this->fakeStudent($school2, 5);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'all' => true,
         ]));
 
@@ -206,36 +251,45 @@ class IndexStudentTest extends TestCase
 
     public function test_a_non_admin_teacher_can_get_the_list_of_students_who_are_in_the_classrooms_of_which_he_is_the_owner_or_the_secondary_teacher(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school1);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
+        {
+            $school1 = $this->fakeTraditionalSchool();
 
-        // Add students to a classroom that is not related to the non-admin teacher.
-        $classroom1 = $this->fakeClassroom($adminTeacher);
-        $students1 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+            $this->fakeSubscription($school1);
 
-        // Add students to a classroom that is owned by the non-admin teacher.
-        $classroom2 = $this->fakeClassroom($nonAdminTeacher);
-        $students2 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+            $adminTeacher = $this->fakeAdminTeacher($school1);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
 
-        // Add students to a classroom fo which the non-admin teacher is a secondary teacher.
-        $classroom3 = $this->fakeClassroom($adminTeacher);
-        $this->attachSecondaryTeachersToClassroom($classroom3, [$nonAdminTeacher->id]);
-        $students3 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+            // Add students to a classroom that is not related to the non-admin teacher.
+            $classroom1 = $this->fakeClassroom($adminTeacher);
+            $students1 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
 
-        // Add students to a classroom in another school.
-        $school2 = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeAdminTeacher($school2);
-        $classroom4 = $this->fakeClassroom($teacher);
-        $students4 = $this->fakeStudent($school2, 5);
-        $this->attachStudentsToClassroomGroup($classroom4->defaultClassroomGroup, $students4->pluck('id')->toArray());
+            // Add students to a classroom that is owned by the non-admin teacher.
+            $classroom2 = $this->fakeClassroom($nonAdminTeacher);
+            $students2 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+
+            // Add students to a classroom fo which the non-admin teacher is a secondary teacher.
+            $classroom3 = $this->fakeClassroom($adminTeacher);
+            $this->attachSecondaryTeachersToClassroom($classroom3, [$nonAdminTeacher->id]);
+            $students3 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+
+            // Add students to a classroom in another school.
+            $school2 = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school2);
+
+            $teacher = $this->fakeAdminTeacher($school2);
+
+            $classroom4 = $this->fakeClassroom($teacher);
+            $students4 = $this->fakeStudent($school2, 5);
+            $this->attachStudentsToClassroomGroup($classroom4->defaultClassroomGroup, $students4->pluck('id')->toArray());
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'all' => false,
         ]));
 
@@ -277,35 +331,39 @@ class IndexStudentTest extends TestCase
 
     public function test_a_non_admin_teacher_can_fuzzy_search_students(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $student1 = $this->fakeStudent($school, 1, [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'username' => 'john.doe',
-        ]);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        $student2 = $this->fakeStudent($school, 1, [
-            'first_name' => 'Jane',
-            'last_name' => 'Doe',
-            'username' => 'jane.doe',
-        ]);
+            $student1 = $this->fakeStudent($school, 1, [
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'username' => 'john.doe',
+            ]);
 
-        $student3 = $this->fakeStudent($school, 1, [
-            'first_name' => 'John',
-            'last_name' => 'Smith',
-            'username' => 'john.smith',
-        ]);
+            $student2 = $this->fakeStudent($school, 1, [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'username' => 'jane.doe',
+            ]);
 
-        $classroom = $this->fakeClassroom($nonAdminTeacher);
+            $student3 = $this->fakeStudent($school, 1, [
+                'first_name' => 'John',
+                'last_name' => 'Smith',
+                'username' => 'john.smith',
+            ]);
 
-        $this->attachStudentsToClassroomGroup($classroom->defaultClassroomGroup, [$student1->id, $student2->id]);
+            $classroom = $this->fakeClassroom($nonAdminTeacher);
+
+            $this->attachStudentsToClassroomGroup($classroom->defaultClassroomGroup, [$student1->id, $student2->id]);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'search_key' => 'john',
         ]));
 
@@ -334,13 +392,19 @@ class IndexStudentTest extends TestCase
 
     public function test_it_returns_expected_details_of_students()
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $this->fakeStudent($school, 5);
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+
+            $this->fakeStudent($school, 5);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index'));
+        $response = $this->getJson(route($this->routeName));
 
         // Assert the response has the expected attributes of each student.
         $response->assertJsonStructure([
@@ -361,13 +425,19 @@ class IndexStudentTest extends TestCase
 
     public function test_it_returns_login_statistics_if_explicitly_requested()
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $this->fakeStudent($school, 5);
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+
+            $this->fakeStudent($school, 5);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.students.index', [
+        $response = $this->getJson(route($this->routeName, [
             'with_activities' => true,
         ]));
 

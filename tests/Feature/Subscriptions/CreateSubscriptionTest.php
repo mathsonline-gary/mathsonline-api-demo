@@ -10,11 +10,13 @@ use Tests\TestCase;
 
 class CreateSubscriptionTest extends TestCase
 {
+    protected string $routeName = 'api.v1.subscriptions.store';
+    
     public function test_a_guest_is_unauthenticated_to_subscribe_a_membership()
     {
         $this->assertGuest();
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
         ]);
 
@@ -32,7 +34,7 @@ class CreateSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
             'payment_token_id' => 'tok_mastercard',
         ]);
@@ -50,7 +52,7 @@ class CreateSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
             'payment_token_id' => 'tok_mastercard',
         ]);
@@ -77,7 +79,7 @@ class CreateSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
             'payment_token_id' => 'tok_mastercard',
         ]);
@@ -104,7 +106,7 @@ class CreateSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
             'payment_token_id' => 'tok_mastercard',
         ]);
@@ -132,7 +134,7 @@ class CreateSubscriptionTest extends TestCase
             ->random();
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
             'payment_token_id' => 'tok_mastercard',
         ]);
@@ -157,7 +159,7 @@ class CreateSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->postJson(route('api.v1.subscriptions.store'), [
+        $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
             'payment_token_id' => 'tok_mastercard',
         ]);

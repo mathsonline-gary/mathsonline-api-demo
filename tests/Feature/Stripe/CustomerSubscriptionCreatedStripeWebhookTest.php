@@ -29,15 +29,17 @@ class CustomerSubscriptionCreatedStripeWebhookTest extends TestCase
 
     public function test_it_skips_if_no_school_connects_to_the_created_stripe_subscription(): void
     {
-        // Assert that there are no school or subscription records.
-        $this->assertDatabaseCount('schools', 0);
-        $this->assertDatabaseCount('subscriptions', 0);
+        {
+            // Assert that there are no school or subscription records.
+            $this->assertDatabaseCount('schools', 0);
+            $this->assertDatabaseCount('subscriptions', 0);
 
-        // Get a "customer.subscription.created" event.
-        $payload = $this->stripe->events->all([
-            'type' => 'customer.subscription.created',
-            'limit' => 1,
-        ])->data[0]->toArray();
+            // Get a "customer.subscription.created" event.
+            $payload = $this->stripe->events->all([
+                'type' => 'customer.subscription.created',
+                'limit' => 1,
+            ])->data[0]->toArray();
+        }
 
         // Send the event to the webhook.
         $response = $this->postJson(
@@ -56,28 +58,30 @@ class CustomerSubscriptionCreatedStripeWebhookTest extends TestCase
 
     public function test_it_skips_if_the_created_stripe_subscription_exists(): void
     {
-        // Get a "customer.subscription.created" event.
-        $payload = $this->stripe->events->all([
-            'type' => 'customer.subscription.created',
-            'limit' => 1,
-        ])->data[0]->toArray();
+        {
+            // Get a "customer.subscription.created" event.
+            $payload = $this->stripe->events->all([
+                'type' => 'customer.subscription.created',
+                'limit' => 1,
+            ])->data[0]->toArray();
 
-        // Fake related school and subscription records.
-        $school = $this->fakeHomeschool(1, [
-            'market_id' => $this->marketId,
-            'stripe_id' => $payload['data']['object']['customer']
-        ]);
-        $subscription = $this->fakeSubscription($school);
-        $subscription->stripe_id = $payload['data']['object']['id'];
-        $subscription->save();
+            // Fake related school and subscription records.
+            $school = $this->fakeHomeschool(1, [
+                'market_id' => $this->marketId,
+                'stripe_id' => $payload['data']['object']['customer']
+            ]);
+            $subscription = $this->fakeSubscription($school);
+            $subscription->stripe_id = $payload['data']['object']['id'];
+            $subscription->save();
 
-        // Assert that the school already exists.
-        $this->assertDatabaseCount('schools', 1);
-        $this->assertDatabaseHas('schools', ['stripe_id' => $payload['data']['object']['customer']]);
+            // Assert that the school already exists.
+            $this->assertDatabaseCount('schools', 1);
+            $this->assertDatabaseHas('schools', ['stripe_id' => $payload['data']['object']['customer']]);
 
-        // Assert that the subscription already exists.
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseHas('subscriptions', ['stripe_id' => $payload['data']['object']['id']]);
+            // Assert that the subscription already exists.
+            $this->assertDatabaseCount('subscriptions', 1);
+            $this->assertDatabaseHas('subscriptions', ['stripe_id' => $payload['data']['object']['id']]);
+        }
 
         // Send the event to the webhook.
         $response = $this->postJson(
@@ -100,27 +104,29 @@ class CustomerSubscriptionCreatedStripeWebhookTest extends TestCase
 
     public function test_it_skips_if_no_membership_matches_the_price_of_the_created_subscription()
     {
-        // Get a "customer.subscription.created" event.
-        $payload = $this->stripe->events->all([
-            'type' => 'customer.subscription.created',
-            'limit' => 1,
-        ])->data[0]->toArray();
+        {
+            // Get a "customer.subscription.created" event.
+            $payload = $this->stripe->events->all([
+                'type' => 'customer.subscription.created',
+                'limit' => 1,
+            ])->data[0]->toArray();
 
-        // Fake the related school.
-        $school = $this->fakeHomeschool(1, [
-            'market_id' => $this->marketId,
-            'stripe_id' => $payload['data']['object']['customer']
-        ]);
+            // Fake the related school.
+            $school = $this->fakeHomeschool(1, [
+                'market_id' => $this->marketId,
+                'stripe_id' => $payload['data']['object']['customer']
+            ]);
 
-        // Remove all memberships.
-        Membership::whereNotNull('id')->delete();
+            // Remove all memberships.
+            Membership::whereNotNull('id')->delete();
 
-        // Assert that the school already exists.
-        $this->assertDatabaseCount('schools', 1);
-        $this->assertDatabaseHas('schools', ['stripe_id' => $payload['data']['object']['customer']]);
+            // Assert that the school already exists.
+            $this->assertDatabaseCount('schools', 1);
+            $this->assertDatabaseHas('schools', ['stripe_id' => $payload['data']['object']['customer']]);
 
-        // Assert that there are no  memberships.
-        $this->assertDatabaseCount('memberships', 0);
+            // Assert that there are no  memberships.
+            $this->assertDatabaseCount('memberships', 0);
+        }
 
         // Send the event to the webhook.
         $response = $this->postJson(
@@ -142,38 +148,40 @@ class CustomerSubscriptionCreatedStripeWebhookTest extends TestCase
 
     public function test_it_creates_the_new_subscription(): void
     {
-        // Get a "customer.subscription.created" event.
-        $payload = $this->stripe->events->all([
-            'type' => 'customer.subscription.created',
-            'limit' => 1,
-        ])->data[0]->toArray();
+        {
+            // Get a "customer.subscription.created" event.
+            $payload = $this->stripe->events->all([
+                'type' => 'customer.subscription.created',
+                'limit' => 1,
+            ])->data[0]->toArray();
 
-        $stripeSubscription = $payload['data']['object'];
-        $stripePriceId = $stripeSubscription['items']['data'][0]['price']['id'];
+            $stripeSubscription = $payload['data']['object'];
+            $stripePriceId = $stripeSubscription['items']['data'][0]['price']['id'];
 
-        // Fake the related school.
-        $school = $this->fakeHomeschool(1, [
-            'market_id' => $this->marketId,
-            'stripe_id' => $stripeSubscription['customer']
-        ]);
-
-        // Fake the related membership if it doesn't exist.
-
-        if (!Membership::where('stripe_id', $stripePriceId)->exists()) {
-            Membership::factory()->create([
-                'stripe_id' => $stripePriceId,
+            // Fake the related school.
+            $school = $this->fakeHomeschool(1, [
+                'market_id' => $this->marketId,
+                'stripe_id' => $stripeSubscription['customer']
             ]);
+
+            // Fake the related membership if it doesn't exist.
+
+            if (!Membership::where('stripe_id', $stripePriceId)->exists()) {
+                Membership::factory()->create([
+                    'stripe_id' => $stripePriceId,
+                ]);
+            }
+
+            // Assert that the school already exists.
+            $this->assertDatabaseCount('schools', 1);
+            $this->assertDatabaseHas('schools', ['stripe_id' => $stripeSubscription['customer']]);
+
+            // Assert that the membership already exists.
+            $this->assertDatabaseHas('memberships', ['stripe_id' => $stripePriceId]);
+
+            // Assert that there are no subscriptions.
+            $this->assertDatabaseCount('subscriptions', 0);
         }
-
-        // Assert that the school already exists.
-        $this->assertDatabaseCount('schools', 1);
-        $this->assertDatabaseHas('schools', ['stripe_id' => $stripeSubscription['customer']]);
-
-        // Assert that the membership already exists.
-        $this->assertDatabaseHas('memberships', ['stripe_id' => $stripePriceId]);
-
-        // Assert that there are no subscriptions.
-        $this->assertDatabaseCount('subscriptions', 0);
 
         // Send the event to the webhook.
         $response = $this->postJson(

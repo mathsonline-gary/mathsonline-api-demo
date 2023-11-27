@@ -7,11 +7,13 @@ use Tests\TestCase;
 
 class IndexSubscriptionTest extends TestCase
 {
+    protected string $routeName = 'api.v1.subscriptions.index';
+    
     public function test_a_guest_is_unauthenticated_to_get_the_subscription_list(): void
     {
         $this->assertGuest();
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertUnauthorized();
     }
@@ -22,7 +24,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsStudent($student);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertForbidden();
     }
@@ -33,7 +35,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsDeveloper($developer);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertForbidden();
     }
@@ -44,7 +46,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsTeacher($teacher);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertForbidden();
     }
@@ -55,7 +57,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsAdmin($admin);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertForbidden();
     }
@@ -69,7 +71,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsMember($member);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertOk()
             ->assertJsonSuccessful();
@@ -93,7 +95,7 @@ class IndexSubscriptionTest extends TestCase
 
         $this->actingAsMember($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.subscriptions.index'));
+        $response = $this->getJson(route($this->routeName));
 
         $response->assertOk()
             ->assertJsonSuccessful();

@@ -33,6 +33,11 @@ class TestResponseMacroServiceProvider extends ServiceProvider
             return $this->assertJsonFragment(['success' => true]);
         });
 
+        TestResponse::macro('assertUnsubscribed', function () {
+            return $this->assertStatus(409)
+                ->assertJsonFragment(['message' => 'You do not have an active subscription.']);
+        });
+
         TestResponse::macro('assertStripeWebhookSuccessful', function (string $message = 'Webhook handled.') {
             return $this->assertOk()
                 ->assertJsonSuccessful()

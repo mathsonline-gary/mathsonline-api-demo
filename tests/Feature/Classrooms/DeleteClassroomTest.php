@@ -12,12 +12,10 @@ use Tests\TestCase;
  */
 class DeleteClassroomTest extends TestCase
 {
-    /**
-     * Authorization test.
-     */
     public function test_a_guest_cannot_delete_a_classroom()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($adminTeacher);
 
@@ -29,12 +27,26 @@ class DeleteClassroomTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     */
+    public function test_a_teacher_in_the_unsubscribed_school_cannot_delete_a_classroom(): void
+    {
+        $school = $this->fakeTraditionalSchool();
+        $this->actingAsTeacher($this->fakeTeacher($school));
+        $adminTeacher = $this->fakeAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+        $classroom = $this->fakeClassroom($nonAdminTeacher);
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->deleteJson(route('api.v1.classrooms.destroy', $classroom->id));
+
+        // Assert that the response has unsubscription error.
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_delete_a_classroom_from_their_school(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $classroom = $this->fakeClassroom($nonAdminTeacher);
@@ -47,15 +59,14 @@ class DeleteClassroomTest extends TestCase
         $response->assertOk()->assertJsonSuccessful();
     }
 
-    /**
-     * Authorization test.
-     */
-    public function test_an_admin_teacher_is_unauthorised_to_delete_a_classroom_in_another_school(): void
+    public function test_an_admin_teacher_is_unauthorized_to_delete_a_classroom_in_another_school(): void
     {
         $school1 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school1);
         $adminTeacher1 = $this->fakeAdminTeacher($school1);
 
         $school2 = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school2);
         $adminTeacher2 = $this->fakeAdminTeacher($school2);
         $classroom = $this->fakeClassroom($adminTeacher2);
 
@@ -68,12 +79,10 @@ class DeleteClassroomTest extends TestCase
 
     }
 
-    /**
-     * Authorization test.
-     */
     public function test_a_non_admin_teacher_can_delete_a_classroom_owned_by_them(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $classroom = $this->fakeClassroom($nonAdminTeacher);
 
@@ -84,12 +93,10 @@ class DeleteClassroomTest extends TestCase
         $response->assertOk()->assertJsonSuccessful();
     }
 
-    /**
-     * Authorization test.
-     */
-    public function test_a_non_admin_teacher_is_unauthorised_to_delete_a_classroom_that_is_not_owned_by_them(): void
+    public function test_a_non_admin_teacher_is_unauthorized_to_delete_a_classroom_that_is_not_owned_by_them(): void
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
 
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
@@ -104,12 +111,10 @@ class DeleteClassroomTest extends TestCase
         $response->assertForbidden();
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_soft_deletes_the_classroom()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($adminTeacher);
 
@@ -124,12 +129,10 @@ class DeleteClassroomTest extends TestCase
         $this->assertSoftDeleted('classroom_groups', ['classroom_id' => $classroom->id]);
     }
 
-    /**
-     * Operation test.
-     */
     public function test_it_logs_deleted_classroom_activity()
     {
         $school = $this->fakeTraditionalSchool();
+        $this->fakeSubscription($school);
         $adminTeacher = $this->fakeAdminTeacher($school);
         $classroom = $this->fakeClassroom($adminTeacher);
 

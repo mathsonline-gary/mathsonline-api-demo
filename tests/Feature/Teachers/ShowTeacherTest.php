@@ -6,53 +6,77 @@ use App\Http\Controllers\Api\V1\TeacherController;
 use Tests\TestCase;
 
 /**
- * Test teacher showing endpoint for teachers.
- *
  * @see /routes/api/api-teachers.php
  * @see TeacherController::show()
  */
 class ShowTeacherTest extends TestCase
 {
+    protected string $routeName = 'api.v1.teachers.show';
+
     public function test_a_guest_cannot_get_the_details_of_a_teacher(): void
     {
         $teacher = $this->fakeTeacher();
 
         $this->assertGuest();
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
+        $response = $this->getJson(route($this->routeName, $teacher->id));
 
         // Assert that the request is unauthorized.
         $response->assertUnauthorized();
     }
 
+    public function test_a_teacher_in_an_unsubscribed_school_cannot_get_the_details_of_a_teacher(): void
+    {
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $teacher = $this->fakeTeacher($school);
+        }
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->getJson(route($this->routeName, $teacher->id));
+
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_get_the_details_of_a_teacher_in_same_school(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $teacher = $this->fakeTeacher($school);
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $teacher = $this->fakeTeacher($school);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
+        $response = $this->getJson(route($this->routeName, $teacher->id));
 
         // Assert that the request is successful.
-        $response->assertOk()->assertJsonSuccessful();
+        $response->assertOk()
+            ->assertJsonSuccessful();
 
         // Assert that the teacher profile is correct.
         $response->assertJsonFragment(['id' => $teacher->id]);
     }
 
-    public function test_a_non_admin_teacher_are_unauthorised_to_get_the_details_of_another_teacher_in_same_school(): void
+    public function test_a_non_admin_teacher_are_unauthorized_to_get_the_details_of_another_teacher_in_same_school(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $teacher1 = $this->fakeNonAdminTeacher($school);
-        $teacher2 = $this->fakeTeacher($school);
+            $this->fakeSubscription($school);
+
+            $teacher1 = $this->fakeNonAdminTeacher($school);
+            $teacher2 = $this->fakeTeacher($school);
+        }
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route($this->routeName, $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();
@@ -60,31 +84,41 @@ class ShowTeacherTest extends TestCase
 
     public function test_an_admin_teacher_is_unauthorized_to_get_the_details_of_a_teacher_in_another_school(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $school2 = $this->fakeTraditionalSchool();
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $school2 = $this->fakeTraditionalSchool();
 
-        $teacher1 = $this->fakeAdminTeacher($school1);
-        $teacher2 = $this->fakeNonAdminTeacher($school2);
+            $this->fakeSubscription($school1);
+            $this->fakeSubscription($school2);
+
+            $teacher1 = $this->fakeAdminTeacher($school1);
+            $teacher2 = $this->fakeNonAdminTeacher($school2);
+        }
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route($this->routeName, $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();
     }
 
-    public function test_a_non_admin_teacher_is_unauthorised_to_view_the_details_of_a_teacher_in_another_school(): void
+    public function test_a_non_admin_teacher_is_unauthorized_to_view_the_details_of_a_teacher_in_another_school(): void
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $school2 = $this->fakeTraditionalSchool();
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $school2 = $this->fakeTraditionalSchool();
 
-        $teacher1 = $this->fakeNonAdminTeacher($school1);
-        $teacher2 = $this->fakeNonAdminTeacher($school2);
+            $this->fakeSubscription($school1);
+            $this->fakeSubscription($school2);
+
+            $teacher1 = $this->fakeNonAdminTeacher($school1);
+            $teacher2 = $this->fakeNonAdminTeacher($school2);
+        }
 
         $this->actingAsTeacher($teacher1);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher2->id));
+        $response = $this->getJson(route($this->routeName, $teacher2->id));
 
         // Assert that the request is unauthorized.
         $response->assertForbidden();
@@ -92,13 +126,19 @@ class ShowTeacherTest extends TestCase
 
     public function test_an_admin_teacher_cannot_view_the_details_of_a_soft_deleted_teacher_in_same_school(): void
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $teacher = $this->fakeNonAdminTeacher($school, 1, ['deleted_at' => now()]);
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+
+            $teacher = $this->fakeNonAdminTeacher($school, 1, ['deleted_at' => now()]);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
+        $response = $this->getJson(route($this->routeName, $teacher->id));
 
         // Assert that the soft deleted teacher is not found.
         $response->assertNotFound();
@@ -106,14 +146,18 @@ class ShowTeacherTest extends TestCase
 
     public function test_an_admin_teacher_can_view_limited_attributes_of_the_teacher_by_default(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $teacher = $this->fakeTeacher($school);
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $teacher = $this->fakeTeacher($school);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.teachers.show', $teacher->id));
+        $response = $this->getJson(route($this->routeName, $teacher->id));
 
         // Assert the response has the expected attributes of the teacher.
         $response->assertJsonStructure([
@@ -142,14 +186,18 @@ class ShowTeacherTest extends TestCase
 
     public function test_an_admin_teacher_can_view_the_school_of_the_teacher_if_explicitly_requested(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $teacher = $this->fakeTeacher($school);
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $teacher = $this->fakeTeacher($school);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.teachers.show', [
+        $response = $this->getJson(route($this->routeName, [
             'teacher' => $teacher->id,
             'with_school' => true,
         ]));
@@ -164,14 +212,18 @@ class ShowTeacherTest extends TestCase
 
     public function test_an_admin_teacher_can_view_the_classrooms_of_the_teacher_if_explicitly_requested(): void
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $teacher = $this->fakeTeacher($school);
+            $this->fakeSubscription($school);
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $teacher = $this->fakeTeacher($school);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
-        $response = $this->getJson(route('api.v1.teachers.show', [
+        $response = $this->getJson(route($this->routeName, [
             'teacher' => $teacher->id,
             'with_classrooms' => true,
         ]));
