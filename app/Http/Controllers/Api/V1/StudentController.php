@@ -94,6 +94,7 @@ class StudentController extends Controller
             'first_name',
             'last_name',
             'password',
+            'settings',
         ]);
 
         if ($authenticatedUser->isTeacher()) {
@@ -101,9 +102,6 @@ class StudentController extends Controller
 
             $validated['school_id'] = $authenticatedTeacher->school_id;
             $validated['expired_tasks_excluded'] = $request->boolean('expired_tasks_excluded', true);
-            $validated['settings'] = [
-                'confetti_enabled' => $request->boolean('confetti_enabled', true),
-            ];
             $validated['classroom_group_ids'] = $request->input('classroom_group_ids', []);
 
             $student = DB::transaction(function () use ($validated, $authenticatedTeacher) {
@@ -113,7 +111,6 @@ class StudentController extends Controller
                 // Assign the student into the given classroom groups.
                 if (isset($validated['classroom_group_ids']) && count($validated['classroom_group_ids']) > 0) {
                     $this->studentService->addToClassroomGroups($student, $validated['classroom_group_ids'], [
-                        'expired_tasks_excluded' => $validated['expired_tasks_excluded'],
                         'detaching' => false,
                     ]);
                 }
@@ -161,7 +158,7 @@ class StudentController extends Controller
     public function destroy(Student $student)
     {
         $this->authorize('delete', $student);
-        
+
         $authenticatedUser = $this->authService->user();
 
         $this->studentService->delete($student);

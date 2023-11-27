@@ -6,9 +6,6 @@ use Tests\TestCase;
 
 class IndexClassroomTest extends TestCase
 {
-    /**
-     * Authorization test.
-     */
     public function test_a_guest_cannot_get_classroom_list()
     {
         $this->assertGuest();
@@ -19,21 +16,37 @@ class IndexClassroomTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    /**
-     * Authorization test.
-     */
+    public function test_a_teacher_in_an_unsubscribed_school_cannot_get_classroom_list()
+    {
+        {
+            $school = $this->fakeTraditionalSchool();
+            $teacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeClassroom($teacher);
+        }
+
+        $this->actingAsTeacher($teacher);
+
+        $response = $this->getJson(route('api.v1.classrooms.index'));
+
+        // Assert a teacher in an unsubscribed school cannot access the endpoint.
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_get_classroom_list()
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $this->fakeClassroom($adminTeacher, 10);
+        {
+            $school = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $this->fakeClassroom($adminTeacher, 10);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assertions
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -41,16 +54,19 @@ class IndexClassroomTest extends TestCase
      */
     public function test_a_non_admin_teachers_can_get_classroom_list()
     {
-        $school = $this->fakeTraditionalSchool();
-        $teacher = $this->fakeNonAdminTeacher($school);
-        $this->fakeClassroom($teacher);
+        {
+            $school = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school);
+            $teacher = $this->fakeNonAdminTeacher($school);
+            $this->fakeClassroom($teacher);
+        }
 
         $this->actingAsTeacher($teacher);
 
         $response = $this->getJson(route('api.v1.classrooms.index'));
 
         // Assert a successful response.
-        $response->assertOk()->assertJsonFragment(['success' => true]);
+        $response->assertOk()->assertJsonSuccessful();
     }
 
     /**
@@ -58,13 +74,17 @@ class IndexClassroomTest extends TestCase
      */
     public function test_it_only_return_classrooms_in_the_same_school_to_the_teacher()
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher1 = $this->fakeAdminTeacher($school1);
-        $classrooms1 = $this->fakeClassroom($adminTeacher1, 2);
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school1);
+            $adminTeacher1 = $this->fakeAdminTeacher($school1);
+            $classrooms1 = $this->fakeClassroom($adminTeacher1, 2);
 
-        $school2 = $this->fakeTraditionalSchool();
-        $adminTeacher2 = $this->fakeAdminTeacher($school2);
-        $classrooms2 = $this->fakeClassroom($adminTeacher2, 2);
+            $school2 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school2);
+            $adminTeacher2 = $this->fakeAdminTeacher($school2);
+            $classrooms2 = $this->fakeClassroom($adminTeacher2, 2);
+        }
 
         $this->actingAsTeacher($adminTeacher1);
 
@@ -90,11 +110,14 @@ class IndexClassroomTest extends TestCase
      */
     public function test_it_only_return_classrooms_owned_by_the_teacher_to_the_non_admin_teacher()
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
-        $classrooms1 = $this->fakeClassroom($nonAdminTeacher, 2);
-        $classrooms2 = $this->fakeClassroom($adminTeacher, 2);
+        {
+            $school = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $classrooms1 = $this->fakeClassroom($nonAdminTeacher, 2);
+            $classrooms2 = $this->fakeClassroom($adminTeacher, 2);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -120,11 +143,14 @@ class IndexClassroomTest extends TestCase
      */
     public function test_it_fuzzy_searches_classrooms_by_name()
     {
-        $school = $this->fakeTraditionalSchool();
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $classroom1 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 1']);
-        $classroom2 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 11']);
-        $classroom3 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 3']);
+        {
+            $school = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $classroom1 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 1']);
+            $classroom2 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 11']);
+            $classroom3 = $this->fakeClassroom($adminTeacher, 1, ['name' => 'Classroom 3']);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 

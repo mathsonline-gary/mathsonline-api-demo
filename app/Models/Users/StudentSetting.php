@@ -23,6 +23,7 @@ class StudentSetting extends Model
      * @var array
      */
     protected $fillable = [
+        'expired_tasks_excluded',
         'balloon_tips_enabled',
         'results_enabled',
         'confetti_enabled',
@@ -33,10 +34,10 @@ class StudentSetting extends Model
 
     protected $casts = [
         'student_id' => 'integer',
+        'expired_tasks_excluded' => 'boolean',
         'balloon_tips_enabled' => 'boolean',
         'results_enabled' => 'boolean',
         'confetti_enabled' => 'boolean',
-        'colour' => 'int',
     ];
 
     /**

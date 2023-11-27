@@ -101,10 +101,6 @@ class TeacherFactory extends Factory
      */
     public function ofSchool(School $school): TeacherFactory
     {
-        return $this->state(function () use ($school) {
-            return [
-                'school_id' => $school->id,
-            ];
-        });
+        return $this->for($school, 'school');
     }
 }

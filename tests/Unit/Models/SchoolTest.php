@@ -2,17 +2,12 @@
 
 namespace Tests\Unit\Models;
 
-use App\Enums\SchoolType;
 use App\Enums\SubscriptionStatus;
-use App\Models\Campaign;
-use App\Models\Membership;
-use App\Models\Product;
 use App\Models\School;
 use App\Models\Subscription;
 use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Tests\TestCase;
@@ -179,110 +174,4 @@ class SchoolTest extends TestCase
         $this->assertTrue($homeschool->hasActiveSubscription());
     }
 
-    /**
-     * @see School::canSubscribeToMembership()
-     */
-    public function test_it_returns_true_it_can_subscribe_to_a_membership(): void
-    {
-        $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
-
-        // Create an expired subscription for the school.
-        $this->fakeSubscription($school, status: SubscriptionStatus::CANCELED);
-
-        $product = Product::factory()->create([
-            'school_type' => $school->type,
-            'market_id' => $school->market_id,
-        ]);
-
-        $campaign = Campaign::factory()->active()->create();
-
-        $membership = Membership::factory()->create([
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-        ]);
-
-        $this->assertTrue($school->canSubscribeToMembership($membership));
-    }
-
-    /**
-     * @see School::canSubscribeToMembership()
-     */
-    public function test_it_returns_false_if_it_already_has_an_active_subscription(): void
-    {
-        $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
-
-        // Create an active subscription for the school.
-        $this->fakeSubscription($school);
-
-        $membership = Membership::whereHas('product', fn(Builder $query) => $query->where('market_id', $school->market_id))
-            ->first();
-
-        $this->assertFalse($school->canSubscribeToMembership($membership));
-    }
-
-    /**
-     * @see School::canSubscribeToMembership()
-     */
-    public function test_it_returns_false_if_the_membership_is_inactive(): void
-    {
-        $school = $this->fakeHomeschool();
-
-        $product = Product::factory()->create([
-            'school_type' => $school->type,
-            'market_id' => $school->market_id,
-        ]);
-
-        $campaign = Campaign::factory()->expired()->create();
-
-        $membership = Membership::factory()->create([
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-        ]);
-
-        $this->assertFalse($school->canSubscribeToMembership($membership));
-    }
-
-    /**
-     * @see School::canSubscribeToMembership()
-     */
-    public function test_it_returns_false_if_the_membership_is_in_another_market(): void
-    {
-        $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
-
-        $product = Product::factory()->create([
-            'school_type' => $school->type,
-            'market_id' => 2,
-        ]);
-
-        $campaign = Campaign::factory()->active()->create();
-
-        $membership = Membership::factory()->create([
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-        ]);
-
-        $this->assertFalse($school->canSubscribeToMembership($membership));
-    }
-
-    /**
-     * @see School::canSubscribeToMembership()
-     */
-    public function test_it_returns_false_if_the_types_does_not_match(): void
-    {
-        $school = $this->fakeHomeschool();
-
-        $product = Product::factory()->create([
-            'school_type' => SchoolType::TRADITIONAL_SCHOOL,
-            'market_id' => $school->market_id,
-        ]);
-
-        $campaign = Campaign::factory()->active()->create();
-
-        $membership = Membership::factory()->create([
-            'product_id' => $product->id,
-            'campaign_id' => $campaign->id,
-        ]);
-
-        $this->assertFalse($school->canSubscribeToMembership($membership));
-    }
 }

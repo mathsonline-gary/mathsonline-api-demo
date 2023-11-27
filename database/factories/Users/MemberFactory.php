@@ -30,22 +30,26 @@ class MemberFactory extends Factory
     }
 
     /**
-     * Configure the model factory: synchronize the username with the login identifier.
+     * Configure the model factory: synchronize attributes with the associated user.
      */
     public function configure(): static
     {
         return $this->afterMaking(function (Member $member) {
-            $member->asUser()->update([
-                'login' => $member->email,
-                'email' => $member->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $member->asUser();
+
+            $user->login = $member->email;
+            $user->email = $member->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         })->afterCreating(function (Member $member) {
-            $member->asUser()->update([
-                'login' => $member->email,
-                'email' => $member->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $member->asUser();
+
+            $user->login = $member->email;
+            $user->email = $member->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         });
     }
 
@@ -57,10 +61,6 @@ class MemberFactory extends Factory
      */
     public function ofSchool(School $school): MemberFactory
     {
-        return $this->state(function () use ($school) {
-            return [
-                'school_id' => $school->id,
-            ];
-        });
+        return $this->for($school, 'school');
     }
 }

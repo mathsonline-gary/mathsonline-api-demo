@@ -34,17 +34,21 @@ class DeveloperFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (Developer $developer) {
-            $developer->asUser()->update([
-                'login' => $developer->email,
-                'email' => $developer->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $developer->asUser();
+
+            $user->login = $developer->email;
+            $user->email = $developer->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         })->afterCreating(function (Developer $developer) {
-            $developer->asUser()->update([
-                'login' => $developer->email,
-                'email' => $developer->email,
-                'email_verified_at' => now(),
-            ]);
+            $user = $developer->asUser();
+
+            $user->login = $developer->email;
+            $user->email = $developer->email;
+            $user->email_verified_at = now();
+
+            $user->save();
         });
     }
 }

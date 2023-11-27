@@ -30,6 +30,7 @@ class ClassroomService
      *     with_secondary_teachers?: bool,
      *     with_groups?: bool,
      * } $options
+     *
      * @return Collection|LengthAwarePaginator
      */
     public function search(array $options = []): Collection|LengthAwarePaginator
@@ -75,7 +76,8 @@ class ClassroomService
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
      *     with_custom_groups?: bool,
-     * } $options
+     * }                 $options
+     *
      * @return Classroom|null
      */
     public function find(int|string $id, array $options = []): ?Classroom
@@ -161,7 +163,8 @@ class ClassroomService
      * @param array{
      *     pass_grade: int,
      *     attempts: int,
-     * } $attributes
+     * }                $attributes
+     *
      * @return ClassroomGroup|null
      * @throws DefaultClassroomGroupExistsException
      */
@@ -188,7 +191,8 @@ class ClassroomService
      * Add a custom group for the given classroom, if it has not hit the max count.
      *
      * @param Classroom $classroom
-     * @param array $attributes
+     * @param array     $attributes
+     *
      * @return ClassroomGroup|null
      * @throws MaxClassroomGroupCountReachedException
      */
@@ -216,9 +220,10 @@ class ClassroomService
     /**
      * Add secondary teachers to the given classroom.
      *
-     * @param Classroom $classroom The classroom to add secondary teachers to.
-     * @param array $teacherIds The IDs of the teachers to add.
-     * @param bool $detaching Whether to detach the existing secondary teachers or not.
+     * @param Classroom $classroom  The classroom to add secondary teachers to.
+     * @param array     $teacherIds The IDs of the teachers to add.
+     * @param bool      $detaching  Whether to detach the existing secondary teachers or not.
+     *
      * @return void
      */
     public function assignSecondaryTeachers(Classroom $classroom, array $teacherIds, bool $detaching = true): void
@@ -231,8 +236,9 @@ class ClassroomService
     /**
      * Remove secondary teachers from the given classroom.
      *
-     * @param Classroom $classroom The classroom to remove secondary teachers from.
-     * @param array $teacherIds The IDs of the teachers to remove.
+     * @param Classroom $classroom  The classroom to remove secondary teachers from.
+     * @param array     $teacherIds The IDs of the teachers to remove.
+     *
      * @return void
      */
     public function removeSecondaryTeachers(Classroom $classroom, array $teacherIds): void
@@ -244,7 +250,8 @@ class ClassroomService
      * Update a classroom with given valid attributes.
      *
      * @param Classroom $classroom
-     * @param array $attributes
+     * @param array     $attributes
+     *
      * @return Classroom
      */
     public function update(Classroom $classroom, array $attributes): Classroom
@@ -273,7 +280,8 @@ class ClassroomService
      * Update the given classroom group with given valid attributes.
      *
      * @param ClassroomGroup $group
-     * @param array $attributes
+     * @param array          $attributes
+     *
      * @return ClassroomGroup
      */
     public function updateGroup(ClassroomGroup $group, array $attributes): ClassroomGroup
@@ -293,6 +301,7 @@ class ClassroomService
      * Delete the given classroom and its groups.
      *
      * @param Classroom $classroom
+     *
      * @return void
      */
     public function delete(Classroom $classroom): void
@@ -310,6 +319,7 @@ class ClassroomService
      * Delete the given custom classroom group, detach its students.
      *
      * @param ClassroomGroup $group
+     *
      * @return void
      * @throws DeleteDefaultClassroomGroupException
      */
@@ -335,7 +345,8 @@ class ClassroomService
      * Assign students to the given classroom group.
      *
      * @param ClassroomGroup $classroomGroup
-     * @param array $studentIds
+     * @param array          $studentIds
+     *
      * @return void
      */
     public function assignStudents(ClassroomGroup $classroomGroup, array $studentIds): void

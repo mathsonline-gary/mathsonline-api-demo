@@ -78,7 +78,8 @@ class StudentService
      *     with_school?: bool,
      *     with_classrooms?: bool,
      *     with_activities?: bool,
-     *     } $options
+     *     }      $options
+     *
      * @return Student|null
      */
     public function find(int $id, array $options = []): ?Student
@@ -112,6 +113,7 @@ class StudentService
      * Create a student with the given attributes.
      *
      * @param array $attributes
+     *
      * @return Student
      */
     public function create(array $attributes): Student
@@ -140,7 +142,14 @@ class StudentService
             $user->student()->save($student);
 
             // Create the student settings.
-            $student->settings()->create($attributes['settings'] ?? []);
+            $student->settings()->create(
+                $attributes['settings']
+                    ? Arr::only($attributes['settings'], [
+                    'confetti_enabled',
+                    'expired_tasks_excluded',
+                ])
+                    : []
+            );
 
             return $student;
         });
@@ -150,7 +159,8 @@ class StudentService
      * Update a student.
      *
      * @param Student $student
-     * @param array $payload
+     * @param array   $payload
+     *
      * @return Student
      */
     public function update(Student $student, array $payload): Student
@@ -208,6 +218,7 @@ class StudentService
      * Soft delete a student.
      *
      * @param Student|int $student
+     *
      * @return void
      */
     public function delete(Student|int $student): void
@@ -229,28 +240,21 @@ class StudentService
      * Assign the given student into the given classroom groups.
      *
      * @param Student $student
-     * @param array $classroomGroupIds
+     * @param array   $classroomGroupIds
      * @param array{
      *     expired_tasks_excluded?: bool,
      *     detaching?: bool,
-     * } $options
+     * }              $options
+     *
      * @return void
      */
     public function addToClassroomGroups(Student $student, array $classroomGroupIds, array $options = []): void
     {
-        $classroomGroups = [];
-
-        foreach ($classroomGroupIds as $classroomGroupId) {
-            $classroomGroups[$classroomGroupId] = [
-                'expired_tasks_excluded' => $options['expired_tasks_excluded'] ?? true,
-            ];
-        }
-
         if ($options['detaching'] ?? true) {
-            $student->classroomGroups()->sync($classroomGroups);
+            $student->classroomGroups()->sync($classroomGroupIds);
         } else {
-            if (count($classroomGroups) > 0) {
-                $student->classroomGroups()->syncWithoutDetaching($classroomGroups);
+            if (count($classroomGroupIds) > 0) {
+                $student->classroomGroups()->syncWithoutDetaching($classroomGroupIds);
             }
         }
     }

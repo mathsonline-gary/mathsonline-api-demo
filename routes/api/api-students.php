@@ -12,7 +12,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])
+Route::middleware([
+    'auth:sanctum',
+    'verified',
+    'subscribed',
+])
     ->prefix('students')
     ->name('students.')
     ->group(function () {

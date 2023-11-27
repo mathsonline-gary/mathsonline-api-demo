@@ -13,7 +13,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Teacher module routes.
-Route::middleware(['auth:sanctum'])
+Route::middleware([
+    'auth:sanctum',
+    'verified',
+    'subscribed',
+])
     ->prefix('/teachers')
     ->name('teachers.')
     ->group(function () {

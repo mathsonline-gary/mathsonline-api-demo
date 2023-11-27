@@ -11,6 +11,7 @@ class SchoolService
      * Create a new school.
      *
      * @param array $attributes
+     *
      * @return School
      */
     public function create(array $attributes): School
@@ -38,6 +39,7 @@ class SchoolService
      * Find the school by the Stripe customer ID.
      *
      * @param string $stripeId
+     *
      * @return School|null
      */
     public function findByStripeId(string $stripeId): ?School

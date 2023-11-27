@@ -37,9 +37,10 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The billing period in days.');
 
-            $table->boolean('is_recurring')
-                ->default(false)
-                ->comment('Whether the membership is recurring.');
+            $table->unsignedInteger('iterations')
+                ->nullable()
+                ->default(null)
+                ->comment('The multiplier applied to the membership interval. Null if the membership is recurring. For example, a membership with intervals = 12 and period_in_month = 1, results in a subscription of duration 12 * 1 = 12 months and charges monthly.');
 
             $table->unsignedTinyInteger('user_limit')
                 ->default(1)

@@ -22,13 +22,38 @@ class IndexClassroomStudentTest extends TestCase
         $response->assertUnauthorized();
     }
 
+    public function test_a_teacher_in_an_unsubscribed_school_cannot_get_the_list_of_students(): void
+    {
+        {
+            $school = $this->fakeTraditionalSchool();
+
+            $adminTeacher = $this->fakeAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+        }
+
+        $this->actingAsTeacher($adminTeacher);
+
+        $response = $this->getJson(
+            route('api.v1.classrooms.students.index', [
+                'classroom' => $classroom->id,
+            ])
+        );
+
+        $response->assertUnsubscribed();
+    }
+
     public function test_an_admin_teacher_can_get_the_list_of_students_in_a_classroom_from_the_same_school()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+
+            $classroom = $this->fakeClassroom($adminTeacher);
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -40,18 +65,23 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
     }
 
     public function test_an_admin_teacher_is_unauthorized_to_get_the_list_of_students_in_a_classroom_from_another_school()
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $school2 = $this->fakeTraditionalSchool();
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school1);
 
-        $adminTeacher1 = $this->fakeAdminTeacher($school1);
-        $adminTeacher2 = $this->fakeAdminTeacher($school2);
+            $school2 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school2);
 
-        $classroom = $this->fakeClassroom($adminTeacher2);
+            $adminTeacher1 = $this->fakeAdminTeacher($school1);
+            $adminTeacher2 = $this->fakeAdminTeacher($school2);
+
+            $classroom = $this->fakeClassroom($adminTeacher2);
+        }
 
         $this->actingAsTeacher($adminTeacher1);
 
@@ -67,17 +97,20 @@ class IndexClassroomStudentTest extends TestCase
 
     public function test_a_non_admin_teacher_can_get_the_list_of_students_in_a_classroom_that_is_managed_by_them()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school);
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
+            $adminTeacher = $this->fakeAdminTeacher($school);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
 
-        // Create a classroom of which the non-admin teacher is the secondary teacher.
-        $classroom1 = $this->fakeClassroom($adminTeacher);
-        $this->attachSecondaryTeachersToClassroom($classroom1, [$nonAdminTeacher->id]);
+            // Create a classroom of which the non-admin teacher is the secondary teacher.
+            $classroom1 = $this->fakeClassroom($adminTeacher);
+            $this->attachSecondaryTeachersToClassroom($classroom1, [$nonAdminTeacher->id]);
 
-        // Create a classroom of which the non-admin teacher is the owner.
-        $classroom2 = $this->fakeClassroom($nonAdminTeacher);
+            // Create a classroom of which the non-admin teacher is the owner.
+            $classroom2 = $this->fakeClassroom($nonAdminTeacher);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -89,7 +122,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
 
         $response = $this->getJson(
             route('api.v1.classrooms.students.index', [
@@ -99,23 +132,28 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
     }
 
     public function test_a_non_admin_teacher_is_unauthorized_to_get_the_list_of_students_in_a_classroom_that_is_not_managed_by_them()
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $school2 = $this->fakeTraditionalSchool();
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school1);
 
-        $adminTeacher1 = $this->fakeAdminTeacher($school1);
-        $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
-        $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school2);
+            $school2 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school2);
 
-        // Create a classroom of which the admin teacher is the owner.
-        $classroom1 = $this->fakeClassroom($adminTeacher1);
+            $adminTeacher1 = $this->fakeAdminTeacher($school1);
+            $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school1);
+            $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school2);
 
-        // Create a classroom for $school2.
-        $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+            // Create a classroom of which the admin teacher is the owner.
+            $classroom1 = $this->fakeClassroom($adminTeacher1);
+
+            // Create a classroom for $school2.
+            $classroom2 = $this->fakeClassroom($nonAdminTeacher2);
+        }
 
         $this->actingAsTeacher($nonAdminTeacher1);
 
@@ -140,16 +178,20 @@ class IndexClassroomStudentTest extends TestCase
 
     public function test_it_responses_with_expected_attributes()
     {
-        $school = $this->fakeTraditionalSchool();
+        {
+            $school = $this->fakeTraditionalSchool();
 
-        $adminTeacher = $this->fakeAdminTeacher($school);
+            $this->fakeSubscription($school);
 
-        $classroom = $this->fakeClassroom($adminTeacher);
+            $adminTeacher = $this->fakeAdminTeacher($school);
 
-        $students = $this->fakeStudent($school, 5);
+            $classroom = $this->fakeClassroom($adminTeacher);
 
-        // Add the students to the classroom.
-        $this->attachStudentsToClassroomGroup($classroom->defaultClassroomGroup, $students->pluck('id')->toArray());
+            $students = $this->fakeStudent($school, 5);
+
+            // Add the students to the classroom.
+            $this->attachStudentsToClassroomGroup($classroom->defaultClassroomGroup, $students->pluck('id')->toArray());
+        }
 
         $this->actingAsTeacher($adminTeacher);
 
@@ -161,7 +203,7 @@ class IndexClassroomStudentTest extends TestCase
 
         // Assert that the request is successful.
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
 
         // Assert that the response data has the expected structure.
         $response->assertJsonStructure([
@@ -189,17 +231,21 @@ class IndexClassroomStudentTest extends TestCase
 
     public function test_the_admin_teacher_gets_the_correct_list_of_students_in_the_classroom()
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $adminTeacher1 = $this->fakeAdminTeacher($school1);
-        $classroom1 = $this->fakeClassroom($adminTeacher1);
-        $students1 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school1);
+            $adminTeacher1 = $this->fakeAdminTeacher($school1);
+            $classroom1 = $this->fakeClassroom($adminTeacher1);
+            $students1 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
 
-        $school2 = $this->fakeTraditionalSchool();
-        $adminTeacher2 = $this->fakeAdminTeacher($school2);
-        $classroom2 = $this->fakeClassroom($adminTeacher2);
-        $students2 = $this->fakeStudent($school2, 5);
-        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+            $school2 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school2);
+            $adminTeacher2 = $this->fakeAdminTeacher($school2);
+            $classroom2 = $this->fakeClassroom($adminTeacher2);
+            $students2 = $this->fakeStudent($school2, 5);
+            $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+        }
 
         $this->actingAsTeacher($adminTeacher1);
 
@@ -210,7 +256,7 @@ class IndexClassroomStudentTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
 
         // Assert that the response is correct.
         $response->assertJsonCount(5, 'data');
@@ -226,21 +272,25 @@ class IndexClassroomStudentTest extends TestCase
 
     public function test_the_non_admin_teacher_gets_the_correct_list_of_students_in_the_classroom()
     {
-        $school1 = $this->fakeTraditionalSchool();
-        $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
-        $classroom1 = $this->fakeClassroom($nonAdminTeacher);
-        $students1 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
+        {
+            $school1 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school1);
+            $nonAdminTeacher = $this->fakeNonAdminTeacher($school1);
+            $classroom1 = $this->fakeClassroom($nonAdminTeacher);
+            $students1 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
 
-        $school2 = $this->fakeTraditionalSchool();
-        $adminTeacher2 = $this->fakeAdminTeacher($school2);
-        $classroom2 = $this->fakeClassroom($adminTeacher2);
-        $students2 = $this->fakeStudent($school2, 5);
-        $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
+            $school2 = $this->fakeTraditionalSchool();
+            $this->fakeSubscription($school2);
+            $adminTeacher2 = $this->fakeAdminTeacher($school2);
+            $classroom2 = $this->fakeClassroom($adminTeacher2);
+            $students2 = $this->fakeStudent($school2, 5);
+            $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
 
-        $classroom3 = $this->fakeClassroom($nonAdminTeacher);
-        $students3 = $this->fakeStudent($school1, 5);
-        $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+            $classroom3 = $this->fakeClassroom($nonAdminTeacher);
+            $students3 = $this->fakeStudent($school1, 5);
+            $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());
+        }
 
         $this->actingAsTeacher($nonAdminTeacher);
 
@@ -251,7 +301,7 @@ class IndexClassroomStudentTest extends TestCase
         );
 
         $response->assertOk()
-            ->assertJsonFragment(['success' => true]);
+            ->assertJsonSuccessful();
 
         // Assert that the response is correct.
         $response->assertJsonCount(5, 'data');

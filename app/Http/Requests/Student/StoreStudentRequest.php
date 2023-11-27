@@ -30,7 +30,7 @@ class StoreStudentRequest extends FormRequest
             'email' => ['nullable', 'email'],
             'first_name' => ['required', 'string', 'max:32'],
             'last_name' => ['required', 'string', 'max:32'],
-            'password' => ['required', 'confirmed', Password::defaults(), 'min:4', 'max:32'],
+            'password' => ['required', 'string', Password::defaults(), 'min:4', 'max:32'],
         ];
 
         // Set rules for teacher users.
@@ -38,8 +38,9 @@ class StoreStudentRequest extends FormRequest
             /** @var Teacher $teacher */
             $teacher = $this->user()->asTeacher();
 
-            $rules['expired_tasks_excluded'] = ['required', 'boolean'];
-            $rules['confetti_enabled'] = ['required', 'boolean'];
+            $rules['settings'] = ['required', 'array'];
+            $rules['settings.expired_tasks_excluded'] = ['required', 'boolean'];
+            $rules['settings.confetti_enabled'] = ['required', 'boolean'];
             $rules['classroom_group_ids'] = [
                 Rule::requiredIf(!$teacher->isAdmin()), // The field is required if the authenticated user is not an admin.
                 'array',

@@ -22,9 +22,9 @@ class CampaignFactory extends Factory
     /**
      * Indicate that the campaign has expired.
      *
-     * @return Factory
+     * @return CampaignFactory
      */
-    public function expired(): Factory
+    public function expired(): CampaignFactory
     {
         return $this->state(function (array $attributes) {
             return [
@@ -36,9 +36,9 @@ class CampaignFactory extends Factory
     /**
      * Indicate that the campaign has not expired.
      *
-     * @return Factory
+     * @return CampaignFactory
      */
-    public function active(): Factory
+    public function active(): CampaignFactory
     {
         return $this->state(function (array $attributes) {
             return [

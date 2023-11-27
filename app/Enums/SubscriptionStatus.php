@@ -12,5 +12,4 @@ enum SubscriptionStatus: string
     case UNPAID = 'unpaid';
     case TRIALING = 'trialing';
     case PAUSED = 'paused';
-    case ENDED = 'ended';
 }

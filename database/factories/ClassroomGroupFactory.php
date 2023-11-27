@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ClassroomGroupFactory extends Factory
 {
+    protected $model = ClassroomGroup::class;
+
     /**
      * Define the model's default state.
      *
@@ -33,11 +35,7 @@ class ClassroomGroupFactory extends Factory
      */
     public function ofClassroom(Classroom $classroom): ClassroomGroupFactory
     {
-        return $this->state(function () use ($classroom) {
-            return [
-                'classroom_id' => $classroom->id,
-            ];
-        });
+        return $this->for($classroom, 'classroom');
     }
 
     /**
