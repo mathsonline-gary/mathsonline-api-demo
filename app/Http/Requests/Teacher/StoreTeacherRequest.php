@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Teacher;
 
+use App\Models\Users\Teacher;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreTeacherRequest extends FormRequest
@@ -17,7 +19,13 @@ class StoreTeacherRequest extends FormRequest
     {
         return [
             'username' => ['required', 'string', 'min:3', 'max:32', 'unique:teachers'],
-            'email' => ['nullable', 'email', 'min:4', 'max:128'],
+            'email' => [
+                'nullable',
+                'email',
+                'min:4',
+                'max:128',
+                Rule::unique(Teacher::class),
+            ],
             'first_name' => ['required', 'string', 'max:32'],
             'last_name' => ['required', 'string', 'max:32'],
             'password' => ['required', 'string', Password::defaults(), 'min:4', 'max:32'],
