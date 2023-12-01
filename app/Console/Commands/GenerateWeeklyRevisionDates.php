@@ -243,7 +243,10 @@ class GenerateWeeklyRevisionDates extends Command
                         case 2:
                         case 3:
                             // Calculate 8 Monday-to-Monday weeks before the end of the term
-                            $endDate = (new Carbon($termDate['to'], self::TIMEZONE))->next('Monday')->addHours(8);
+                            $endDate = (new Carbon($termDate['to'], self::TIMEZONE))->addHours(8);
+                            if ($endDate->dayOfWeek !== CarbonInterface::MONDAY) {
+                                $endDate->previous('Monday');
+                            }
 
                             $i = 0;
 
