@@ -238,41 +238,21 @@ class GenerateWeeklyRevisionDates extends Command
                 foreach ($dates as $term => $termDate) {
                     $weeklies = [];
 
+                    // calculate the term period
+                    $termPeriod = $termDate['to']->diffInWeeks($termDate['from']);
+
+                    // Generate weekly revision dates for each term
                     switch ($term) {
                         case 1:
                         case 2:
                         case 3:
-                            // Calculate 8 Monday-to-Monday weeks before the end of the term
-                            $endDate = (new Carbon($termDate['to'], self::TIMEZONE))->addHours(8);
-                            if ($endDate->dayOfWeek !== CarbonInterface::MONDAY) {
-                                $endDate->previous('Monday');
-                            }
-
-                            $i = 0;
-
-                            while ($i < 8) {
-                                $weeklies[8 * $term - $i]["end"] = new Carbon($endDate);
-                                $weeklies[8 * $term - $i]["start"] = new Carbon($endDate->subDays(7));
-
-                                $i++;
-                            }
+                            $weeklies = $termPeriod <= 8
+                                ? $this->generateWeekliesFromTheStartDate($termDate['from'], $term)
+                                : $this->generateWeekliesFromTheEndDate($termDate['to'], $term);
 
                             break;
                         case 4:
-                            // Calculate 8 Monday-to-Monday weeks from the start of the term
-                            $startDate = (new Carbon($termDate['from'], self::TIMEZONE))->addHours(8);
-                            if ($startDate->dayOfWeek !== CarbonInterface::MONDAY) {
-                                $startDate->next('Monday');
-                            }
-
-                            $i = 0;
-
-                            while ($i < 8) {
-                                $weeklies[$i + 25]["start"] = new Carbon($startDate);
-                                $weeklies[$i + 25]["end"] = new Carbon($startDate->addDays(7));
-
-                                $i++;
-                            }
+                            $weeklies = $this->generateWeekliesFromTheStartDate($termDate['from'], $term);
 
                             break;
                     }
@@ -312,5 +292,63 @@ class GenerateWeeklyRevisionDates extends Command
 
         fwrite($file, $sqlFileContent);
         fclose($file);
+    }
+
+    /**
+     * Generate 8 Monday-to-Monday weeks before the end of the term.
+     *
+     * @param Carbon $termDate
+     * @param int    $term
+     *
+     * @return array
+     */
+    protected function generateWeekliesFromTheEndDate(Carbon $termDate, int $term): array
+    {
+        $weeklies = [];
+
+        $endDate = (new Carbon($termDate, self::TIMEZONE))->addHours(8);
+        if ($endDate->dayOfWeek !== CarbonInterface::MONDAY) {
+            $endDate->previous('Monday');
+        }
+
+        $i = 0;
+
+        while ($i < 8) {
+            $weeklies[8 * $term - $i]["end"] = new Carbon($endDate);
+            $weeklies[8 * $term - $i]["start"] = new Carbon($endDate->subDays(7));
+
+            $i++;
+        }
+
+        return $weeklies;
+    }
+
+    /**
+     * Generate 8 Monday-to-Monday weeks from the start of the term.
+     *
+     * @param Carbon $termDate
+     * @param int    $term
+     *
+     * @return array
+     */
+    protected function generateWeekliesFromTheStartDate(Carbon $termDate, int $term): array
+    {
+        $weeklies = [];
+
+        $startDate = (new Carbon($termDate, self::TIMEZONE))->addHours(8);
+        if ($startDate->dayOfWeek !== CarbonInterface::MONDAY) {
+            $startDate->next('Monday');
+        }
+
+        $i = 0;
+
+        while ($i < 8) {
+            $weeklies[$i + 8 * ($term - 1) + 1]["start"] = new Carbon($startDate);
+            $weeklies[$i + 8 * ($term - 1) + 1]["end"] = new Carbon($startDate->addDays(7));
+
+            $i++;
+        }
+
+        return $weeklies;
     }
 }
