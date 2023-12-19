@@ -150,19 +150,19 @@ class GenerateWeeklyRevisionDates extends Command
             self::TAS => [
                 1 => [
                     "from" => new Carbon('2024-02-08', self::TIMEZONE),
-                    "to" => new Carbon('2024-04-11', self::TIMEZONE),
+                    "to" => new Carbon('2024-04-12', self::TIMEZONE),
                 ],
                 2 => [
                     "from" => new Carbon('2024-04-29', self::TIMEZONE),
                     "to" => new Carbon('2024-07-05', self::TIMEZONE),
                 ],
                 3 => [
-                    "from" => new Carbon('2024-07-23', self::TIMEZONE),
-                    "to" => new Carbon('2024-09-27', self::TIMEZONE),
+                    "from" => new Carbon('2024-07-09', self::TIMEZONE),
+                    "to" => new Carbon('2024-09-13', self::TIMEZONE),
                 ],
                 4 => [
-                    "from" => new Carbon('2024-10-14', self::TIMEZONE),
-                    "to" => new Carbon('2024-12-19', self::TIMEZONE),
+                    "from" => new Carbon('2024-09-30', self::TIMEZONE),
+                    "to" => new Carbon('2024-11-29', self::TIMEZONE),
                 ],
             ],
 
