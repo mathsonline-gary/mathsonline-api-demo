@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StripeWebhookRequest;
+use App\Models\Subscription;
 use App\Services\MembershipService;
 use App\Services\ProductService;
 use App\Services\SchoolService;
@@ -168,7 +168,7 @@ class StripeWebhookController extends Controller
             $this->subscriptionService->create($attributes);
         } else {
             // Skip if the subscription has been cancelled.
-            if ($subscription->status === SubscriptionStatus::CANCELED) {
+            if ($subscription->status === Subscription::STATUS_CANCELED) {
                 return $this->handleEventError($event, 'The subscription has been canceled.');
             }
 
@@ -183,6 +183,7 @@ class StripeWebhookController extends Controller
      * Construct the Stripe event.
      *
      * @param array $payload
+     *
      * @return Event
      */
     protected function constructEvent(array $payload): Event
@@ -202,6 +203,7 @@ class StripeWebhookController extends Controller
      * Respond with "Webhook handled" message.
      *
      * @param string $message
+     *
      * @return JsonResponse
      */
     protected function successMethod(string $message = 'Webhook handled.'): JsonResponse
@@ -215,6 +217,7 @@ class StripeWebhookController extends Controller
      * Respond with "Webhook unhandled" message.
      *
      * @param string $message
+     *
      * @return JsonResponse
      */
     protected function missingMethod(string $message = 'Webhook unhandled.'): JsonResponse
@@ -229,7 +232,7 @@ class StripeWebhookController extends Controller
      * 1. Log the error.
      * 2. Skip the further processing and respond immediately.
      *
-     * @param Event $event
+     * @param Event  $event
      * @param string $message
      *
      * @return JsonResponse

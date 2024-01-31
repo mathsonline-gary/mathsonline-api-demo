@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\School;
 use App\Models\Subscription;
 use App\Models\Users\Member;
@@ -165,7 +164,7 @@ class SchoolTest extends TestCase
     {
         $homeschool = $this->fakeHomeschool(attributes: ['market_id' => 1]);
 
-        $this->fakeSubscription($homeschool, status: SubscriptionStatus::CANCELED);
+        $this->fakeSubscription($homeschool, status: Subscription::STATUS_CANCELED);
 
         $this->assertFalse($homeschool->hasActiveSubscription());
 

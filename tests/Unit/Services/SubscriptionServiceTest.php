@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
 use Tests\TestCase;
@@ -37,7 +36,7 @@ class SubscriptionServiceTest extends TestCase
             'current_period_ends_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => Subscription::STATUS_ACTIVE,
             'custom_user_limit' => fake()->numberBetween(1, 100)
         ];
 
@@ -68,7 +67,7 @@ class SubscriptionServiceTest extends TestCase
             'current_period_ends_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
-            'status' => SubscriptionStatus::INCOMPLETE,
+            'status' => Subscription::STATUS_INCOMPLETE,
             'custom_user_limit' => fake()->numberBetween(1, 100)
         ];
 
@@ -100,7 +99,7 @@ class SubscriptionServiceTest extends TestCase
             'current_period_ends_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
-            'status' => SubscriptionStatus::INCOMPLETE,
+            'status' => Subscription::STATUS_INCOMPLETE,
             'custom_user_limit' => fake()->numberBetween(1, 100)
         ];
 
@@ -131,7 +130,7 @@ class SubscriptionServiceTest extends TestCase
             'current_period_ends_at' => fake()->dateTime(),
             'canceled_at' => fake()->dateTime(),
             'ended_at' => fake()->dateTime(),
-            'status' => SubscriptionStatus::INCOMPLETE,
+            'status' => Subscription::STATUS_INCOMPLETE,
             'custom_user_limit' => fake()->numberBetween(1, 100)
         ];
 

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\Product;
 use App\Models\School;
@@ -29,7 +28,7 @@ class SubscriptionFactory extends Factory
             'current_period_ends_at' => now()->addDays($this->faker->numberBetween(1, 30)),
             'canceled_at' => now()->subDays($this->faker->numberBetween(1, 30)),
             'ended_at' => null,
-            'status' => SubscriptionStatus::ACTIVE,
+            'status' => Subscription::STATUS_ACTIVE,
             'custom_user_limit' => null,
         ];
     }
@@ -107,7 +106,7 @@ class SubscriptionFactory extends Factory
             return [
                 'canceled_at' => now()->subDays($this->faker->numberBetween(10, 30)),
                 'ended_at' => now()->subDays($this->faker->numberBetween(1, 10)),
-                'status' => SubscriptionStatus::CANCELED,
+                'status' => Subscription::STATUS_CANCELED,
             ];
         });
     }
