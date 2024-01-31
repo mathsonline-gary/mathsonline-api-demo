@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\SchoolType;
 use App\Models\Classroom;
 use App\Models\School;
 use App\Models\Users\Teacher;
@@ -40,8 +39,8 @@ class ClassroomFactory extends Factory
             return [
                 'school_id' => $school->id,
                 'type' => match ($school->type) {
-                    SchoolType::TRADITIONAL_SCHOOL => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-                    SchoolType::HOMESCHOOL => Classroom::TYPE_HOMESCHOOL_CLASSROOM,
+                    School::TYPE_TRADITIONAL_SCHOOL => Classroom::TYPE_TRADITIONAL_CLASSROOM,
+                    School::TYPE_HOMESCHOOL => Classroom::TYPE_HOMESCHOOL_CLASSROOM,
                 },
                 'year_id' => $school->market->years->random()->id,
             ];

@@ -15,8 +15,12 @@ class Classroom extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Define the classroom type constants.
     public const TYPE_TRADITIONAL_CLASSROOM = 1;
     public const TYPE_HOMESCHOOL_CLASSROOM = 2;
+
+    // Define the max limit of the number of classroom groups for a classroom.
+    public const MAX_CUSTOM_GROUP_COUNT = 8;
 
     protected $fillable = [
         'school_id',
@@ -36,9 +40,6 @@ class Classroom extends Model
         'mastery_enabled' => 'bool',
         'self_rating_enabled' => 'bool',
     ];
-
-    // The max limit of the number of classroom groups.
-    public const MAX_CUSTOM_GROUP_COUNT = 8;
 
     /**
      * Get the school associated with the classroom.

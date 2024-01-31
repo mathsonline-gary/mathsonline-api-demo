@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\SchoolType;
 use App\Models\Users\Member;
 use App\Models\Users\Student;
 use App\Models\Users\Teacher;
@@ -16,6 +15,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class School extends Model
 {
     use HasFactory;
+
+    // Define the school type constants.
+    public const TYPE_TRADITIONAL_SCHOOL = 1;
+    public const TYPE_HOMESCHOOL = 2;
 
     protected $fillable = [
         'market_id',
@@ -36,7 +39,7 @@ class School extends Model
     protected $casts = [
         'market_id' => 'int',
         'stripe_id' => 'string',
-        'type' => SchoolType::class,
+        'type' => 'int',
     ];
 
     /**
@@ -93,22 +96,24 @@ class School extends Model
      * Scope a query to only include traditional schools.
      *
      * @param Builder $query
+     *
      * @return Builder
      */
     public function scopeTraditionalSchools(Builder $query): Builder
     {
-        return $query->where('type', SchoolType::TRADITIONAL_SCHOOL);
+        return $query->where('type', self::TYPE_TRADITIONAL_SCHOOL);
     }
 
     /**
      * Scope a query to only include homeschools.
      *
      * @param Builder $query
+     *
      * @return Builder
      */
     public function scopeHomeschools(Builder $query): Builder
     {
-        return $query->where('type', SchoolType::HOMESCHOOL);
+        return $query->where('type', self::TYPE_HOMESCHOOL);
     }
 
     /**

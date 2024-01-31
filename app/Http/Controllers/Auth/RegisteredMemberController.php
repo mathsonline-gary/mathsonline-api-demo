@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\SchoolType;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Auth\RegisterMemberRequest;
+use App\Models\School;
 use App\Models\Users\Member;
 use App\Services\MemberService;
 use App\Services\SchoolService;
@@ -50,7 +50,7 @@ class RegisteredMemberController extends Controller
                 // Create a homeschool.
                 $school = $this->schoolService->create([
                     ...$validated,
-                    'type' => SchoolType::HOMESCHOOL,
+                    'type' => School::TYPE_HOMESCHOOL,
                     'stripe_id' => $customer->id,
                     'name' => "Homeschool of {$validated['first_name']} {$validated['last_name']}",
                 ]);

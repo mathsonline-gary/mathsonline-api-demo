@@ -12,6 +12,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('classrooms', function (Blueprint $table) {
+            $types = [
+                Classroom::TYPE_TRADITIONAL_CLASSROOM,
+                Classroom::TYPE_HOMESCHOOL_CLASSROOM,
+            ];
+
             $table->id();
 
             $table->foreignId('school_id')
@@ -24,7 +29,7 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The owner of the classroom. If the classroom is a traditional classroom, the key will be a teacher ID, If the classroom is a homeschool classroom, the key will be a member ID.');
 
-            $table->enum('type', [Classroom::TYPE_TRADITIONAL_CLASSROOM, Classroom::TYPE_HOMESCHOOL_CLASSROOM])
+            $table->enum('type', $types)
                 ->comment('1: Traditional Classroom, 2: Homeschool Classroom');
 
             $table->string('name');
