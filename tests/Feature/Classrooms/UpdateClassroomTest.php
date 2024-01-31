@@ -261,7 +261,7 @@ class UpdateClassroomTest extends TestCase
         $this->assertEquals($classroom->id, $responseData['id']);
         $this->assertEquals($classroom->school_id, $responseData['school_id']);
         $this->assertEquals($this->payload['year_id'], $responseData['year_id']);
-        $this->assertEquals($classroom->type->value, $responseData['type']);
+        $this->assertEquals($classroom->type, $responseData['type']);
         $this->assertEquals($this->payload['name'], $responseData['name']);
         $this->assertEquals($this->payload['pass_grade'], $responseData['pass_grade']);
         $this->assertEquals($this->payload['attempts'], $responseData['attempts']);

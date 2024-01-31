@@ -39,7 +39,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $casts = [
-        'type' => 'integer',
+        'type' => 'int',
         'email_verified_at' => 'datetime',
     ];
 

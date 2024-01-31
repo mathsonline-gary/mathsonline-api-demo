@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ClassroomType;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Classroom extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public const TYPE_TRADITIONAL_CLASSROOM = 1;
+    public const TYPE_HOMESCHOOL_CLASSROOM = 2;
 
     protected $fillable = [
         'school_id',
@@ -30,7 +32,7 @@ class Classroom extends Model
         'school_id' => 'int',
         'owner_id' => 'int',
         'year_id' => 'int',
-        'type' => ClassroomType::class,
+        'type' => 'int',
         'mastery_enabled' => 'bool',
         'self_rating_enabled' => 'bool',
     ];
@@ -110,7 +112,7 @@ class Classroom extends Model
      */
     public function isTraditionalClassroom(): bool
     {
-        return $this->type === ClassroomType::TRADITIONAL_CLASSROOM;
+        return $this->type === Classroom::TYPE_TRADITIONAL_CLASSROOM;
     }
 
     /**
@@ -120,6 +122,6 @@ class Classroom extends Model
      */
     public function isHomeschoolClassroom(): bool
     {
-        return $this->type === ClassroomType::HOMESCHOOL_CLASSROOM;
+        return $this->type === Classroom::TYPE_HOMESCHOOL_CLASSROOM;
     }
 }

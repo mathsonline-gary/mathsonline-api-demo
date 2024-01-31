@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\ClassroomType;
+use App\Models\Classroom;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +24,7 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The owner of the classroom. If the classroom is a traditional classroom, the key will be a teacher ID, If the classroom is a homeschool classroom, the key will be a member ID.');
 
-            $table->enum('type', array_column(ClassroomType::cases(), 'value'))
+            $table->enum('type', [Classroom::TYPE_TRADITIONAL_CLASSROOM, Classroom::TYPE_HOMESCHOOL_CLASSROOM])
                 ->comment('1: Traditional Classroom, 2: Homeschool Classroom');
 
             $table->string('name');
