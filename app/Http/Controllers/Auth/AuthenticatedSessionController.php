@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserType;
 use App\Events\Auth\LoggedIn;
 use App\Events\Auth\LoggedOut;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\TeacherResource;
+use App\Models\Users\User;
 use App\Services\AuthService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -30,11 +30,11 @@ class AuthenticatedSessionController extends Controller
         $type = $user->type;
 
         $profile = match ($type) {
-            UserType::STUDENT => $user->asStudent(),
-            UserType::TEACHER => new TeacherResource($user->asTeacher()),
-            UserType::MEMBER => $user->asMember(),
-            UserType::ADMIN => $user->asAdmin(),
-            UserType::DEVELOPER => $user->asDeveloper(),
+            User::TYPE_STUDENT => $user->asStudent(),
+            User::TYPE_TEACHER => new TeacherResource($user->asTeacher()),
+            User::TYPE_MEMBER => $user->asMember(),
+            User::TYPE_ADMIN => $user->asAdmin(),
+            User::TYPE_DEVELOPER => $user->asDeveloper(),
             default => null,
         };
 

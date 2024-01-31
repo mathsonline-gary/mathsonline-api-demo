@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Enums\UserType;
 use App\Models\Users\Member;
 use App\Models\Users\User;
 use App\Services\MemberService;
@@ -47,7 +46,7 @@ class MemberServiceTest extends TestCase
         $user = User::first();
         $this->assertEquals($attributes['email'], $user->login);
         $this->assertTrue(Hash::check($attributes['password'], $user->password));
-        $this->assertEquals(UserType::MEMBER, $user->type);
+        $this->assertEquals(User::TYPE_MEMBER, $user->type);
         $this->assertNull($user->oauth_google_id);
         $this->assertNull($user->deleted_at);
 

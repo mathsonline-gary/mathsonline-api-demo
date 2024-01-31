@@ -2,7 +2,6 @@
 
 namespace App\Models\Users;
 
-use App\Enums\UserType;
 use App\Models\Activity;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +19,13 @@ class User extends Authenticatable implements MustVerifyEmail
         Notifiable,
         SoftDeletes;
 
+    // User type constants.
+    public const TYPE_STUDENT = 1;
+    public const TYPE_TEACHER = 2;
+    public const TYPE_MEMBER = 3;
+    public const TYPE_ADMIN = 4;
+    public const TYPE_DEVELOPER = 5;
+
     protected $fillable = [
         'login',
         'email',
@@ -33,7 +39,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     protected $casts = [
-        'type' => UserType::class,
+        'type' => 'integer',
         'email_verified_at' => 'datetime',
     ];
 
@@ -107,7 +113,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isTeacher(): bool
     {
-        return $this->type === UserType::TEACHER && $this->teacher !== null;
+        return $this->type === self::TYPE_TEACHER;
     }
 
     /**
@@ -127,7 +133,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isStudent(): bool
     {
-        return $this->type === UserType::STUDENT && $this->student !== null;
+        return $this->type === self::TYPE_STUDENT;
     }
 
     /**
@@ -147,7 +153,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isMember(): bool
     {
-        return $this->type === UserType::MEMBER && $this->member !== null;
+        return $this->type === self::TYPE_MEMBER;
     }
 
     /**
@@ -167,7 +173,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin(): bool
     {
-        return $this->type === UserType::ADMIN && $this->admin !== null;
+        return $this->type === self::TYPE_ADMIN;
     }
 
     /**
@@ -187,7 +193,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isDeveloper(): bool
     {
-        return $this->type === UserType::DEVELOPER && $this->developer !== null;
+        return $this->type === self::TYPE_DEVELOPER;
     }
 
     /**

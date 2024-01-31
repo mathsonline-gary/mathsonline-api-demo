@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\UserType;
+use App\Models\Users\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,6 +12,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            $USER_TYPES = [User::TYPE_STUDENT, User::TYPE_TEACHER, User::TYPE_MEMBER, User::TYPE_ADMIN, User::TYPE_DEVELOPER];
+
             $table->id();
 
             $table->string('login')
@@ -27,7 +29,7 @@ return new class extends Migration {
 
             $table->string('password');
 
-            $table->enum('type', array_column(UserType::cases(), 'value'))
+            $table->enum('type', $USER_TYPES)
                 ->comment('The type of the user. 1 = student, 2 = teacher, 3 = member, 4 = admin, 5 = developer.');
 
             $table->string('oauth_google_id')
