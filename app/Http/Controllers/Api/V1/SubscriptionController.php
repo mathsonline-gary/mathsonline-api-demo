@@ -14,6 +14,7 @@ use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class SubscriptionController extends Controller
 {
@@ -84,19 +85,26 @@ class SubscriptionController extends Controller
             $membership = $request->validateMembership($authenticatedMember->school);
 
             // Create a Stripe subscription for the member.
-            DB::transaction(function () use ($authenticatedMember, $membership, $request) {
-                // Set the default payment method for the member.
-                $this->stripeService->setDefaultPaymentMethod(
-                    $authenticatedMember->school,
-                    $request->string('payment_token_id'),
+            try {
+                DB::transaction(function () use ($authenticatedMember, $membership, $request) {
+                    // Set the default payment method for the member.
+                    $this->stripeService->setDefaultPaymentMethod(
+                        $authenticatedMember->school,
+                        $request->string('payment_token_id'),
+                    );
+
+                    // Create a Stripe subscription for the member.
+                    $this->stripeService->createSubscription($authenticatedMember->school, $membership);
+
+                    // DO NOT INSERT SUBSCRIPTION DATA INTO THE DATABASE HERE.
+                    // THE DATABASE WILL BE UPDATED VIA STRIPE WEBHOOK.
+                });
+            } catch (Throwable) {
+                return $this->errorResponse(
+                    message: 'An error occurred while subscribing to the membership.',
+                    status: 500,
                 );
-
-                // Create a Stripe subscription for the member.
-                $this->stripeService->createSubscription($authenticatedMember->school, $membership);
-
-                // DO NOT CREATE A SUBSCRIPTION IN THE DATABASE HERE.
-                // THE SUBSCRIPTION WILL BE CREATED IN THE WEBHOOK.
-            });
+            }
 
             return $this->successResponse(
                 message: 'Subscribed to the membership successfully.',

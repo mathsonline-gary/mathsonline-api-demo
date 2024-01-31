@@ -44,7 +44,7 @@ return new class extends Migration {
 
             $table->timestamp('ended_at')
                 ->nullable()
-                ->comment('The date when the subscription actually ended. Null if the subscription is still active.');
+                ->comment('The date when the subscription actually ended. Null if the subscription has not ended.');
 
             $table->string('status')
                 ->comment('The status of the subscription.');
