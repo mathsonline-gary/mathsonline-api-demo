@@ -2,8 +2,8 @@
 
 namespace App\Events\Classroom;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Classroom;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -24,7 +24,7 @@ class ClassroomCreated extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $creator,
-            activityType: ActivityType::CREATED_CLASSROOM,
+            type: Activity::TYPE_CREATE_CLASSROOM,
             actedAt: $classroom->created_at,
             data: [
                 'id' => $classroom->id,

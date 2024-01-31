@@ -2,8 +2,8 @@
 
 namespace App\Events\Teacher;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -19,7 +19,7 @@ class TeacherDeleted extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityType::DELETED_TEACHER,
+            type: Activity::TYPE_DELETE_TEACHER,
             actedAt: $teacher->deleted_at,
             data: [
                 'teacher_id' => $teacher->id,

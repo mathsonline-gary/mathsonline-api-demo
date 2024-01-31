@@ -2,8 +2,8 @@
 
 namespace App\Events\Student;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\User;
 use Illuminate\Support\Carbon;
@@ -20,14 +20,14 @@ class StudentDeleted extends ActivityLoggableEvent
     /**
      * Create a new event instance.
      *
-     * @param User $actor The user who deleted the student.
+     * @param User    $actor   The user who deleted the student.
      * @param Student $student The student who was deleted.
      */
     public function __construct(User $actor, Student $student)
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityType::DELETED_STUDENT,
+            type: Activity::TYPE_DELETE_STUDENT,
             actedAt: $student->deleted_at,
             data: [
                 'student_id' => $student->id,

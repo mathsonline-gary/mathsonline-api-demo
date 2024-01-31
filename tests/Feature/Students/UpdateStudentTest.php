@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Students;
 
-use App\Enums\ActivityType;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -526,7 +525,7 @@ class UpdateStudentTest extends TestCase
         }
 
         $this->actingAsTeacher($adminTeacher);
-        
+
         $this->putJson(route($this->routeName, ['student' => $student]), $this->payload);
 
         // Assert that the activity is logged.
@@ -538,7 +537,7 @@ class UpdateStudentTest extends TestCase
             $student->refresh();
 
             $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-            $this->assertEquals(ActivityType::UPDATED_STUDENT, $activity->type);
+            $this->assertEquals(Activity::TYPE_UPDATE_STUDENT, $activity->type);
             $this->assertEquals($student->updated_at, $activity->acted_at);
             $this->assertEquals($student->id, $activity->data['id']);
             $this->assertEquals($this->payload['username'], $activity->data['payload']['username']);

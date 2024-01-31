@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Students;
 
-use App\Enums\ActivityType;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use Illuminate\Support\Str;
@@ -618,7 +617,7 @@ class CreateStudentTest extends TestCase
         $activity = Activity::latest('acted_at')->first();
         $student = Student::latest()->first();
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::CREATED_STUDENT, $activity->type);
+        $this->assertEquals(Activity::TYPE_CREATE_STUDENT, $activity->type);
         $this->assertArrayHasKey('id', $activity->data);
         $this->assertEquals($student->id, $activity->data['id']);
         $this->assertEquals($student->created_at, $activity->acted_at);

@@ -2,8 +2,8 @@
 
 namespace App\Events\Auth;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Users\User;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -17,7 +17,7 @@ class LoggedOut extends ActivityLoggableEvent
     /**
      * Create a new event instance.
      *
-     * @param User $user
+     * @param User   $user
      * @param Carbon $loggedOutAt
      */
     public function __construct(
@@ -27,7 +27,7 @@ class LoggedOut extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $user,
-            activityType: ActivityType::LOGGED_OUT,
+            type: Activity::TYPE_LOG_OUT,
             actedAt: $loggedOutAt,
         );
     }
