@@ -6,21 +6,26 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Stripe\Subscription as StripeSubscription;
 
 class Subscription extends Model
 {
     use HasFactory;
 
     // Define subscription status constants.
-    public const STATUS_ACTIVE = 'active';
-    public const STATUS_INCOMPLETE = 'incomplete';
-    public const STATUS_INCOMPLETE_EXPIRED = 'incomplete_expired';
-    public const STATUS_PAST_DUE = 'past_due';
-    public const STATUS_CANCELED = 'canceled';
-    public const STATUS_UNPAID = 'unpaid';
-    public const STATUS_TRIALING = 'trialing';
-    public const STATUS_PAUSED = 'paused';
+    public const STATUS_ACTIVE = StripeSubscription::STATUS_ACTIVE;
+    public const STATUS_INCOMPLETE = StripeSubscription::STATUS_INCOMPLETE;
+    public const STATUS_INCOMPLETE_EXPIRED = StripeSubscription::STATUS_INCOMPLETE_EXPIRED;
+    public const STATUS_PAST_DUE = StripeSubscription::STATUS_PAST_DUE;
+    public const STATUS_CANCELED = StripeSubscription::STATUS_CANCELED;
+    public const STATUS_UNPAID = StripeSubscription::STATUS_UNPAID;
+    public const STATUS_TRIALING = StripeSubscription::STATUS_TRIALING;
+    public const STATUS_PAUSED = StripeSubscription::STATUS_PAUSED;
     public const STATUS_UNKNOWN = 'unknown';
+
+    // Define payment method constants.
+    public const PAYMENT_METHOD_CARD = 'card';
+    public const PAYMENT_METHOD_DIRECT_DEPOSIT = 'direct_deposit';
 
     protected $fillable = [
         'membership_id',

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Subscription;
 
 use App\Models\Membership;
 use App\Models\School;
+use App\Models\Subscription;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,17 @@ class StoreSubscriptionRequest extends FormRequest
                 Rule::exists(Membership::class, 'id'),
             ],
 
-            'payment_token_id' => [
+            'payment_method' => [
                 'required',
+                'string',
+                Rule::in([
+                    Subscription::PAYMENT_METHOD_CARD,
+                    Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
+                ]),
+            ],
+
+            'payment_token_id' => [
+                Rule::requiredIf($this->input('payment_method') === Subscription::PAYMENT_METHOD_CARD),
                 'string',
             ],
         ];
@@ -33,6 +43,7 @@ class StoreSubscriptionRequest extends FormRequest
 
     /**
      * Validate 'membership_id' and return the valid membership.
+     * It verifies whether membership is valid for the given school.
      *
      * @param School $school
      *

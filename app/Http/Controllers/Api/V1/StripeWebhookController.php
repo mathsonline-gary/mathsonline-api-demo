@@ -58,7 +58,7 @@ class StripeWebhookController extends Controller
                 break;
 
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_UPDATED:
-                $response = $this->handleCustomerSubscriptionUpdated($event);
+                $response = $this->handleCustomerSubscriptionUpdated($event, $marketId);
                 break;
 
             default:
@@ -139,7 +139,7 @@ class StripeWebhookController extends Controller
         return $this->successMethod();
     }
 
-    protected function handleCustomerSubscriptionUpdated(Event $event): JsonResponse
+    protected function handleCustomerSubscriptionUpdated(Event $event, int $marketId): JsonResponse
     {
         $stripeSubscription = $event->data['object'];
 
@@ -147,15 +147,14 @@ class StripeWebhookController extends Controller
             return $this->handleEventError($event, 'Invalid event data.');
         }
 
+        // Get the refreshed Stripe subscription.
+        $this->stripeService->refreshResource($stripeSubscription, $marketId);
         $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
 
         // Check if the Stripe customer has an associated school.
-        if (is_null($school = $attributes['school'])) {
+        if (is_null($attributes['school'])) {
             return $this->handleEventError($event, 'The associated school not found.');
         }
-
-        // Get the refreshed Stripe subscription resource.
-        $this->stripeService->refreshResource($stripeSubscription, $school->market_id);
 
         // Check if the Stripe subscription has an associated membership.
         if (is_null($attributes['membership'])) {

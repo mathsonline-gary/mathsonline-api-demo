@@ -6,18 +6,20 @@ use App\Models\Campaign;
 use App\Models\Market;
 use App\Models\Membership;
 use App\Models\Product;
+use App\Models\Subscription;
 use Tests\TestCase;
 
 class CreateSubscriptionTest extends TestCase
 {
     protected string $routeName = 'api.v1.subscriptions.store';
-    
+
     public function test_a_guest_is_unauthenticated_to_subscribe_a_membership()
     {
         $this->assertGuest();
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         $response->assertUnauthorized();
@@ -36,7 +38,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
-            'payment_token_id' => 'tok_mastercard',
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         // Assert that it responds the email verification is required.
@@ -54,7 +56,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => 1,
-            'payment_token_id' => 'tok_mastercard',
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         $response->assertForbidden()
@@ -81,7 +83,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
-            'payment_token_id' => 'tok_mastercard',
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         $response->assertUnprocessable()
@@ -108,7 +110,7 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
-            'payment_token_id' => 'tok_mastercard',
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         $response->assertUnprocessable()
@@ -117,7 +119,7 @@ class CreateSubscriptionTest extends TestCase
             ]);
     }
 
-    public function test_a_member_can_subscribe_a_twelve_month_membership()
+    public function test_a_member_can_subscribe_a_twelve_month_membership_via_card()
     {
         $member = $this->fakeMember();
 
@@ -136,13 +138,39 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
+            'payment_method' => Subscription::PAYMENT_METHOD_CARD,
             'payment_token_id' => 'tok_mastercard',
         ]);
         $response->assertCreated()
             ->assertJsonSuccessful();
     }
 
-    public function test_a_member_can_subscribe_a_monthly_membership()
+    public function test_a_member_can_subscribe_a_twelve_month_membership_via_direct_deposit()
+    {
+        $member = $this->fakeMember();
+
+        $membership = Membership::whereHas('product', function ($query) use ($member) {
+            $query->where('market_id', $member->school->market_id);
+        })
+            ->whereHas('campaign', function ($query) {
+                $query->whereNotNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->where('iterations', 1)
+            ->where('period_in_months', 12)
+            ->get()
+            ->random();
+        $this->actingAsMember($member);
+
+        $response = $this->postJson(route($this->routeName), [
+            'membership_id' => $membership->id,
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
+        ]);
+        $response->assertCreated()
+            ->assertJsonSuccessful();
+    }
+
+    public function test_a_member_can_subscribe_a_monthly_membership_via_card()
     {
         $member = $this->fakeMember();
 
@@ -161,7 +189,34 @@ class CreateSubscriptionTest extends TestCase
 
         $response = $this->postJson(route($this->routeName), [
             'membership_id' => $membership->id,
+            'payment_method' => Subscription::PAYMENT_METHOD_CARD,
             'payment_token_id' => 'tok_mastercard',
+        ]);
+
+        $response->assertCreated()
+            ->assertJsonSuccessful();
+    }
+
+    public function test_a_member_can_subscribe_a_monthly_membership_via_direct_deposit()
+    {
+        $member = $this->fakeMember();
+
+        $membership = Membership::whereHas('product', function ($query) use ($member) {
+            $query->where('market_id', $member->school->market_id);
+        })
+            ->whereHas('campaign', function ($query) {
+                $query->whereNotNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->where('iterations', null)
+            ->get()
+            ->random();
+
+        $this->actingAsMember($member);
+
+        $response = $this->postJson(route($this->routeName), [
+            'membership_id' => $membership->id,
+            'payment_method' => Subscription::PAYMENT_METHOD_DIRECT_DEPOSIT,
         ]);
 
         $response->assertCreated()

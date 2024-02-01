@@ -100,19 +100,20 @@ class StripeService
      *
      * @param School     $school
      * @param Membership $membership
+     * @param string     $collectionMethod
      *
      * @return StripeSubscription
      *
      * @throws ApiErrorException
      */
-    public function createSubscription(School $school, Membership $membership): StripeSubscription
+    public function createSubscription(School $school, Membership $membership, string $collectionMethod = StripeSubscription::COLLECTION_METHOD_SEND_INVOICE): StripeSubscription
     {
         $stripe = $this->stripe($school->market_id);
 
         // Create the Stripe subscription conditionally.
         if ($membership->isRecurring()) {
             // If the membership is recurring, create a subscription.
-            $subscription = $stripe->subscriptions->create([
+            $params = [
                 'customer' => $school->stripe_id,
                 'enable_incomplete_payments' => "false",
                 'off_session' => "true",
@@ -122,10 +123,17 @@ class StripeService
                         'quantity' => "1",
                     ],
                 ],
-            ]);
+            ];
+
+            if ($collectionMethod === StripeSubscription::COLLECTION_METHOD_SEND_INVOICE) {
+                $params['collection_method'] = StripeSubscription::COLLECTION_METHOD_SEND_INVOICE;
+                $params['days_until_due'] = 7;
+            }
+
+            $subscription = $stripe->subscriptions->create($params);
         } else {
             // Otherwise, create a subscription schedule.
-            $subscriptionSchedule = $stripe->subscriptionSchedules->create([
+            $params = [
                 'customer' => $school->stripe_id,
                 'end_behavior' => 'cancel',
                 'start_date' => 'now',
@@ -141,7 +149,14 @@ class StripeService
                     ],
                 ],
                 'expand' => ['subscription'],
-            ]);
+            ];
+
+            if ($collectionMethod === StripeSubscription::COLLECTION_METHOD_SEND_INVOICE) {
+                $params['phases'][0]['collection_method'] = StripeSubscription::COLLECTION_METHOD_SEND_INVOICE;
+                $params['phases'][0]['invoice_settings']['days_until_due'] = 7;
+            }
+
+            $subscriptionSchedule = $stripe->subscriptionSchedules->create($params);
 
             $subscription = $subscriptionSchedule->subscription;
         }

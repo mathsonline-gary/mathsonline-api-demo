@@ -5,6 +5,7 @@ namespace Tests\Feature\Stripe;
 use App\Models\Membership;
 use App\Models\School;
 use App\Models\Subscription;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -16,6 +17,8 @@ use Tests\TestCase;
  */
 class CustomerSubscriptionUpdatedStripeWebhookTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected StripeClient $stripe;
 
     protected int $marketId = 1;

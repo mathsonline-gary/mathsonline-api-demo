@@ -14,6 +14,7 @@ use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Stripe\Subscription as StripeSubscription;
 use Throwable;
 
 class SubscriptionController extends Controller
@@ -78,7 +79,6 @@ class SubscriptionController extends Controller
         $authenticatedUser = $request->user();
 
         if ($authenticatedUser->isMember()) {
-            /** @var Member $authenticatedMember */
             $authenticatedMember = $authenticatedUser->asMember();
 
             // Validate the membership.
@@ -87,14 +87,20 @@ class SubscriptionController extends Controller
             // Create a Stripe subscription for the member.
             try {
                 DB::transaction(function () use ($authenticatedMember, $membership, $request) {
-                    // Set the default payment method for the member.
-                    $this->stripeService->setDefaultPaymentMethod(
-                        $authenticatedMember->school,
-                        $request->string('payment_token_id'),
-                    );
+                    // If payment method is "card", set the default payment method for the member.
+                    if ($request->string('payment_method')->exactly(Subscription::PAYMENT_METHOD_CARD)) {
+                        $this->stripeService->setDefaultPaymentMethod(
+                            $authenticatedMember->school,
+                            $request->string('payment_token_id'),
+                        );
+
+                        $collectionMethod = StripeSubscription::COLLECTION_METHOD_CHARGE_AUTOMATICALLY;
+                    } else {
+                        $collectionMethod = StripeSubscription::COLLECTION_METHOD_SEND_INVOICE;
+                    }
 
                     // Create a Stripe subscription for the member.
-                    $this->stripeService->createSubscription($authenticatedMember->school, $membership);
+                    $this->stripeService->createSubscription($authenticatedMember->school, $membership, $collectionMethod);
 
                     // DO NOT INSERT SUBSCRIPTION DATA INTO THE DATABASE HERE.
                     // THE DATABASE WILL BE UPDATED VIA STRIPE WEBHOOK.
