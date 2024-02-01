@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Stripe;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\School;
 use App\Models\Subscription;
@@ -83,7 +82,7 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
             }
 
             // Fake the existing subscription.
-            $subscription = $this->fakeSubscription($school, SubscriptionStatus::CANCELED, $membership);
+            $subscription = $this->fakeSubscription($school, Subscription::STATUS_CANCELED, $membership);
             $subscription->stripe_id = $stripeSubscription['id'];
             $subscription->save();
 
@@ -201,7 +200,7 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
             }
 
             // Fake the existing subscription.
-            $subscription = $this->fakeSubscription($school, SubscriptionStatus::ACTIVE, $membership);
+            $subscription = $this->fakeSubscription($school, Subscription::STATUS_ACTIVE, $membership);
             $subscription->stripe_id = $stripeSubscription['id'];
             $subscription->save();
 
@@ -235,7 +234,7 @@ class CustomerSubscriptionDeletedStripeWebhookTest extends TestCase
         $this->assertDatabaseCount('subscriptions', 1);
         $this->assertSubscriptionAttributes([
             'stripe_id' => $stripeSubscription['id'],
-            'status' => SubscriptionStatus::CANCELED,
+            'status' => Subscription::STATUS_CANCELED,
             'starts_at' => $stripeSubscription['start_date'],
             'cancels_at' => $stripeSubscription['cancel_at'],
             'current_period_starts_at' => $stripeSubscription['current_period_start'],

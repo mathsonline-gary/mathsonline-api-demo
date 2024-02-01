@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Enums\ClassroomType;
 use App\Exceptions\DefaultClassroomGroupExistsException;
 use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
@@ -159,7 +158,7 @@ class ClassroomServiceTest extends TestCase
             'school_id' => $school->id,
             'owner_id' => $teacher->id,
             'year_id' => 1,
-            'type' => ClassroomType::TRADITIONAL_CLASSROOM,
+            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
             'name' => 'Test Class',
             'pass_grade' => 80,
             'attempts' => 1,

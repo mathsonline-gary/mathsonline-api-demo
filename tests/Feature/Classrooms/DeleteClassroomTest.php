@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Classrooms;
 
-use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use Tests\TestCase;
@@ -149,7 +148,7 @@ class DeleteClassroomTest extends TestCase
         $classroom->refresh();
         $activity = Activity::first();
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::DELETED_CLASSROOM, $activity->type);
+        $this->assertEquals(Activity::TYPE_DELETE_CLASSROOM, $activity->type);
         $this->assertEquals($classroom->deleted_at, $activity->acted_at);
         $this->assertEquals($classroom->id, $activity->data['id']);
     }

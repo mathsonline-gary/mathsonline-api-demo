@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Teachers;
 
-use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\TeacherController;
 use App\Models\Activity;
 use Tests\TestCase;
@@ -195,7 +194,7 @@ class DeleteTeacherTest extends TestCase
         $activity = Activity::latest('id')->first();
         $teacher->refresh();
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::DELETED_TEACHER, $activity->type);
+        $this->assertEquals(Activity::TYPE_DELETE_TEACHER, $activity->type);
         $this->assertEquals($teacher->deleted_at, $activity->acted_at);
         $this->assertArrayHasKey('teacher_id', $activity->data);
         $this->assertEquals($teacher->id, $activity->data['teacher_id']);

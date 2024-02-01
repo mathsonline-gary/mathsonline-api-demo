@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Classrooms;
 
-use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use App\Models\Classroom;
@@ -235,7 +234,7 @@ class CreateClassroomTest extends TestCase
         $this->assertEquals(2, $classroom->customClassroomGroups()->count());
 
         // Assert that the created classroom group activities were added correctly.
-        $activities = Activity::where('type', ActivityType::CREATED_CLASSROOM_GROUP)->get();
+        $activities = Activity::where('type', Activity::TYPE_CREATE_CLASSROOM_GROUP)->get();
         $this->assertEquals(2, $activities->count());
     }
 }

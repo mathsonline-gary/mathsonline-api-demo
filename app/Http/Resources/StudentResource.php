@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\ActivityType;
+use App\Models\Activity;
 use App\Models\Users\Student;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -52,7 +52,7 @@ class StudentResource extends JsonResource
                 function () {
                     if ($this->asUser()->relationLoaded('activities')) {
                         return $this->asUser()->activities
-                            ->where('type', ActivityType::LOGGED_IN)
+                            ->where('type', Activity::TYPE_LOG_IN)
                             ->count();
                     }
 
@@ -63,7 +63,7 @@ class StudentResource extends JsonResource
                 function () {
                     if ($this->asUser()->relationLoaded('activities')) {
                         $activity = $this->asUser()->activities
-                            ->where('type', ActivityType::LOGGED_IN)
+                            ->where('type', Activity::TYPE_LOG_IN)
                             ->sortByDesc('acted_at')
                             ->first();
 

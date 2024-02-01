@@ -73,13 +73,7 @@ trait SchoolTestHelpers
         foreach ($expected as $attribute => $value) {
             switch ($attribute) {
                 case 'type':
-                    is_int($value)
-                        ? $this->assertEquals(
-                        $value,
-                        $school->type->value,
-                        'The school attribute type does not match the expected value.'
-                    )
-                        : $this->assertEquals(
+                    $this->assertEquals(
                         $value,
                         $school->type,
                         'The school attribute type does not match the expected value.'

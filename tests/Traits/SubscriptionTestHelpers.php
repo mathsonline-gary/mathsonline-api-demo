@@ -2,7 +2,6 @@
 
 namespace Tests\Traits;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\School;
 use App\Models\Subscription;
@@ -14,20 +13,20 @@ trait SubscriptionTestHelpers
     /**
      * Create a fake subscription for the given school and membership.
      *
-     * @param School             $school
-     * @param SubscriptionStatus $status
-     * @param Membership|null    $membership
-     * @param int                $count
-     * @param array              $attributes
+     * @param School          $school
+     * @param string          $status
+     * @param Membership|null $membership
+     * @param int             $count
+     * @param array           $attributes
      *
      * @return Collection|Subscription
      */
     public function fakeSubscription(
-        School             $school,
-        SubscriptionStatus $status = SubscriptionStatus::ACTIVE,
-        Membership         $membership = null,
-        int                $count = 1,
-        array              $attributes = []
+        School     $school,
+        string     $status = Subscription::STATUS_ACTIVE,
+        Membership $membership = null,
+        int        $count = 1,
+        array      $attributes = []
     ): Collection|Subscription
     {
         $factory = Subscription::factory()
@@ -37,7 +36,7 @@ trait SubscriptionTestHelpers
             $factory = $factory->withMembership($membership);
         }
 
-        if ($status === SubscriptionStatus::CANCELED) {
+        if ($status === Subscription::STATUS_CANCELED) {
             $factory = $factory->canceled();
         }
 
@@ -61,15 +60,9 @@ trait SubscriptionTestHelpers
         foreach ($expected as $attribute => $value) {
             switch ($attribute) {
                 case 'status':
-                    $value instanceof SubscriptionStatus
-                        ? $this->assertEquals(
+                    $this->assertEquals(
                         $value,
                         $subscription->status,
-                        'The subscription attribute status does not match the expected value.'
-                    )
-                        : $this->assertEquals(
-                        $value,
-                        $subscription->status->value,
                         'The subscription attribute status does not match the expected value.'
                     );
 

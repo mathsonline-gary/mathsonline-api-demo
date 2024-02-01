@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Enums\ActivityType;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Requests\Auth\LoginRequest;
@@ -56,7 +55,7 @@ class AuthenticationTest extends TestCase
         // Assert that the activity is logged with the correct data.
         $activity = Activity::first();
         $this->assertEquals($teacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::LOGGED_IN, $activity->type);
+        $this->assertEquals(Activity::TYPE_LOG_IN, $activity->type);
         $this->assertNull($activity->data);
         $this->assertEqualsWithDelta(Carbon::now(), $activity->acted_at, 5);
     }

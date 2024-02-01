@@ -2,7 +2,6 @@
 
 namespace Tests\Traits;
 
-use App\Enums\SchoolType;
 use App\Models\School;
 use App\Models\Users\Member;
 use Stripe\Exception\ApiErrorException;
@@ -13,7 +12,7 @@ trait MemberTestHelpers
     /**
      * Fake a member.
      *
-     * @param int $marketId
+     * @param int   $marketId
      * @param array $attributes
      *
      * @return Member
@@ -26,7 +25,7 @@ trait MemberTestHelpers
         $school = School::factory()->make([
             ...$attributes,
             'market_id' => $marketId,
-            'type' => SchoolType::HOMESCHOOL,
+            'type' => School::TYPE_HOMESCHOOL,
         ]);
 
         // Fake a member.

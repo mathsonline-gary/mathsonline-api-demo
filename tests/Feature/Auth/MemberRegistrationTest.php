@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Enums\SchoolType;
-use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Member;
 use App\Models\Users\User;
@@ -83,7 +81,7 @@ class MemberRegistrationTest extends TestCase
         $school = School::latest()->first();
         $this->assertEquals($this->payload['market_id'], $school->market_id);
         $this->assertEquals("Homeschool of {$this->payload['first_name']} {$this->payload['last_name']}", $school->name);
-        $this->assertEquals(SchoolType::HOMESCHOOL, $school->type);
+        $this->assertEquals(School::TYPE_HOMESCHOOL, $school->type);
         $this->assertEquals($this->payload['email'], $school->email);
         $this->assertEquals($this->payload['phone'], $school->phone);
         $this->assertEquals($this->payload['address_line_1'], $school->address_line_1);
@@ -112,7 +110,7 @@ class MemberRegistrationTest extends TestCase
         $user = User::latest('id')->first();
         $this->assertEquals($this->payload['email'], $user->login);
         $this->assertTrue(Hash::check($this->payload['password'], $user->password));
-        $this->assertEquals(UserType::MEMBER, $user->type);
+        $this->assertEquals(User::TYPE_MEMBER, $user->type);
 
         // Assert that the member was created correctly.
         $this->assertDatabaseCount('members', $memberCount + 1);

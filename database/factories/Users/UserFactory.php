@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Users;
 
-use App\Enums\UserType;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -33,7 +32,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::STUDENT->value,
+                'type' => User::TYPE_STUDENT,
             ];
         });
     }
@@ -47,7 +46,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::TEACHER->value,
+                'type' => User::TYPE_TEACHER,
             ];
         });
     }
@@ -62,7 +61,7 @@ class UserFactory extends Factory
         return $this->state(function () {
             return [
                 'login' => fake()->safeEmail(),
-                'type' => UserType::MEMBER->value,
+                'type' => User::TYPE_MEMBER,
             ];
         });
     }
@@ -76,7 +75,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::ADMIN->value,
+                'type' => User::TYPE_ADMIN,
             ];
         });
     }
@@ -90,7 +89,7 @@ class UserFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => UserType::DEVELOPER->value,
+                'type' => User::TYPE_DEVELOPER,
             ];
         });
     }

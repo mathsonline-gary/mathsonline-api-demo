@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\UserType;
 use App\Models\Users\Student;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -134,7 +133,7 @@ class StudentService
                 'login' => $attributes['username'],
                 'email' => $attributes['email'] ?? null,
                 'password' => Hash::make($attributes['password']),
-                'type' => UserType::STUDENT,
+                'type' => User::TYPE_STUDENT,
             ]);
 
             // Create the student.

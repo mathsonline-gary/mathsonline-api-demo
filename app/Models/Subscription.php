@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\SubscriptionStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +10,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Subscription extends Model
 {
     use HasFactory;
+
+    // Define subscription status constants.
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_INCOMPLETE = 'incomplete';
+    public const STATUS_INCOMPLETE_EXPIRED = 'incomplete_expired';
+    public const STATUS_PAST_DUE = 'past_due';
+    public const STATUS_CANCELED = 'canceled';
+    public const STATUS_UNPAID = 'unpaid';
+    public const STATUS_TRIALING = 'trialing';
+    public const STATUS_PAUSED = 'paused';
+    public const STATUS_UNKNOWN = 'unknown';
 
     protected $fillable = [
         'membership_id',
@@ -33,7 +43,7 @@ class Subscription extends Model
         'current_period_ends_at' => 'datetime',
         'canceled_at' => 'datetime',
         'ended_at' => 'datetime',
-        'status' => SubscriptionStatus::class,
+        'status' => 'string',
         'custom_user_limit' => 'int',
     ];
 
@@ -46,7 +56,7 @@ class Subscription extends Model
      */
     public function scopeActive(Builder $query): void
     {
-        $query->where('status', SubscriptionStatus::ACTIVE->value);
+        $query->where('status', self::STATUS_ACTIVE);
     }
 
     /**
@@ -56,7 +66,7 @@ class Subscription extends Model
      */
     public function isCanceled(): bool
     {
-        return $this->status === SubscriptionStatus::CANCELED;
+        return $this->status === self::STATUS_CANCELED;
     }
 
     /**

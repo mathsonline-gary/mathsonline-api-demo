@@ -15,19 +15,20 @@ class Controller extends BaseController
     /**
      * Return a JSON response with the given message and data.
      *
-     * @param mixed $data
+     * @param mixed       $data
      * @param string|null $message
-     * @param bool|null $success
-     * @param int $status
-     * @param array $headers
-     * @param int $options
+     * @param bool|null   $success
+     * @param int         $status
+     * @param array       $headers
+     * @param int         $options
+     *
      * @return JsonResponse
      */
     private function responseAsJson(mixed $data = null, string $message = null, bool $success = null, int $status = 200, array $headers = [], int $options = 0): JsonResponse
     {
         $response = [];
 
-        if ($success) {
+        if (isset($success)) {
             $response['success'] = $success;
         }
 
@@ -64,11 +65,12 @@ class Controller extends BaseController
      * This is a standard response for successful API requests.
      * This method should be used for all successful responses in API controllers.
      *
-     * @param mixed $data
+     * @param mixed  $data
      * @param string $message
-     * @param int $status
-     * @param array $headers
-     * @param int $options
+     * @param int    $status
+     * @param array  $headers
+     * @param int    $options
+     *
      * @return JsonResponse
      */
     protected function successResponse(mixed $data = null, string $message = 'Success response.', int $status = 200, array $headers = [], int $options = 0): JsonResponse
@@ -81,11 +83,12 @@ class Controller extends BaseController
      * This is a standard response for unsuccessful API requests.
      * This method should be used for all unsuccessful responses in API controllers.
      *
-     * @param mixed $data
+     * @param mixed  $data
      * @param string $message
-     * @param int $status
-     * @param array $headers
-     * @param int $options
+     * @param int    $status
+     * @param array  $headers
+     * @param int    $options
+     *
      * @return JsonResponse
      */
     protected function errorResponse(mixed $data = null, string $message = 'Error response.', int $status = 400, array $headers = [], int $options = 0): JsonResponse

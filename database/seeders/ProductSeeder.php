@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\SchoolType;
+use App\Models\School;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,43 +19,43 @@ class ProductSeeder extends Seeder
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) School Membership',
                 'stripe_id' => 'prod_OyMq7aTUXN3uyd',
-                'school_type' => SchoolType::TRADITIONAL_SCHOOL->value,
+                'school_type' => School::TYPE_TRADITIONAL_SCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Single Membership - 12 Months',
                 'stripe_id' => 'prod_NZSWkf0NVmmMfe',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Single Membership - 6 Months',
                 'stripe_id' => 'prod_NZSViVJiClUEl1',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Single Membership - Monthly',
                 'stripe_id' => 'prod_NZSOAxgHeFZI9W',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Family Membership - 12 Months',
                 'stripe_id' => 'prod_OuyX7tgVDngCnL',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Family Membership - 6 Months',
                 'stripe_id' => 'prod_OuyYE2H97wSyRa',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
             [
                 'market_id' => 1,
                 'name' => 'MathsOnline (AU) Family Membership - Monthly',
                 'stripe_id' => 'prod_OuyZ3kraQCIXGf',
-                'school_type' => SchoolType::HOMESCHOOL->value,
+                'school_type' => School::TYPE_HOMESCHOOL,
             ],
         ];
 

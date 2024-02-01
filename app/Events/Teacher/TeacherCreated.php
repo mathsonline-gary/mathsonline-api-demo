@@ -2,8 +2,8 @@
 
 namespace App\Events\Teacher;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Users\Teacher;
 use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -21,7 +21,7 @@ class TeacherCreated extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $creator,
-            activityType: ActivityType::CREATED_TEACHER,
+            type: Activity::TYPE_CREATE_TEACHER,
             actedAt: $teacher->created_at,
             data: [
                 'id' => $teacher->id,
