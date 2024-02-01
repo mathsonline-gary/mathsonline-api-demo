@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Enums\UserType;
+use App\Models\Users\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -21,7 +21,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/forgot-password', [
             'email' => $teacher->email,
-            'type' => UserType::TEACHER->value,
+            'type' => User::TYPE_TEACHER,
         ]);
 
         $response->assertOk()
@@ -38,7 +38,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/forgot-password', [
             'email' => $member->email,
-            'type' => UserType::MEMBER->value,
+            'type' => User::TYPE_MEMBER,
         ]);
 
         $response->assertOk()
@@ -55,7 +55,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/forgot-password', [
             'email' => $admin->email,
-            'type' => UserType::ADMIN->value,
+            'type' => User::TYPE_ADMIN,
         ]);
 
         $response->assertOk()
@@ -72,7 +72,7 @@ class PasswordResetTest extends TestCase
 
         $response = $this->post('/forgot-password', [
             'email' => $developer->email,
-            'type' => UserType::DEVELOPER->value,
+            'type' => User::TYPE_DEVELOPER,
         ]);
 
         $response->assertOk()
@@ -89,14 +89,14 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', [
             'email' => $teacher->email,
-            'type' => UserType::TEACHER->value,
+            'type' => User::TYPE_TEACHER,
         ]);
 
         Notification::assertSentTo($teacher->asUser(), ResetPassword::class, function (object $notification) use ($teacher) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $teacher->email,
-                'type' => UserType::TEACHER->value,
+                'type' => User::TYPE_TEACHER,
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ]);
@@ -117,14 +117,14 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', [
             'email' => $member->email,
-            'type' => UserType::MEMBER->value,
+            'type' => User::TYPE_MEMBER,
         ]);
 
         Notification::assertSentTo($member->asUser(), ResetPassword::class, function (object $notification) use ($member) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $member->email,
-                'type' => UserType::MEMBER->value,
+                'type' => User::TYPE_MEMBER,
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ]);
@@ -145,14 +145,14 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', [
             'email' => $admin->email,
-            'type' => UserType::ADMIN->value,
+            'type' => User::TYPE_ADMIN,
         ]);
 
         Notification::assertSentTo($admin->asUser(), ResetPassword::class, function (object $notification) use ($admin) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $admin->email,
-                'type' => UserType::ADMIN->value,
+                'type' => User::TYPE_ADMIN,
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ]);
@@ -173,14 +173,14 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', [
             'email' => $developer->email,
-            'type' => UserType::DEVELOPER->value,
+            'type' => User::TYPE_DEVELOPER,
         ]);
 
         Notification::assertSentTo($developer->asUser(), ResetPassword::class, function (object $notification) use ($developer) {
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $developer->email,
-                'type' => UserType::DEVELOPER->value,
+                'type' => User::TYPE_DEVELOPER,
                 'password' => 'password',
                 'password_confirmation' => 'password',
             ]);

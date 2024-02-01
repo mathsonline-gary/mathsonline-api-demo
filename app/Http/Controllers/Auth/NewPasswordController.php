@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserType;
 use App\Http\Controllers\Controller;
+use App\Models\Users\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,10 +30,10 @@ class NewPasswordController extends Controller
                 'required',
                 'int',
                 Rule::in([
-                    UserType::TEACHER,
-                    UserType::MEMBER,
-                    UserType::ADMIN,
-                    UserType::DEVELOPER,
+                    User::TYPE_TEACHER,
+                    User::TYPE_MEMBER,
+                    User::TYPE_ADMIN,
+                    User::TYPE_DEVELOPER,
                 ])
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults(), 'min:4', 'max:32'],
