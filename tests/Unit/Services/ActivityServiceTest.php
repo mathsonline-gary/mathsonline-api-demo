@@ -2,9 +2,8 @@
 
 namespace Tests\Unit\Services;
 
-use App\Enums\ActivityType;
+use App\Models\Activity;
 use App\Services\ActivityService;
-use Carbon\Carbon;
 use Tests\TestCase;
 
 /**
@@ -34,19 +33,17 @@ class ActivityServiceTest extends TestCase
         $teacher = $this->fakeAdminTeacher($school);
         $user = $teacher->asUser();
 
-        $type = ActivityType::LOGGED_IN;
-        $actedAt = Carbon::now();
-        $data = ['key' => 'value'];
+        $activity = Activity::factory()->make();
 
-        $this->activityService->create($user, $type, $actedAt, $data);
+        $this->activityService->create($user, $activity->type, $activity->acted_at, $activity->data);
 
         // Assert that an activity was created.
         $this->assertDatabaseCount('activities', 1);
 
         // Assert that the created activity is correct.
         $this->assertCount(1, $user->activities);
-        $this->assertEquals($type, $user->activities->first()->type);
-        $this->assertEquals($actedAt->timestamp, $user->activities->first()->acted_at->timestamp);
-        $this->assertEquals($data, $user->activities->first()->data);
+        $this->assertEquals($activity->type, $user->activities->first()->type);
+        $this->assertEquals($activity->acted_at->timestamp, $user->activities->first()->acted_at->timestamp);
+        $this->assertEquals($activity->data, $user->activities->first()->data);
     }
 }

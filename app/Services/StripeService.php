@@ -188,7 +188,7 @@ class StripeService
     }
 
     /**
-     * Parse the given Stripe subscription as a subscription.
+     * Parse the given Stripe subscription to subscription at.
      *
      * @param StripeSubscription $stripeSubscription
      *

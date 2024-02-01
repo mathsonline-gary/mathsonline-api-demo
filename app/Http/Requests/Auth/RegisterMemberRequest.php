@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Enums\UserType;
+use App\Models\Users\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -38,7 +38,7 @@ class RegisterMemberRequest extends FormRequest
                 'email',
                 'max:255',
                 Rule::unique('users', 'login')
-                    ->where('type', UserType::MEMBER->value),
+                    ->where('type', User::TYPE_MEMBER),
             ],
             'password' => ['required', 'confirmed', Password::defaults()],
             'phone' => ['required', 'string'],

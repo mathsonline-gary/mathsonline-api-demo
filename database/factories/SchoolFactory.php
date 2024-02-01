@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\SchoolType;
 use App\Models\Market;
 use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -26,8 +25,8 @@ class SchoolFactory extends Factory
             'address_postal_code' => fake()->postcode(),
             'address_country' => fake()->countryCode(),
             'type' => fake()->randomElement([
-                SchoolType::TRADITIONAL_SCHOOL,
-                SchoolType::HOMESCHOOL,
+                School::TYPE_TRADITIONAL_SCHOOL,
+                School::TYPE_HOMESCHOOL,
             ]),
         ];
     }
@@ -41,7 +40,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => SchoolType::HOMESCHOOL,
+                'type' => School::TYPE_HOMESCHOOL,
             ];
         });
     }
@@ -55,7 +54,7 @@ class SchoolFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'type' => SchoolType::TRADITIONAL_SCHOOL,
+                'type' => School::TYPE_TRADITIONAL_SCHOOL,
             ];
         });
     }

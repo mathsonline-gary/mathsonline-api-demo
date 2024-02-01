@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Students;
 
-use App\Enums\ActivityType;
 use App\Models\Activity;
 use App\Models\Users\Student;
 use Tests\TestCase;
@@ -72,7 +71,7 @@ class DeleteStudentTest extends TestCase
         $this->assertDatabaseCount('activities', $activitiesCount + 1);
         $loggedActivity = Activity::first();
         $this->assertEquals($adminTeacher->asUser()->id, $loggedActivity->actor_id);
-        $this->assertEquals(ActivityType::DELETED_STUDENT, $loggedActivity->type);
+        $this->assertEquals(Activity::TYPE_DELETE_STUDENT, $loggedActivity->type);
         $this->assertArrayHasKey('student_id', $loggedActivity->data);
         $this->assertEquals($student->id, $loggedActivity->data['student_id']);
         $this->assertEquals($student->deleted_at, $loggedActivity->acted_at);
@@ -140,7 +139,7 @@ class DeleteStudentTest extends TestCase
             $school2 = $this->fakeTraditionalSchool();
 
             $this->fakeSubscription($school2);
-            
+
             $student = $this->fakeStudent($school2);
         }
 

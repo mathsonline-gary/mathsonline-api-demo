@@ -23,7 +23,7 @@ class LogActivity
     {
         $this->activityService->create(
             actor: $event->actor,
-            type: $event->activityType,
+            type: $event->type,
             actedAt: $event->actedAt,
             data: $event->data,
         );

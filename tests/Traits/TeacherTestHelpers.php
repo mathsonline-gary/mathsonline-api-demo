@@ -2,9 +2,9 @@
 
 namespace Tests\Traits;
 
-use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Teacher;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 
@@ -28,8 +28,9 @@ trait TeacherTestHelpers
      * Create fake teacher(s) with admin access.
      *
      * @param School|null $school
-     * @param int $count
-     * @param array $attributes
+     * @param int         $count
+     * @param array       $attributes
+     *
      * @return Collection<Teacher>|Teacher
      */
     public function fakeAdminTeacher(School $school = null, int $count = 1, array $attributes = []): Collection|Teacher
@@ -51,8 +52,9 @@ trait TeacherTestHelpers
      * Create non-admin teacher(s) in a given school.
      *
      * @param School|null $school
-     * @param int $count
-     * @param array $attributes
+     * @param int         $count
+     * @param array       $attributes
+     *
      * @return Collection<Teacher>|Teacher
      */
     public function fakeNonAdminTeacher(School $school = null, int $count = 1, array $attributes = []): Collection|Teacher
@@ -74,6 +76,7 @@ trait TeacherTestHelpers
      * Set the currently logged-in teacher for the application.
      *
      * @param Teacher $teacher
+     *
      * @return void
      */
     public function actingAsTeacher(Teacher $teacher): void
@@ -84,7 +87,7 @@ trait TeacherTestHelpers
     /**
      * Assert that the teacher and the associated user has expected attributes.
      *
-     * @param array $expected
+     * @param array   $expected
      * @param Teacher $teacher
      *
      * @return void
@@ -98,7 +101,7 @@ trait TeacherTestHelpers
         // Get the associated user.
         $user = $teacher->asUser();
 
-        $this->assertEquals(UserType::TEACHER, $user->type);
+        $this->assertEquals(User::TYPE_TEACHER, $user->type);
         $this->assertNull($user->email_verified_at);
 
         foreach ($expected as $attribute => $value) {

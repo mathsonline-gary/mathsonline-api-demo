@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Subscription;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,6 +12,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('subscriptions', function (Blueprint $table) {
+            $status = [
+                Subscription::STATUS_ACTIVE,
+                Subscription::STATUS_INCOMPLETE,
+                Subscription::STATUS_INCOMPLETE_EXPIRED,
+                Subscription::STATUS_PAST_DUE,
+                Subscription::STATUS_CANCELED,
+                Subscription::STATUS_UNPAID,
+                Subscription::STATUS_TRIALING,
+                Subscription::STATUS_PAUSED,
+                Subscription::STATUS_UNKNOWN,
+            ];
+
             $table->id();
 
             $table->foreignId('membership_id')
@@ -44,9 +57,9 @@ return new class extends Migration {
 
             $table->timestamp('ended_at')
                 ->nullable()
-                ->comment('The date when the subscription actually ended. Null if the subscription is still active.');
+                ->comment('The date when the subscription actually ended. Null if the subscription has not ended.');
 
-            $table->string('status')
+            $table->enum('status', $status)
                 ->comment('The status of the subscription.');
 
             $table->unsignedInteger('custom_user_limit')

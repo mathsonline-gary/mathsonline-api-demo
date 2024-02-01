@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\ClassroomType;
 use App\Models\Users\Teacher;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +14,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Classroom extends Model
 {
     use HasFactory, SoftDeletes;
+
+    // Define the classroom type constants.
+    public const TYPE_TRADITIONAL_CLASSROOM = 1;
+    public const TYPE_HOMESCHOOL_CLASSROOM = 2;
+
+    // Define the max limit of the number of classroom groups for a classroom.
+    public const MAX_CUSTOM_GROUP_COUNT = 8;
 
     protected $fillable = [
         'school_id',
@@ -30,13 +36,10 @@ class Classroom extends Model
         'school_id' => 'int',
         'owner_id' => 'int',
         'year_id' => 'int',
-        'type' => ClassroomType::class,
+        'type' => 'int',
         'mastery_enabled' => 'bool',
         'self_rating_enabled' => 'bool',
     ];
-
-    // The max limit of the number of classroom groups.
-    public const MAX_CUSTOM_GROUP_COUNT = 8;
 
     /**
      * Get the school associated with the classroom.
@@ -110,7 +113,7 @@ class Classroom extends Model
      */
     public function isTraditionalClassroom(): bool
     {
-        return $this->type === ClassroomType::TRADITIONAL_CLASSROOM;
+        return $this->type === Classroom::TYPE_TRADITIONAL_CLASSROOM;
     }
 
     /**
@@ -120,6 +123,6 @@ class Classroom extends Model
      */
     public function isHomeschoolClassroom(): bool
     {
-        return $this->type === ClassroomType::HOMESCHOOL_CLASSROOM;
+        return $this->type === Classroom::TYPE_HOMESCHOOL_CLASSROOM;
     }
 }

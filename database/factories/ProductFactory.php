@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\SchoolType;
 use App\Models\Market;
 use App\Models\Product;
+use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
@@ -17,7 +17,10 @@ class ProductFactory extends Factory
             'market_id' => Market::inRandomOrder()->first()->id,
             'name' => 'Fake Membership',
             'stripe_id' => 'prod_' . fake()->uuid,
-            'school_type' => fake()->randomElement(array_column(SchoolType::cases(), 'value')),
+            'school_type' => fake()->randomElement([
+                School::TYPE_TRADITIONAL_SCHOOL,
+                School::TYPE_HOMESCHOOL,
+            ]),
         ];
     }
 }

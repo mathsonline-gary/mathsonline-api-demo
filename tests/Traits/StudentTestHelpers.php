@@ -2,10 +2,10 @@
 
 namespace Tests\Traits;
 
-use App\Enums\UserType;
 use App\Models\School;
 use App\Models\Users\Student;
 use App\Models\Users\StudentSetting;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,8 +15,9 @@ trait StudentTestHelpers
      * Create student(s) in the given school.
      *
      * @param School|null $school
-     * @param int $count
-     * @param array $attributes
+     * @param int         $count
+     * @param array       $attributes
+     *
      * @return Collection|Student
      */
     public function fakeStudent(School $school = null, int $count = 1, array $attributes = []): Collection|Student
@@ -42,6 +43,7 @@ trait StudentTestHelpers
      * Set the currently logged-in student for the application.
      *
      * @param Student $student
+     *
      * @return void
      */
     public function actingAsStudent(Student $student): void
@@ -52,8 +54,9 @@ trait StudentTestHelpers
     /**
      * Assert that the given student has the expected attributes.
      *
-     * @param array $expected
+     * @param array   $expected
      * @param Student $student
+     *
      * @return void
      */
     public function assertStudentAttributes(array $expected, Student $student): void
@@ -61,7 +64,7 @@ trait StudentTestHelpers
         // Get the associated user.
         $user = $student->asUser();
 
-        $this->assertEquals(UserType::STUDENT, $user->type);
+        $this->assertEquals(User::TYPE_STUDENT, $user->type);
         $this->assertNull($user->email_verified_at);
 
         // Get the student settings.
@@ -113,8 +116,9 @@ trait StudentTestHelpers
     /**
      * Assert that the given student settings have the expected attributes.
      *
-     * @param array $expected
+     * @param array          $expected
      * @param StudentSetting $settings
+     *
      * @return void
      */
     public function assertStudentSettingsAttributes(array $expected, StudentSetting $settings): void

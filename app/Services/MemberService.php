@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\UserType;
 use App\Models\Users\Member;
 use App\Models\Users\User;
 use Illuminate\Support\Arr;
@@ -36,7 +35,7 @@ class MemberService
                 'login' => $attributes['email'],
                 'email' => $attributes['email'],
                 'password' => $attributes['password'],
-                'type' => UserType::MEMBER,
+                'type' => User::TYPE_MEMBER,
             ]);
 
             // Create a member.

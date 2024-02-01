@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\SchoolType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,8 +15,8 @@ class Product extends Model
     public $timestamps = false;
 
     protected $casts = [
-        'market_id' => 'integer',
-        'school_type' => SchoolType::class,
+        'market_id' => 'int',
+        'school_type' => 'int',
     ];
 
     /**

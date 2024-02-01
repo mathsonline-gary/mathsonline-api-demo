@@ -2,8 +2,8 @@
 
 namespace App\Events\Student;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\Users\Student;
 use App\Models\Users\User;
 use Carbon\Carbon;
@@ -20,14 +20,14 @@ class StudentCreated extends ActivityLoggableEvent
     /**
      * Create a new event instance.
      *
-     * @param User $actor The user who created the student.
+     * @param User    $actor   The user who created the student.
      * @param Student $student The student who was created.
      */
     public function __construct(User $actor, Student $student)
     {
         parent::__construct(
             actor: $actor,
-            activityType: ActivityType::CREATED_STUDENT,
+            type: Activity::TYPE_CREATE_STUDENT,
             actedAt: $student->created_at,
             data: [
                 'id' => $student->id,

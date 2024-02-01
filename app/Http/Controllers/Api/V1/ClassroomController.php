@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\ClassroomType;
 use App\Events\Classroom\ClassroomCreated;
 use App\Events\Classroom\ClassroomDeleted;
 use App\Events\Classroom\ClassroomGroupCreated;
@@ -90,7 +89,7 @@ class ClassroomController extends Controller
         // Set school_id and classroom type if the authenticated user is a teacher.
         if ($authenticatedTeacher = $authenticatedUser->asTeacher()) {
             $validated['school_id'] = $authenticatedTeacher->school_id;
-            $validated['type'] = ClassroomType::TRADITIONAL_CLASSROOM;
+            $validated['type'] = Classroom::TYPE_TRADITIONAL_CLASSROOM;
         }
 
         $classroom = DB::transaction(function () use ($validated, $authenticatedUser) {

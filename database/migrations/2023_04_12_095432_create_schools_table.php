@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\SchoolType;
+use App\Models\School;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,6 +9,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('schools', function (Blueprint $table) {
+            $types = [
+                School::TYPE_TRADITIONAL_SCHOOL,
+                School::TYPE_HOMESCHOOL,
+            ];
+
             $table->id();
 
             $table->foreignId('market_id')
@@ -16,7 +21,7 @@ return new class extends Migration {
 
             $table->string('name');
 
-            $table->enum('type', array_column(SchoolType::cases(), 'value'))
+            $table->enum('type', $types)
                 ->comment('1: Traditional School, 2: Homeschool');
 
             $table->string('email')

@@ -2,8 +2,8 @@
 
 namespace App\Events\Classroom;
 
-use App\Enums\ActivityType;
 use App\Events\ActivityLoggableEvent;
+use App\Models\Activity;
 use App\Models\ClassroomGroup;
 use App\Models\Users\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -21,7 +21,7 @@ class ClassroomGroupCreated extends ActivityLoggableEvent
     {
         parent::__construct(
             actor: $creator,
-            activityType: ActivityType::CREATED_CLASSROOM_GROUP,
+            type: Activity::TYPE_CREATE_CLASSROOM_GROUP,
             actedAt: $classroomGroup->created_at,
             data: [
                 'id' => $classroomGroup->id,

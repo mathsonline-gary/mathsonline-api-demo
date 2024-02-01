@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Subscriptions;
 
-use App\Enums\SubscriptionStatus;
+use App\Models\Subscription;
 use Tests\TestCase;
 
 class IndexSubscriptionTest extends TestCase
 {
     protected string $routeName = 'api.v1.subscriptions.index';
-    
+
     public function test_a_guest_is_unauthenticated_to_get_the_subscription_list(): void
     {
         $this->assertGuest();
@@ -67,7 +67,7 @@ class IndexSubscriptionTest extends TestCase
         $member = $this->fakeMember();
 
         $activeSubscriptions = $this->fakeSubscription($member->school);
-        $canceledSubscriptions = $this->fakeSubscription($member->school, SubscriptionStatus::CANCELED, null, 3);
+        $canceledSubscriptions = $this->fakeSubscription($member->school, Subscription::STATUS_CANCELED, null, 3);
 
         $this->actingAsMember($member);
 
@@ -91,7 +91,7 @@ class IndexSubscriptionTest extends TestCase
         $adminTeacher = $this->fakeAdminTeacher($school);
 
         $activeSubscriptions = $this->fakeSubscription($adminTeacher->school);
-        $canceledSubscriptions = $this->fakeSubscription($adminTeacher->school, SubscriptionStatus::CANCELED, null, 3);
+        $canceledSubscriptions = $this->fakeSubscription($adminTeacher->school, Subscription::STATUS_CANCELED, null, 3);
 
         $this->actingAsMember($adminTeacher);
 

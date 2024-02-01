@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Classrooms;
 
-use App\Enums\ActivityType;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use Tests\TestCase;
@@ -261,7 +260,7 @@ class UpdateClassroomTest extends TestCase
         $this->assertEquals($classroom->id, $responseData['id']);
         $this->assertEquals($classroom->school_id, $responseData['school_id']);
         $this->assertEquals($this->payload['year_id'], $responseData['year_id']);
-        $this->assertEquals($classroom->type->value, $responseData['type']);
+        $this->assertEquals($classroom->type, $responseData['type']);
         $this->assertEquals($this->payload['name'], $responseData['name']);
         $this->assertEquals($this->payload['pass_grade'], $responseData['pass_grade']);
         $this->assertEquals($this->payload['attempts'], $responseData['attempts']);
@@ -369,7 +368,7 @@ class UpdateClassroomTest extends TestCase
         $activity = Activity::first();
         $classroom->refresh();
         $this->assertEquals($adminTeacher->asUser()->id, $activity->actor_id);
-        $this->assertEquals(ActivityType::UPDATED_CLASSROOM, $activity->type);
+        $this->assertEquals(Activity::TYPE_UPDATE_CLASSROOM, $activity->type);
         $this->assertEquals($classroom->updated_at, $activity->acted_at);
         $this->assertIsArray($activity->data);
         $this->assertEquals($classroom->id, $activity->data['id']);

@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Models;
 
-use App\Enums\SubscriptionStatus;
 use App\Models\Membership;
 use App\Models\Subscription;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +17,7 @@ class SubscriptionTest extends TestCase
         $school = $this->fakeHomeschool(attributes: ['market_id' => 1]);
 
         $activeSubscriptions = $this->fakeSubscription($school, count: 2);
-        $canceledSubscriptions = $this->fakeSubscription($school, status: SubscriptionStatus::CANCELED, count: 2);
+        $canceledSubscriptions = $this->fakeSubscription($school, status: Subscription::STATUS_CANCELED, count: 2);
 
         $this->assertCount(2, Subscription::active()->get());
 
