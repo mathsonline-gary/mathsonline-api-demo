@@ -18,7 +18,13 @@ class UpdateTeacherRequest extends FormRequest
     {
         return [
             'username' => ['string', 'min:3', 'max:32', Rule::unique('teachers')->ignore($this->teacher->id)],
-            'email' => ['nullable', 'email', 'min:4', 'max:128'],
+            'email' => [
+                'nullable',
+                'email',
+                'min:4',
+                'max:128',
+                Rule::unique('teachers')->ignore($this->route('teacher')),
+            ],
             'first_name' => ['string', 'max:32'],
             'last_name' => ['string', 'max:32'],
             'password' => ['string', Password::defaults(), 'min:4', 'max:32'],

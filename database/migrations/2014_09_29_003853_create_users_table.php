@@ -47,6 +47,10 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The timestamp when the email address was verified.');
 
+            $table->string('remember_token')
+                ->nullable()
+                ->comment('The token used for "remember me" functionality.');
+
             $table->softDeletes();
         });
 
