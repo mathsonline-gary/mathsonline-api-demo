@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StripeWebhookRequest;
+use App\Jobs\ProcessStripeSubscriptionWebhookEvent;
 use App\Models\Subscription;
 use App\Services\MembershipService;
 use App\Services\ProductService;
@@ -20,8 +21,10 @@ use UnexpectedValueException;
 
 /**
  * The controller for handling Stripe webhook events.
+ *
  * These events are triggered by making Stripe operations via the Stripe API or directly in the Stripe Dashboard.
- * To avoid API loops, we handle these events by assuming they are triggered by the Stripe Dashboard.
+ *
+ * To avoid API loops, you **MUST NOT** make any Stripe API requests in the webhook handler.
  *
  */
 class StripeWebhookController extends Controller
@@ -50,22 +53,16 @@ class StripeWebhookController extends Controller
         // Handle the event.
         switch ($event->type) {
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_CREATED:
-                $response = $this->handleCustomerSubscriptionCreated($event);
-                break;
-
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_DELETED:
-                $response = $this->handleCustomerSubscriptionDeleted($event);
-                break;
-
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_UPDATED:
-                $response = $this->handleCustomerSubscriptionUpdated($event, $marketId);
+                ProcessStripeSubscriptionWebhookEvent::dispatch($event, $marketId)->onQueue("stripe-webhook");
                 break;
 
             default:
                 return $this->missingMethod();
         }
 
-        return $response;
+        return $this->successMethod();
     }
 
     protected function handleCustomerSubscriptionCreated(Event $event): JsonResponse

@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Subscription;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Stripe\Subscription as StripeSubscription;
 
 class SubscriptionService
 {
@@ -92,6 +94,27 @@ class SubscriptionService
         $subscription->update($attributes);
 
         return $subscription;
+    }
+
+    /**
+     * Parse the subscription attributes from the given Stripe subscription.
+     *
+     * @param StripeSubscription $stripeSubscription
+     *
+     * @return array
+     */
+    public function parseAttributesFromStripeSubscription(StripeSubscription $stripeSubscription): array
+    {
+        return [
+            'stripe_id' => $stripeSubscription->id,
+            'starts_at' => new Carbon($stripeSubscription->start_date),
+            'cancels_at' => $stripeSubscription->cancel_at ? new Carbon($stripeSubscription->cancel_at) : null,
+            'current_period_starts_at' => new Carbon($stripeSubscription->current_period_start),
+            'current_period_ends_at' => new Carbon($stripeSubscription->current_period_end),
+            'canceled_at' => $stripeSubscription->canceled_at ? new Carbon($stripeSubscription->canceled_at) : null,
+            'ended_at' => $stripeSubscription->ended_at ? new Carbon($stripeSubscription->ended_at) : null,
+            'status' => $stripeSubscription->status,
+        ];
     }
 
 }

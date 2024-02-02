@@ -44,6 +44,6 @@ class SchoolService
      */
     public function findByStripeId(string $stripeId): ?School
     {
-        return School::where('stripe_id', $stripeId)->first();
+        return School::firstWhere('stripe_id', $stripeId);
     }
 }

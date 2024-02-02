@@ -11,6 +11,13 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class StripeWebhookRequest extends FormRequest
 {
+    /**
+     * Validate the incoming request and verify the Stripe webhook signature.
+     *
+     * @param int $marketId
+     *
+     * @return $this
+     */
     public function verify(int $marketId): StripeWebhookRequest
     {
         // Verify the market ID.
