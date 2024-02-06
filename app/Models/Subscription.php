@@ -37,6 +37,7 @@ class Subscription extends Model
         'ended_at',
         'status',
         'custom_user_limit',
+        'last_stripe_event_at',
     ];
 
     protected $casts = [
@@ -50,6 +51,7 @@ class Subscription extends Model
         'ended_at' => 'datetime',
         'status' => 'string',
         'custom_user_limit' => 'int',
+        'last_stripe_event_at' => 'datetime',
     ];
 
     /**

@@ -17,12 +17,7 @@ class ProcessStripeWebhookEvent implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * The name of the queue the job should be sent to.
-     *
-     * @var string
-     */
-    public $queue = 'stripe-webhooks';
+    public const QUEUE_NAME = 'stripe-webhook';
 
     /**
      * Create a new job instance.
@@ -32,6 +27,7 @@ class ProcessStripeWebhookEvent implements ShouldQueue
         protected int   $marketId,
     )
     {
+        $this->queue = self::QUEUE_NAME;
     }
 
     /**
@@ -42,9 +38,23 @@ class ProcessStripeWebhookEvent implements ShouldQueue
         //
     }
 
+    /**
+     * Log an error message for the given event.
+     *
+     * @param Event  $event
+     * @param string $message
+     *
+     * @return void
+     */
     protected function logError(Event $event, string $message): void
     {
         Log::channel('stripe')
             ->error("[$event->type] $message", $event->toArray());
+    }
+
+    protected function logSuccess(Event $event, string $message): void
+    {
+        Log::channel('stripe')
+            ->info("[$event->type] $message", $event->toArray());
     }
 }

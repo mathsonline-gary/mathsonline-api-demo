@@ -66,6 +66,13 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('The custom user limit of the subscription. Null if the user limit is same as the membership user limit.');
 
+            $table->timestamp('last_stripe_event_at')
+                ->nullable()
+                ->comment(
+                    'The creation date of the last handled Stripe event that made changes on the record. Null if no event has been handled yet. ' .
+                    'This field is used to avoid unexpected errors caused by incorrect order of events delivery.'
+                );
+
             $table->timestamps();
         });
     }
