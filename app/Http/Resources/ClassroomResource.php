@@ -32,8 +32,8 @@ class ClassroomResource extends JsonResource
             'school' => $this->whenLoaded('school'),
             'owner' => $this->whenLoaded('owner'),
             'secondary_teachers' => $this->whenLoaded('secondaryTeachers'),
-            'default_group' => $this->whenLoaded('defaultClassroomGroup'),
-            'custom_groups' => $this->whenLoaded('customClassroomGroups'),
+            'default_group' => $this->whenLoaded('classroomGroups', $this->classroomGroups->where('is_default', true)),
+            'custom_groups' => $this->whenLoaded('classroomGroups', $this->classroomGroups->where('is_default', false)),
         ];
     }
 }

@@ -2,17 +2,14 @@
 
 namespace App\Services;
 
-use App\Exceptions\DefaultClassroomGroupExistsException;
-use App\Exceptions\DeleteDefaultClassroomGroupException;
-use App\Exceptions\MaxClassroomGroupCountReachedException;
 use App\Models\Classroom;
-use App\Models\ClassroomGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ClassroomService
 {
@@ -48,7 +45,7 @@ class ClassroomService
                 $query->with('secondaryTeachers');
             })
             ->when($options['with_groups'] ?? false, function (Builder $query) {
-                $query->with('customClassroomGroups');
+                $query->with('classroomGroups');
             })
             ->when(isset($options['school_id']), function (Builder $query) use ($options) {
                 $query->where('school_id', $options['school_id']);
@@ -75,7 +72,7 @@ class ClassroomService
      *     with_school?: bool,
      *     with_owner?: bool,
      *     with_secondary_teachers?: bool,
-     *     with_custom_groups?: bool,
+     *     with_groups?: bool,
      * }                 $options
      *
      * @return Classroom|null
@@ -102,11 +99,9 @@ class ClassroomService
             }]);
         }
 
-        if ($options['with_custom_groups'] ?? false) {
-            $classroom->load('customClassroomGroups');
+        if ($options['with_groups'] ?? false) {
+            $classroom->load('classroomGroups');
         }
-
-        $classroom->load('defaultClassroomGroup');
 
         return $classroom;
     }
@@ -127,6 +122,8 @@ class ClassroomService
      * } $attributes
      *
      * @return Classroom
+     *
+     * @throws Throwable
      */
     public function create(array $attributes): Classroom
     {
@@ -147,74 +144,15 @@ class ClassroomService
             $classroom = Classroom::create($attributes);
 
             // Create the default classroom group.
-            $this->addDefaultGroup($classroom, [
+            $classroom->defaultClassroomGroup()->create([
+                'name' => $classroom->name . ' default group',
                 'pass_grade' => $attributes['pass_grade'],
                 'attempts' => $attributes['attempts'],
+                'is_default' => true,
             ]);
 
             return $classroom;
         });
-    }
-
-    /**
-     * Add the default group for the given classroom, if there is no default group of this classroom.
-     *
-     * @param Classroom $classroom
-     * @param array{
-     *     pass_grade: int,
-     *     attempts: int,
-     * }                $attributes
-     *
-     * @return ClassroomGroup|null
-     * @throws DefaultClassroomGroupExistsException
-     */
-    public function addDefaultGroup(Classroom $classroom, array $attributes): ?ClassroomGroup
-    {
-        if ($classroom->defaultClassroomGroup()->exists()) {
-            throw new DefaultClassroomGroupExistsException();
-        }
-
-        $attributes = Arr::only($attributes, [
-            'pass_grade',
-            'attempts',
-        ]);
-
-        return $classroom->defaultClassroomGroup()->create([
-            'name' => $classroom->name . ' default group',
-            'pass_grade' => $attributes['pass_grade'],
-            'attempts' => $attributes['attempts'],
-            'is_default' => true,
-        ]);
-    }
-
-    /**
-     * Add a custom group for the given classroom, if it has not hit the max count.
-     *
-     * @param Classroom $classroom
-     * @param array     $attributes
-     *
-     * @return ClassroomGroup|null
-     * @throws MaxClassroomGroupCountReachedException
-     */
-    public function addCustomGroup(Classroom $classroom, array $attributes): ?ClassroomGroup
-    {
-        if ($classroom->customClassroomGroups()->count() >= Classroom::MAX_CUSTOM_GROUP_COUNT) {
-
-            throw new MaxClassroomGroupCountReachedException();
-        }
-
-        $attributes = Arr::only($attributes, [
-            'name',
-            'pass_grade',
-            'attempts',
-        ]);
-
-        return $classroom->customClassroomGroups()->create([
-            'name' => $attributes['name'],
-            'pass_grade' => $attributes['pass_grade'],
-            'attempts' => $attributes['attempts'],
-            'is_default' => false,
-        ]);
     }
 
     /**
@@ -253,6 +191,8 @@ class ClassroomService
      * @param array     $attributes
      *
      * @return Classroom
+     *
+     * @throws Throwable
      */
     public function update(Classroom $classroom, array $attributes): Classroom
     {
@@ -277,32 +217,13 @@ class ClassroomService
     }
 
     /**
-     * Update the given classroom group with given valid attributes.
-     *
-     * @param ClassroomGroup $group
-     * @param array          $attributes
-     *
-     * @return ClassroomGroup
-     */
-    public function updateGroup(ClassroomGroup $group, array $attributes): ClassroomGroup
-    {
-        DB::transaction(function () use ($group, $attributes) {
-            $group->update(Arr::only($attributes, [
-                'name',
-                'pass_grade',
-                'attempts',
-            ]));
-        });
-
-        return $group;
-    }
-
-    /**
      * Delete the given classroom and its groups.
      *
      * @param Classroom $classroom
      *
      * @return void
+     *
+     * @throws Throwable
      */
     public function delete(Classroom $classroom): void
     {
@@ -315,42 +236,4 @@ class ClassroomService
         });
     }
 
-    /**
-     * Delete the given custom classroom group, detach its students.
-     *
-     * @param ClassroomGroup $group
-     *
-     * @return void
-     * @throws DeleteDefaultClassroomGroupException
-     */
-    public function deleteCustomGroup(ClassroomGroup $group): void
-    {
-        if ($group->isDefault()) {
-            throw new DeleteDefaultClassroomGroupException();
-        }
-
-        DB::transaction(function () use ($group) {
-            // Move students in this group to the default group.
-            $group->classroom->defaultClassroomGroup->students()->syncWithoutDetaching($group->students);
-
-            // Detach students from this group.
-            $group->students()->detach();
-
-            // Delete classroom group.
-            $group->delete();
-        });
-    }
-
-    /**
-     * Assign students to the given classroom group.
-     *
-     * @param ClassroomGroup $classroomGroup
-     * @param array          $studentIds
-     *
-     * @return void
-     */
-    public function assignStudents(ClassroomGroup $classroomGroup, array $studentIds): void
-    {
-        $classroomGroup->students()->syncWithoutDetaching($studentIds);
-    }
 }

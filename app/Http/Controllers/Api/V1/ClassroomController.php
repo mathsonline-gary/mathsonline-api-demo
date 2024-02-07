@@ -12,6 +12,7 @@ use App\Http\Requests\Classroom\UpdateClassroomRequest;
 use App\Http\Resources\ClassroomResource;
 use App\Models\Classroom;
 use App\Services\AuthService;
+use App\Services\ClassroomGroupService;
 use App\Services\ClassroomService;
 use App\Services\TeacherService;
 use Illuminate\Http\Request;
@@ -20,9 +21,10 @@ use Illuminate\Support\Facades\DB;
 class ClassroomController extends Controller
 {
     public function __construct(
-        protected ClassroomService $classroomService,
-        protected AuthService      $authService,
-        protected TeacherService   $teacherService,
+        protected ClassroomService      $classroomService,
+        protected ClassroomGroupService $classroomGroupService,
+        protected AuthService           $authService,
+        protected TeacherService        $teacherService,
     )
     {
     }
@@ -61,9 +63,10 @@ class ClassroomController extends Controller
         $this->authorize('view', $classroom);
 
         $classroom = $this->classroomService->find($classroom->id, [
+            'with_school' => false,
             'with_owner' => true,
             'with_secondary_teachers' => true,
-            'with_custom_groups' => true,
+            'with_groups' => true,
         ]);
 
         return $this->successResponse(new ClassroomResource($classroom));
@@ -103,7 +106,7 @@ class ClassroomController extends Controller
             // Add custom groups if any.
             if (isset($validated['groups']) && count($validated['groups']) > 0) {
                 foreach ($validated['groups'] as $group) {
-                    $classroomGroup = $this->classroomService->addCustomGroup($classroom, $group);
+                    $classroomGroup = $this->classroomGroupService->createCustom($classroom, $group);
 
                     ClassroomGroupCreated::dispatch($authenticatedUser, $classroomGroup);
                 }

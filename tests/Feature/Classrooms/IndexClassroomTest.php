@@ -20,7 +20,7 @@ class IndexClassroomTest extends TestCase
     {
         {
             $school = $this->fakeTraditionalSchool();
-            $teacher = $this->fakeNonAdminTeacher($school);
+            $teacher = $this->fakeTeacher($school);
             $this->fakeClassroom($teacher);
         }
 
