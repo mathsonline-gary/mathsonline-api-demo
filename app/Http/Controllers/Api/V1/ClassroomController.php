@@ -37,6 +37,7 @@ class ClassroomController extends Controller
             'search_key' => $request->input('search_key'),
             'pagination' => $request->boolean('pagination', true),
             'per_page' => $request->integer('per_page', 20),
+            'with_school' => $request->boolean('with_school'),
             'with_owner' => $request->boolean('with_owner'),
             'with_secondary_teachers' => $request->boolean('with_secondary_teachers'),
             'with_groups' => $request->boolean('with_groups'),

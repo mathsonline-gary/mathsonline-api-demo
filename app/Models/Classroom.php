@@ -22,6 +22,8 @@ class Classroom extends Model
     // Define the max limit of the number of classroom groups for a classroom.
     public const MAX_CUSTOM_GROUP_COUNT = 8;
 
+    protected $table = 'classrooms';
+
     protected $fillable = [
         'school_id',
         'owner_id',
@@ -125,4 +127,5 @@ class Classroom extends Model
     {
         return $this->type === Classroom::TYPE_HOMESCHOOL_CLASSROOM;
     }
+    
 }

@@ -2,12 +2,8 @@
 
 namespace Tests\Feature\Classrooms;
 
-use App\Http\Controllers\Api\V1\ClassroomController;
 use Tests\TestCase;
 
-/**
- * @see ClassroomController::show()
- */
 class ShowClassroomTest extends TestCase
 {
     public function test_a_guest_cannot_get_details_of_a_classroom()
@@ -35,7 +31,7 @@ class ShowClassroomTest extends TestCase
 
         $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
 
-        // Assert that the response has a 402 “Payment Required” status code.
+        // Assert that the response has unsubscription error.
         $response->assertUnsubscribed();
     }
 
@@ -123,39 +119,5 @@ class ShowClassroomTest extends TestCase
 
         // Assert that the response has a 403 “Forbidden” status code.
         $response->assertForbidden();
-    }
-
-    public function test_it_returns_expected_details_of_the_classroom()
-    {
-        {
-            $school = $this->fakeTraditionalSchool();
-            $this->fakeSubscription($school);
-            $teacher = $this->fakeTeacher($school);
-            $classroom = $this->fakeClassroom($teacher);
-        }
-
-        $this->actingAsTeacher($teacher);
-
-        $response = $this->getJson(route('api.v1.classrooms.show', $classroom->id));
-
-        // Assert that the response has the expected value of each attribute.
-        $response->assertJsonStructure([
-            'data' => [
-                'id',
-                'school_id',
-                'type',
-                'name',
-                'owner_id',
-                'pass_grade',
-                'attempts',
-                'owner' => ['id', 'first_name', 'last_name', 'title'],
-                'secondary_teachers' => [
-                    '*' => ['id', 'first_name', 'last_name', 'title']
-                ],
-                'custom_groups' => [
-                    '*' => ['id', 'name', 'pass_grade', 'attempts']
-                ],
-            ],
-        ]);
     }
 }

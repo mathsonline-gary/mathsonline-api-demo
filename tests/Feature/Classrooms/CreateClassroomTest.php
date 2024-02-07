@@ -2,15 +2,12 @@
 
 namespace Tests\Feature\Classrooms;
 
-use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Models\Activity;
 use App\Models\Classroom;
+use App\Models\ClassroomGroup;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-/**
- * @see ClassroomController::store()
- */
 class CreateClassroomTest extends TestCase
 {
     use WithFaker;
@@ -45,9 +42,9 @@ class CreateClassroomTest extends TestCase
         $response->assertUnauthorized();
 
         // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
-        $this->assertDatabaseCount('activities', 0);
+        $this->assertDatabaseCount(Classroom::class, 0);
+        $this->assertDatabaseCount(ClassroomGroup::class, 0);
+        $this->assertDatabaseCount(Activity::class, 0);
     }
 
     public function test_a_teacher_in_the_unsubscribed_school_cannot_create_a_classroom(): void
@@ -61,9 +58,9 @@ class CreateClassroomTest extends TestCase
         $response->assertUnsubscribed();
 
         // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
-        $this->assertDatabaseCount('activities', 0);
+        $this->assertDatabaseCount(Classroom::class, 0);
+        $this->assertDatabaseCount(ClassroomGroup::class, 0);
+        $this->assertDatabaseCount(Activity::class, 0);
     }
 
     public function test_an_admin_teacher_can_create_a_classroom(): void
@@ -84,8 +81,8 @@ class CreateClassroomTest extends TestCase
         $response->assertCreated()->assertJsonSuccessful();
 
         // Assert that the classroom was created correctly.
-        $this->assertDatabaseCount('classrooms', 1);
-        $this->assertDatabaseHas('classrooms', [
+        $this->assertDatabaseCount(Classroom::class, 1);
+        $this->assertDatabaseHas(Classroom::class, [
             'school_id' => $school->id,
             'year_id' => $this->payload['year_id'],
             'owner_id' => $this->payload['owner_id'],
@@ -98,8 +95,8 @@ class CreateClassroomTest extends TestCase
         $classroom = Classroom::first();
 
         // Assert that the default classroom group was created correctly.
-        $this->assertDatabaseCount('classroom_groups', 1);
-        $this->assertDatabaseHas('classroom_groups', [
+        $this->assertDatabaseCount(ClassroomGroup::class, 1);
+        $this->assertDatabaseHas(ClassroomGroup::class, [
             'classroom_id' => $classroom->id,
             'name' => $classroom->name . ' default group',
             'pass_grade' => $this->payload['pass_grade'],
@@ -109,8 +106,8 @@ class CreateClassroomTest extends TestCase
         ]);
 
         // Assert that the activity was created correctly.
-        $this->assertDatabaseCount('activities', 1);
-        $this->assertDatabaseHas('activities', [
+        $this->assertDatabaseCount(Activity::class, 1);
+        $this->assertDatabaseHas(Activity::class, [
             'actor_id' => $adminTeacher->user->id,
             'type' => Activity::TYPE_CREATE_CLASSROOM,
         ]);
@@ -132,10 +129,37 @@ class CreateClassroomTest extends TestCase
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated()->assertJsonSuccessful();
 
-        // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
-        $this->assertDatabaseCount('activities', 0);
+        // Assert that classroom was created correctly.
+        $this->assertDatabaseCount(Classroom::class, 1);
+        $this->assertDatabaseHas(Classroom::class, [
+            'school_id' => $school->id,
+            'year_id' => $this->payload['year_id'],
+            'owner_id' => $this->payload['owner_id'],
+            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
+            'name' => $this->payload['name'],
+            'mastery_enabled' => $this->payload['mastery_enabled'],
+            'self_rating_enabled' => $this->payload['self_rating_enabled'],
+            'deleted_at' => null,
+        ]);
+        $classroom = Classroom::first();
+
+        // Assert that the default classroom group was created correctly.
+        $this->assertDatabaseCount(ClassroomGroup::class, 1);
+        $this->assertDatabaseHas(ClassroomGroup::class, [
+            'classroom_id' => $classroom->id,
+            'name' => $classroom->name . ' default group',
+            'pass_grade' => $this->payload['pass_grade'],
+            'attempts' => $this->payload['attempts'],
+            'is_default' => true,
+            'deleted_at' => null,
+        ]);
+
+        // Assert that the activity was created correctly.
+        $this->assertDatabaseCount(Activity::class, 1);
+        $this->assertDatabaseHas(Activity::class, [
+            'actor_id' => $nonAdminTeacher->user->id,
+            'type' => Activity::TYPE_CREATE_CLASSROOM,
+        ]);
     }
 
     public function test_it_does_not_allow_an_admin_teacher_to_create_a_classroom_for_a_teacher_from_another_school(): void
@@ -159,9 +183,9 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
 
         // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
-        $this->assertDatabaseCount('activities', 0);
+        $this->assertDatabaseCount(Classroom::class, 0);
+        $this->assertDatabaseCount(ClassroomGroup::class, 0);
+        $this->assertDatabaseCount(Activity::class, 0);
     }
 
     public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_the_same_school(): void
@@ -182,8 +206,9 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
 
         // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
+        $this->assertDatabaseCount(Classroom::class, 0);
+        $this->assertDatabaseCount(ClassroomGroup::class, 0);
+        $this->assertDatabaseCount(Activity::class, 0);
     }
 
     public function test_it_does_not_allow_a_non_admin_teacher_to_create_a_classroom_for_another_teacher_from_another_school(): void
@@ -207,9 +232,9 @@ class CreateClassroomTest extends TestCase
         $response->assertUnprocessable();
 
         // Assert that no classroom was created.
-        $this->assertDatabaseCount('classrooms', 0);
-        $this->assertDatabaseCount('classroom_groups', 0);
-        $this->assertDatabaseCount('activities', 0);
+        $this->assertDatabaseCount(Classroom::class, 0);
+        $this->assertDatabaseCount(ClassroomGroup::class, 0);
+        $this->assertDatabaseCount(Activity::class, 0);
     }
 
     public function test_it_assigns_secondary_teachers()
@@ -235,8 +260,8 @@ class CreateClassroomTest extends TestCase
         $response->assertCreated()->assertJsonSuccessful();
 
         // Assert that the classroom was created correctly.
-        $this->assertDatabaseCount('classrooms', 1);
-        $this->assertDatabaseHas('classrooms', [
+        $this->assertDatabaseCount(Classroom::class, 1);
+        $this->assertDatabaseHas(Classroom::class, [
             'school_id' => $school->id,
             'year_id' => $this->payload['year_id'],
             'owner_id' => $this->payload['owner_id'],
@@ -249,8 +274,8 @@ class CreateClassroomTest extends TestCase
         $classroom = Classroom::first();
 
         // Assert that the default classroom group was created correctly.
-        $this->assertDatabaseCount('classroom_groups', 1);
-        $this->assertDatabaseHas('classroom_groups', [
+        $this->assertDatabaseCount(ClassroomGroup::class, 1);
+        $this->assertDatabaseHas(ClassroomGroup::class, [
             'classroom_id' => $classroom->id,
             'name' => $classroom->name . ' default group',
             'pass_grade' => $this->payload['pass_grade'],
@@ -271,8 +296,8 @@ class CreateClassroomTest extends TestCase
         ]);
 
         // Assert that the activity was created correctly.
-        $this->assertDatabaseCount('activities', 1);
-        $this->assertDatabaseHas('activities', [
+        $this->assertDatabaseCount(Activity::class, 1);
+        $this->assertDatabaseHas(Activity::class, [
             'actor_id' => $adminTeacher->user->id,
             'type' => Activity::TYPE_CREATE_CLASSROOM,
         ]);
@@ -306,8 +331,8 @@ class CreateClassroomTest extends TestCase
         $response->assertCreated()->assertJsonSuccessful();
 
         // Assert that the classroom was created correctly.
-        $this->assertDatabaseCount('classrooms', 1);
-        $this->assertDatabaseHas('classrooms', [
+        $this->assertDatabaseCount(Classroom::class, 1);
+        $this->assertDatabaseHas(Classroom::class, [
             'school_id' => $school->id,
             'year_id' => $this->payload['year_id'],
             'owner_id' => $this->payload['owner_id'],
@@ -320,8 +345,8 @@ class CreateClassroomTest extends TestCase
         $classroom = Classroom::first();
 
         // Assert that the classroom groups was created correctly.
-        $this->assertDatabaseCount('classroom_groups', 3);
-        $this->assertDatabaseHas('classroom_groups', [
+        $this->assertDatabaseCount(ClassroomGroup::class, 3);
+        $this->assertDatabaseHas(ClassroomGroup::class, [
             'classroom_id' => $classroom->id,
             'name' => $classroom->name . ' default group',
             'pass_grade' => $this->payload['pass_grade'],
@@ -329,7 +354,7 @@ class CreateClassroomTest extends TestCase
             'is_default' => true,
             'deleted_at' => null,
         ]);
-        $this->assertDatabaseHas('classroom_groups', [
+        $this->assertDatabaseHas(ClassroomGroup::class, [
             'classroom_id' => $classroom->id,
             'name' => $this->payload['groups'][0]['name'],
             'pass_grade' => $this->payload['groups'][0]['pass_grade'],
@@ -337,7 +362,7 @@ class CreateClassroomTest extends TestCase
             'is_default' => false,
             'deleted_at' => null,
         ]);
-        $this->assertDatabaseHas('classroom_groups', [
+        $this->assertDatabaseHas(ClassroomGroup::class, [
             'classroom_id' => $classroom->id,
             'name' => $this->payload['groups'][1]['name'],
             'pass_grade' => $this->payload['groups'][1]['pass_grade'],
@@ -347,12 +372,12 @@ class CreateClassroomTest extends TestCase
         ]);
 
         // Assert that the activities was created correctly.
-        $this->assertDatabaseCount('activities', 3);
-        $this->assertDatabaseHas('activities', [
+        $this->assertDatabaseCount(Activity::class, 3);
+        $this->assertDatabaseHas(Activity::class, [
             'actor_id' => $adminTeacher->user->id,
             'type' => Activity::TYPE_CREATE_CLASSROOM,
         ]);
-        $this->assertDatabaseHas('activities', [
+        $this->assertDatabaseHas(Activity::class, [
             'actor_id' => $adminTeacher->user->id,
             'type' => Activity::TYPE_CREATE_CLASSROOM_GROUP,
         ]);
