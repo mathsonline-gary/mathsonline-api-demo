@@ -44,4 +44,5 @@ abstract class TestCase extends BaseTestCase
      * @var string
      */
     protected string $seeder = TestSeeder::class;
+    
 }

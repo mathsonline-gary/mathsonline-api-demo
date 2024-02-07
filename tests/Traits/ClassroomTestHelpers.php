@@ -14,8 +14,9 @@ trait ClassroomTestHelpers
      * Create fake classroom(s) for the given teacher, and add default classroom group(s) of each.
      *
      * @param Teacher $owner
-     * @param int $count
-     * @param array $attributes
+     * @param int     $count
+     * @param array   $attributes
+     *
      * @return Classroom|Collection<Classroom>
      */
     public function fakeClassroom(Teacher $owner, int $count = 1, array $attributes = []): Collection|Classroom
@@ -39,8 +40,9 @@ trait ClassroomTestHelpers
     /**
      * Add secondary teacher(s) for the given classroom, with detaching all existing secondary teachers.
      *
-     * @param Classroom $classroom
+     * @param Classroom  $classroom
      * @param array<int> $teacherIds
+     *
      * @return void
      */
     public function attachSecondaryTeachersToClassroom(Classroom $classroom, array $teacherIds): void
@@ -53,8 +55,9 @@ trait ClassroomTestHelpers
      * Add custom classroom groups to the given classroom.
      *
      * @param Classroom $classroom
-     * @param int $count
-     * @param array $attributes
+     * @param int       $count
+     * @param array     $attributes
+     *
      * @return Collection|ClassroomGroup
      */
     public function fakeCustomClassroomGroup(Classroom $classroom, int $count = 1, array $attributes = []): Collection|ClassroomGroup
@@ -72,7 +75,8 @@ trait ClassroomTestHelpers
      * Add student(s) to the given classroom group.
      *
      * @param ClassroomGroup $classroomGroup
-     * @param array $studentIds
+     * @param array          $studentIds
+     *
      * @return void
      */
     public function attachStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
@@ -80,4 +84,5 @@ trait ClassroomTestHelpers
         $classroomGroup->students()
             ->attach($studentIds);
     }
+
 }
