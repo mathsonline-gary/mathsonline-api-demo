@@ -22,6 +22,7 @@ class TeacherCreated extends ActivityLoggableEvent
         parent::__construct(
             actor: $creator,
             type: Activity::TYPE_CREATE_TEACHER,
+            description: "created teacher: $teacher->first_name $teacher->last_name",
             actedAt: $teacher->created_at,
             data: [
                 'id' => $teacher->id,

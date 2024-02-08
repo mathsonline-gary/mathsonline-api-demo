@@ -16,6 +16,8 @@ return new class extends Migration {
                 ->constrained('users');
             $table->unsignedInteger('type')
                 ->comment('The type of activity. It should be one of the activity type constants defined in the Activity model.');
+            $table->string('description')
+                ->comment('The description of the activity.');
             $table->json('data')
                 ->nullable()
                 ->comment('JSON data associate with the activity.');

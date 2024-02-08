@@ -74,7 +74,7 @@ class CreateClassroomTest extends TestCase
     }
 
     /**
-     * Test that an admin teacher can create a classroom of which the owner is a teacher (admin or non-admin) in the same school.
+     * Test that an admin teacher can create a classroom of which the owner is a teacher in the same school.
      *
      * @return void
      */
@@ -97,39 +97,41 @@ class CreateClassroomTest extends TestCase
 
         // Assert that the classroom was created correctly.
         $this->assertDatabaseCount(Classroom::class, 1);
-        $this->assertDatabaseHas(Classroom::class, [
-            'school_id' => $school->id,
-            'year_id' => $this->payload['year_id'],
-            'owner_id' => $this->payload['owner_id'],
-            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-            'name' => $this->payload['name'],
-            'mastery_enabled' => $this->payload['mastery_enabled'],
-            'self_rating_enabled' => $this->payload['self_rating_enabled'],
-            'deleted_at' => null,
-        ]);
         $classroom = Classroom::first();
+        $this->assertNotSoftDeleted($classroom);
+        $this->assertEquals($school->id, $classroom->school_id);
+        $this->assertEquals($this->payload['year_id'], $classroom->year_id);
+        $this->assertEquals($owner->id, $classroom->owner_id);
+        $this->assertEquals(Classroom::TYPE_TRADITIONAL_CLASSROOM, $classroom->type);
+        $this->assertEquals($this->payload['name'], $classroom->name);
+        $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
+        $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
 
         // Assert that the default classroom group was created correctly.
         $this->assertDatabaseCount(ClassroomGroup::class, 1);
-        $this->assertDatabaseHas(ClassroomGroup::class, [
-            'classroom_id' => $classroom->id,
-            'name' => $classroom->name . ' default group',
-            'pass_grade' => $this->payload['pass_grade'],
-            'attempts' => $this->payload['attempts'],
-            'is_default' => true,
-            'deleted_at' => null,
-        ]);
+        $this->assertEquals(1, $classroom->classroomGroups()->count());
+        $classroomGroup = ClassroomGroup::first();
+        $this->assertEquals($classroomGroup, $classroom->defaultClassroomGroup);
+        $this->assertEquals($classroom->id, $classroomGroup->classroom_id);
+        $this->assertEquals($classroom->name . ' default group', $classroomGroup->name);
+        $this->assertEquals($this->payload['pass_grade'], $classroomGroup->pass_grade);
+        $this->assertEquals($this->payload['attempts'], $classroomGroup->attempts);
+        $this->assertTrue($classroomGroup->is_default);
+        $this->assertNotSoftDeleted($classroomGroup);
 
         // Assert that the activity was created correctly.
         $this->assertDatabaseCount(Activity::class, 1);
-        $this->assertDatabaseHas(Activity::class, [
-            'actor_id' => $adminTeacher->user->id,
-            'type' => Activity::TYPE_CREATE_CLASSROOM,
-        ]);
+        $this->assertEquals(1, $adminTeacher->user->activities()->count());
+        $activity = Activity::first();
+        $this->assertEquals($activity, $adminTeacher->user->activities()->first());
+        $this->assertEquals($adminTeacher->user->id, $activity->actor_id);
+        $this->assertEquals(Activity::TYPE_CREATE_CLASSROOM, $activity->type);
+        $this->assertEquals('created classroom: ' . $classroom->name, $activity->description);
+        $this->assertEquals($classroom->id, $activity->data['classroom_id']);
     }
 
     /**
-     * Test that an admin teacher cannot create a classroom of which the owner is a teacher (admin or non-admin) in another school.
+     * Test that an admin teacher cannot create a classroom of which the owner is a teacher in another school.
      *
      * @return void
      */
@@ -188,46 +190,41 @@ class CreateClassroomTest extends TestCase
 
         // Assert that the classroom was created correctly.
         $this->assertDatabaseCount(Classroom::class, 1);
-        $this->assertDatabaseHas(Classroom::class, [
-            'school_id' => $school->id,
-            'year_id' => $this->payload['year_id'],
-            'owner_id' => $this->payload['owner_id'],
-            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-            'name' => $this->payload['name'],
-            'mastery_enabled' => $this->payload['mastery_enabled'],
-            'self_rating_enabled' => $this->payload['self_rating_enabled'],
-            'deleted_at' => null,
-        ]);
         $classroom = Classroom::first();
+        $this->assertNotSoftDeleted($classroom);
+        $this->assertEquals($school->id, $classroom->school_id);
+        $this->assertEquals($this->payload['year_id'], $classroom->year_id);
+        $this->assertEquals($adminTeacher->id, $classroom->owner_id);
+        $this->assertEquals(Classroom::TYPE_TRADITIONAL_CLASSROOM, $classroom->type);
+        $this->assertEquals($this->payload['name'], $classroom->name);
+        $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
+        $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
 
         // Assert that the default classroom group was created correctly.
         $this->assertDatabaseCount(ClassroomGroup::class, 1);
-        $this->assertDatabaseHas(ClassroomGroup::class, [
-            'classroom_id' => $classroom->id,
-            'name' => $classroom->name . ' default group',
-            'pass_grade' => $this->payload['pass_grade'],
-            'attempts' => $this->payload['attempts'],
-            'is_default' => true,
-            'deleted_at' => null,
-        ]);
-
-        // Assert that the secondary teachers were assigned correctly.
-        $this->assertDatabaseCount('classroom_secondary_teacher', 2);
-        $this->assertDatabaseHas('classroom_secondary_teacher', [
-            'classroom_id' => $classroom->id,
-            'teacher_id' => $nonAdminTeacher1->id,
-        ]);
-        $this->assertDatabaseHas('classroom_secondary_teacher', [
-            'classroom_id' => $classroom->id,
-            'teacher_id' => $nonAdminTeacher2->id,
-        ]);
+        $this->assertEquals(1, $classroom->classroomGroups()->count());
+        $classroomGroup = ClassroomGroup::first();
+        $this->assertEquals($classroomGroup, $classroom->defaultClassroomGroup);
+        $this->assertEquals($classroom->id, $classroomGroup->classroom_id);
+        $this->assertEquals($classroom->name . ' default group', $classroomGroup->name);
+        $this->assertEquals($this->payload['pass_grade'], $classroomGroup->pass_grade);
+        $this->assertEquals($this->payload['attempts'], $classroomGroup->attempts);
+        $this->assertTrue($classroomGroup->is_default);
+        $this->assertNotSoftDeleted($classroomGroup);
 
         // Assert that the activity was created correctly.
         $this->assertDatabaseCount(Activity::class, 1);
-        $this->assertDatabaseHas(Activity::class, [
-            'actor_id' => $adminTeacher->user->id,
-            'type' => Activity::TYPE_CREATE_CLASSROOM,
-        ]);
+        $this->assertEquals(1, $adminTeacher->user->activities()->count());
+        $activity = Activity::first();
+        $this->assertEquals($activity, $adminTeacher->user->activities()->first());
+        $this->assertEquals($adminTeacher->user->id, $activity->actor_id);
+        $this->assertEquals(Activity::TYPE_CREATE_CLASSROOM, $activity->type);
+        $this->assertEquals('created classroom: ' . $classroom->name, $activity->description);
+        $this->assertEquals($classroom->id, $activity->data['classroom_id']);
+
+        // Assert that the secondary teachers were assigned correctly.
+        $this->assertDatabaseCount('classroom_secondary_teacher', 2);
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
     }
 
     /**
@@ -251,37 +248,39 @@ class CreateClassroomTest extends TestCase
         // Assert that the response has a 201 “Created” status code.
         $response->assertCreated()->assertJsonSuccessful();
 
-        // Assert that classroom was created correctly.
+        // Assert that the classroom was created correctly.
         $this->assertDatabaseCount(Classroom::class, 1);
-        $this->assertDatabaseHas(Classroom::class, [
-            'school_id' => $school->id,
-            'year_id' => $this->payload['year_id'],
-            'owner_id' => $this->payload['owner_id'],
-            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-            'name' => $this->payload['name'],
-            'mastery_enabled' => $this->payload['mastery_enabled'],
-            'self_rating_enabled' => $this->payload['self_rating_enabled'],
-            'deleted_at' => null,
-        ]);
         $classroom = Classroom::first();
+        $this->assertNotSoftDeleted($classroom);
+        $this->assertEquals($school->id, $classroom->school_id);
+        $this->assertEquals($this->payload['year_id'], $classroom->year_id);
+        $this->assertEquals($nonAdminTeacher->id, $classroom->owner_id);
+        $this->assertEquals(Classroom::TYPE_TRADITIONAL_CLASSROOM, $classroom->type);
+        $this->assertEquals($this->payload['name'], $classroom->name);
+        $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
+        $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
 
         // Assert that the default classroom group was created correctly.
         $this->assertDatabaseCount(ClassroomGroup::class, 1);
-        $this->assertDatabaseHas(ClassroomGroup::class, [
-            'classroom_id' => $classroom->id,
-            'name' => $classroom->name . ' default group',
-            'pass_grade' => $this->payload['pass_grade'],
-            'attempts' => $this->payload['attempts'],
-            'is_default' => true,
-            'deleted_at' => null,
-        ]);
+        $this->assertEquals(1, $classroom->classroomGroups()->count());
+        $classroomGroup = ClassroomGroup::first();
+        $this->assertEquals($classroomGroup, $classroom->defaultClassroomGroup);
+        $this->assertEquals($classroom->id, $classroomGroup->classroom_id);
+        $this->assertEquals($classroom->name . ' default group', $classroomGroup->name);
+        $this->assertEquals($this->payload['pass_grade'], $classroomGroup->pass_grade);
+        $this->assertEquals($this->payload['attempts'], $classroomGroup->attempts);
+        $this->assertTrue($classroomGroup->is_default);
+        $this->assertNotSoftDeleted($classroomGroup);
 
         // Assert that the activity was created correctly.
         $this->assertDatabaseCount(Activity::class, 1);
-        $this->assertDatabaseHas(Activity::class, [
-            'actor_id' => $nonAdminTeacher->user->id,
-            'type' => Activity::TYPE_CREATE_CLASSROOM,
-        ]);
+        $this->assertEquals(1, $nonAdminTeacher->user->activities()->count());
+        $activity = Activity::first();
+        $this->assertEquals($activity, $nonAdminTeacher->user->activities()->first());
+        $this->assertEquals($nonAdminTeacher->user->id, $activity->actor_id);
+        $this->assertEquals(Activity::TYPE_CREATE_CLASSROOM, $activity->type);
+        $this->assertEquals('created classroom: ' . $classroom->name, $activity->description);
+        $this->assertEquals($classroom->id, $activity->data['classroom_id']);
     }
 
     /**
@@ -352,13 +351,13 @@ class CreateClassroomTest extends TestCase
     {
         $school = $this->fakeTraditionalSchool();
         $this->fakeSubscription($school);
-        $owner = $this->fakeNonAdminTeacher($school);
+        $nonAdminTeacher = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher1 = $this->fakeNonAdminTeacher($school);
         $nonAdminTeacher2 = $this->fakeNonAdminTeacher($school);
 
-        $this->actingAsTeacher($owner);
+        $this->actingAsTeacher($nonAdminTeacher);
 
-        $this->payload['owner_id'] = $owner->id;
+        $this->payload['owner_id'] = $nonAdminTeacher->id;
         $this->payload['year_id'] = $school->market->years->random()->id;
         $this->payload['secondary_teacher_ids'] = [
             $nonAdminTeacher1->id,
@@ -372,46 +371,41 @@ class CreateClassroomTest extends TestCase
 
         // Assert that the classroom was created correctly.
         $this->assertDatabaseCount(Classroom::class, 1);
-        $this->assertDatabaseHas(Classroom::class, [
-            'school_id' => $school->id,
-            'year_id' => $this->payload['year_id'],
-            'owner_id' => $this->payload['owner_id'],
-            'type' => Classroom::TYPE_TRADITIONAL_CLASSROOM,
-            'name' => $this->payload['name'],
-            'mastery_enabled' => $this->payload['mastery_enabled'],
-            'self_rating_enabled' => $this->payload['self_rating_enabled'],
-            'deleted_at' => null,
-        ]);
         $classroom = Classroom::first();
+        $this->assertNotSoftDeleted($classroom);
+        $this->assertEquals($school->id, $classroom->school_id);
+        $this->assertEquals($this->payload['year_id'], $classroom->year_id);
+        $this->assertEquals($nonAdminTeacher->id, $classroom->owner_id);
+        $this->assertEquals(Classroom::TYPE_TRADITIONAL_CLASSROOM, $classroom->type);
+        $this->assertEquals($this->payload['name'], $classroom->name);
+        $this->assertEquals($this->payload['mastery_enabled'], $classroom->mastery_enabled);
+        $this->assertEquals($this->payload['self_rating_enabled'], $classroom->self_rating_enabled);
 
         // Assert that the default classroom group was created correctly.
         $this->assertDatabaseCount(ClassroomGroup::class, 1);
-        $this->assertDatabaseHas(ClassroomGroup::class, [
-            'classroom_id' => $classroom->id,
-            'name' => $classroom->name . ' default group',
-            'pass_grade' => $this->payload['pass_grade'],
-            'attempts' => $this->payload['attempts'],
-            'is_default' => true,
-            'deleted_at' => null,
-        ]);
-
-        // Assert that the secondary teachers were assigned correctly.
-        $this->assertDatabaseCount('classroom_secondary_teacher', 2);
-        $this->assertDatabaseHas('classroom_secondary_teacher', [
-            'classroom_id' => $classroom->id,
-            'teacher_id' => $nonAdminTeacher1->id,
-        ]);
-        $this->assertDatabaseHas('classroom_secondary_teacher', [
-            'classroom_id' => $classroom->id,
-            'teacher_id' => $nonAdminTeacher2->id,
-        ]);
+        $this->assertEquals(1, $classroom->classroomGroups()->count());
+        $classroomGroup = ClassroomGroup::first();
+        $this->assertEquals($classroomGroup, $classroom->defaultClassroomGroup);
+        $this->assertEquals($classroom->id, $classroomGroup->classroom_id);
+        $this->assertEquals($classroom->name . ' default group', $classroomGroup->name);
+        $this->assertEquals($this->payload['pass_grade'], $classroomGroup->pass_grade);
+        $this->assertEquals($this->payload['attempts'], $classroomGroup->attempts);
+        $this->assertTrue($classroomGroup->is_default);
+        $this->assertNotSoftDeleted($classroomGroup);
 
         // Assert that the activity was created correctly.
         $this->assertDatabaseCount(Activity::class, 1);
-        $this->assertDatabaseHas(Activity::class, [
-            'actor_id' => $owner->user->id,
-            'type' => Activity::TYPE_CREATE_CLASSROOM,
-        ]);
+        $this->assertEquals(1, $nonAdminTeacher->user->activities()->count());
+        $activity = Activity::first();
+        $this->assertEquals($activity, $nonAdminTeacher->user->activities()->first());
+        $this->assertEquals($nonAdminTeacher->user->id, $activity->actor_id);
+        $this->assertEquals(Activity::TYPE_CREATE_CLASSROOM, $activity->type);
+        $this->assertEquals('created classroom: ' . $classroom->name, $activity->description);
+        $this->assertEquals($classroom->id, $activity->data['classroom_id']);
+
+        // Assert that the secondary teachers were assigned correctly.
+        $this->assertDatabaseCount('classroom_secondary_teacher', 2);
+        $this->assertEquals(2, $classroom->secondaryTeachers()->count());
     }
 
     public function test_it_add_classroom_groups()

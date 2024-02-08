@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\Users\Developer;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,7 +10,7 @@ trait DeveloperTestHelpers
     /**
      * Create fake developer(s).
      *
-     * @param int $count
+     * @param int   $count
      * @param array $attributes
      *
      * @return Developer|Collection<Developer>

@@ -25,9 +25,10 @@ class ClassroomCreated extends ActivityLoggableEvent
         parent::__construct(
             actor: $creator,
             type: Activity::TYPE_CREATE_CLASSROOM,
+            description: "created classroom: $classroom->name",
             actedAt: $classroom->created_at,
             data: [
-                'id' => $classroom->id,
+                'classroom_id' => $classroom->id,
             ],
         );
     }

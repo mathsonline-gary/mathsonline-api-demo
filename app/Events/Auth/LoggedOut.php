@@ -28,6 +28,7 @@ class LoggedOut extends ActivityLoggableEvent
         parent::__construct(
             actor: $user,
             type: Activity::TYPE_LOG_OUT,
+            description: "logged out",
             actedAt: $loggedOutAt,
         );
     }

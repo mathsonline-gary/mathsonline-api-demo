@@ -38,6 +38,7 @@ class Activity extends Model
      */
     protected $fillable = [
         'type',
+        'description',
         'data',
         'acted_at',
     ];

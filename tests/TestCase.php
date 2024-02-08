@@ -5,16 +5,16 @@ namespace Tests;
 use Database\Seeders\TestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Tests\Traits\ActivityTestHelpers;
-use Tests\Traits\AdminTestHelpers;
-use Tests\Traits\ClassroomTestHelpers;
-use Tests\Traits\DeveloperTestHelpers;
-use Tests\Traits\MemberTestHelpers;
-use Tests\Traits\SchoolTestHelpers;
-use Tests\Traits\StripeTestHelpers;
-use Tests\Traits\StudentTestHelpers;
-use Tests\Traits\SubscriptionTestHelpers;
-use Tests\Traits\TeacherTestHelpers;
+use Tests\Helpers\ActivityTestHelpers;
+use Tests\Helpers\AdminTestHelpers;
+use Tests\Helpers\ClassroomTestHelpers;
+use Tests\Helpers\DeveloperTestHelpers;
+use Tests\Helpers\MemberTestHelpers;
+use Tests\Helpers\SchoolTestHelpers;
+use Tests\Helpers\StripeTestHelpers;
+use Tests\Helpers\StudentTestHelpers;
+use Tests\Helpers\SubscriptionTestHelpers;
+use Tests\Helpers\TeacherTestHelpers;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -44,5 +44,5 @@ abstract class TestCase extends BaseTestCase
      * @var string
      */
     protected string $seeder = TestSeeder::class;
-    
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;

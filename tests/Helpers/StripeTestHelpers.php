@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use Stripe\StripeClient;
 
@@ -21,7 +21,7 @@ trait StripeTestHelpers
     /**
      * Generate a Stripe signature for the given payload.
      *
-     * @param int $marketId
+     * @param int   $marketId
      * @param array $payload
      *
      * @return string

@@ -35,7 +35,7 @@ class ActivityServiceTest extends TestCase
 
         $activity = Activity::factory()->make();
 
-        $this->activityService->create($user, $activity->type, $activity->acted_at, $activity->data);
+        $this->activityService->create($user, $activity->type, $activity->description, $activity->acted_at, $activity->data);
 
         // Assert that an activity was created.
         $this->assertDatabaseCount('activities', 1);

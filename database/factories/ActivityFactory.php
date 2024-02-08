@@ -26,6 +26,7 @@ class ActivityFactory extends Factory
 
         return [
             'type' => fake()->randomElement($types),
+            'description' => fake()->sentence,
             'data' => [
                 'key_1' => 'value_1',
                 'key_2' => [

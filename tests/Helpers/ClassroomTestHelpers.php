@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\Classroom;
 use App\Models\ClassroomGroup;
@@ -35,8 +35,7 @@ trait ClassroomTestHelpers
 
         return $count === 1 ? $classrooms->first() : $classrooms;
     }
-
-
+    
     /**
      * Add secondary teacher(s) for the given classroom, with detaching all existing secondary teachers.
      *
@@ -47,6 +46,7 @@ trait ClassroomTestHelpers
      */
     public function attachSecondaryTeachersToClassroom(Classroom $classroom, array $teacherIds): void
     {
+        // TODO: remove this.
         $classroom->secondaryTeachers()
             ->attach($teacherIds);
     }
@@ -62,6 +62,7 @@ trait ClassroomTestHelpers
      */
     public function fakeCustomClassroomGroup(Classroom $classroom, int $count = 1, array $attributes = []): Collection|ClassroomGroup
     {
+        // TODO: move to ClassroomGroupTestHelpers.
         $groups = ClassroomGroup::factory()
             ->count($count)
             ->ofClassroom($classroom)
@@ -81,6 +82,7 @@ trait ClassroomTestHelpers
      */
     public function attachStudentsToClassroomGroup(ClassroomGroup $classroomGroup, array $studentIds): void
     {
+        // TODO: remove this.
         $classroomGroup->students()
             ->attach($studentIds);
     }

@@ -28,6 +28,7 @@ class LoggedIn extends ActivityLoggableEvent
         parent::__construct(
             actor: $actor,
             type: Activity::TYPE_LOG_IN,
+            description: "logged in",
             actedAt: $loggedInAt,
         );
     }

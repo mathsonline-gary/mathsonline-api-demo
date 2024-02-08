@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\Users\Admin;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,7 +10,7 @@ trait AdminTestHelpers
     /**
      * Create fake admin(s).
      *
-     * @param int $count
+     * @param int   $count
      * @param array $attributes
      *
      * @return Admin|Collection<Admin>
@@ -28,6 +28,7 @@ trait AdminTestHelpers
      * Set the currently logged-in admin for the application.
      *
      * @param Admin $admin
+     *
      * @return void
      */
     public function actingAsAdmin(Admin $admin): void
