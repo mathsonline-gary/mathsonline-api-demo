@@ -67,7 +67,7 @@ class StripeServiceTest extends TestCase
         $this->assertEquals($payload['address_country'], $customer->shipping->address->country);
     }
 
-    public function test_it_creates_the_monthly_subscription(): void
+    public function test_it_creates_the_auto_charged_monthly_subscription(): void
     {
         $member = $this->fakeMember($this->marketId);
 
@@ -75,17 +75,18 @@ class StripeServiceTest extends TestCase
             ->where('iterations', null)
             ->firstOrFail();
 
-        $subscription = $this->stripeService->createSubscription($member->school, $membership);
+        $subscription = $this->stripeService->createSubscription($member->school, $membership, StripeSubscription::COLLECTION_METHOD_CHARGE_AUTOMATICALLY);
 
         // Assert that the subscription was created correctly.
         $this->assertInstanceOf(StripeSubscription::class, $subscription);
         $this->assertEquals($member->school->stripe_id, $subscription->customer);
         $this->assertEquals($membership->stripe_id, $subscription->items->data[0]->price->id);
-        $this->assertEquals('active', $subscription->status);
+        $this->assertEquals(StripeSubscription::STATUS_ACTIVE, $subscription->status);
+        $this->assertEquals(StripeSubscription::COLLECTION_METHOD_CHARGE_AUTOMATICALLY, $subscription->collection_method);
         $this->assertNull($subscription->cancel_at);
     }
 
-    public function test_it_creates_the_one_time_subscription(): void
+    public function test_it_creates_the_auto_charged_fixed_term_subscription(): void
     {
         $member = $this->fakeMember($this->marketId);
 
@@ -93,13 +94,54 @@ class StripeServiceTest extends TestCase
             ->where('iterations', 1)
             ->firstOrFail();
 
-        $subscription = $this->stripeService->createSubscription($member->school, $membership);
+        $subscription = $this->stripeService->createSubscription($member->school, $membership, StripeSubscription::COLLECTION_METHOD_CHARGE_AUTOMATICALLY);
 
         // Assert that the subscription was created correctly.
         $this->assertInstanceOf(StripeSubscription::class, $subscription);
         $this->assertEquals($member->school->stripe_id, $subscription->customer);
         $this->assertEquals($membership->stripe_id, $subscription->items->data[0]->price->id);
-        $this->assertEquals('active', $subscription->status);
+        $this->assertEquals(StripeSubscription::STATUS_ACTIVE, $subscription->status);
+        $this->assertEquals(StripeSubscription::COLLECTION_METHOD_CHARGE_AUTOMATICALLY, $subscription->collection_method);
         $this->assertNotNull($subscription->cancel_at);
+        $this->assertNotNull($subscription->schedule);
+    }
+
+    public function test_it_creates_the_manual_charged_monthly_subscription(): void
+    {
+        $member = $this->fakeMember($this->marketId);
+
+        $membership = Membership::whereIn('product_id', Product::where('market_id', $this->marketId)->pluck('id'))
+            ->where('iterations', null)
+            ->firstOrFail();
+
+        $subscription = $this->stripeService->createSubscription($member->school, $membership, StripeSubscription::COLLECTION_METHOD_SEND_INVOICE);
+
+        // Assert that the subscription was created correctly.
+        $this->assertInstanceOf(StripeSubscription::class, $subscription);
+        $this->assertEquals($member->school->stripe_id, $subscription->customer);
+        $this->assertEquals($membership->stripe_id, $subscription->items->data[0]->price->id);
+        $this->assertEquals(StripeSubscription::STATUS_ACTIVE, $subscription->status);
+        $this->assertEquals(StripeSubscription::COLLECTION_METHOD_SEND_INVOICE, $subscription->collection_method);
+        $this->assertNull($subscription->cancel_at);
+    }
+
+    public function test_it_creates_the_manual_charged_fixed_term_subscription(): void
+    {
+        $member = $this->fakeMember($this->marketId);
+
+        $membership = Membership::whereIn('product_id', Product::where('market_id', $this->marketId)->pluck('id'))
+            ->where('iterations', 1)
+            ->firstOrFail();
+
+        $subscription = $this->stripeService->createSubscription($member->school, $membership, StripeSubscription::COLLECTION_METHOD_SEND_INVOICE);
+
+        // Assert that the subscription was created correctly.
+        $this->assertInstanceOf(StripeSubscription::class, $subscription);
+        $this->assertEquals($member->school->stripe_id, $subscription->customer);
+        $this->assertEquals($membership->stripe_id, $subscription->items->data[0]->price->id);
+        $this->assertEquals(StripeSubscription::STATUS_ACTIVE, $subscription->status);
+        $this->assertEquals(StripeSubscription::COLLECTION_METHOD_SEND_INVOICE, $subscription->collection_method);
+        $this->assertNotNull($subscription->cancel_at);
+        $this->assertNotNull($subscription->schedule);
     }
 }

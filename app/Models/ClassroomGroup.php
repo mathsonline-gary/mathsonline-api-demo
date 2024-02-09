@@ -13,6 +13,8 @@ class ClassroomGroup extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'classroom_groups';
+    
     protected $casts = [
         'pass_grade' => 'int',
         'attempts' => 'int',

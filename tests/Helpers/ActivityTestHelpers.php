@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\Activity;
 use App\Models\Users\User;
@@ -11,9 +11,10 @@ trait ActivityTestHelpers
     /**
      * Create fake activity(s) for given user.
      *
-     * @param User $actor
-     * @param int $count
+     * @param User  $actor
+     * @param int   $count
      * @param array $attributes
+     *
      * @return Collection|Activity
      */
     public function fakeActivity(User $actor, int $count = 1, array $attributes = []): Collection|Activity

@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\School;
 use Illuminate\Database\Eloquent\Collection;
+use PHPUnit\Framework\Assert;
 
 trait SchoolTestHelpers
 {
@@ -61,33 +62,23 @@ trait SchoolTestHelpers
     }
 
     /**
-     * Assert that the given school has the given expected attributes.
+     * Assert that the given school matches the given expected attributes.
      *
-     * @param array  $expected
      * @param School $school
+     * @param array  $expected
      *
      * @return void
      */
-    public function assertSchoolAttributes(array $expected, School $school): void
+    public function assertSchoolAttributes(School $school, array $expected): void
     {
         foreach ($expected as $attribute => $value) {
-            switch ($attribute) {
-                case 'type':
-                    $this->assertEquals(
-                        $value,
-                        $school->type,
-                        'The school attribute type does not match the expected value.'
-                    );
-                    break;
+            $actual = $school->{$attribute};
 
-                default:
-                    $this->assertEquals(
-                        $value,
-                        $school->{$attribute},
-                        "The school attribute '$attribute' does not match the expected value."
-                    );
-                    break;
-            }
+            Assert::assertEquals(
+                $value,
+                $actual,
+                `The school attribute "$attribute" does not match the expected value. Expected: $value, Actual: $actual.`
+            );
         }
     }
 }

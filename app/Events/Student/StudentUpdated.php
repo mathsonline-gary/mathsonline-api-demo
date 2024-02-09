@@ -27,6 +27,7 @@ class StudentUpdated extends ActivityLoggableEvent
         parent::__construct(
             actor: $actor,
             type: Activity::TYPE_UPDATE_STUDENT,
+            description: "updated student: $updatedStudent->first_name $updatedStudent->last_name",
             actedAt: $updatedStudent->updated_at,
             data: [
                 'id' => $updatedStudent->id,

@@ -28,7 +28,8 @@ class SubscriptionService
             'canceled_at',
             'ended_at',
             'status',
-            'custom_user_limit'
+            'custom_user_limit',
+            'last_stripe_event_at',
         ]);
 
         $subscription = new Subscription($attributes);

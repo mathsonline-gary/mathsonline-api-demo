@@ -25,7 +25,7 @@ class TestResponseMacroServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TestResponse::macro('assertEmailVerificationRequired', function () {
-            return $this->assertStatus(409)
+            return $this->assertConflict()
                 ->assertJson(['message' => 'Your email address is not verified.']);
         });
 
@@ -34,7 +34,7 @@ class TestResponseMacroServiceProvider extends ServiceProvider
         });
 
         TestResponse::macro('assertUnsubscribed', function () {
-            return $this->assertStatus(409)
+            return $this->assertConflict()
                 ->assertJsonFragment(['message' => 'You do not have an active subscription.']);
         });
 

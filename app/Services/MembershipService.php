@@ -51,7 +51,7 @@ class MembershipService
      */
     public function findByStripeId(string $stripeId): ?Membership
     {
-        return Membership::where('stripe_id', $stripeId)->first();
+        return Membership::firstWhere('stripe_id', $stripeId);
     }
 
 }

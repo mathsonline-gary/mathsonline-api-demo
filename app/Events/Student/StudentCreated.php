@@ -28,6 +28,7 @@ class StudentCreated extends ActivityLoggableEvent
         parent::__construct(
             actor: $actor,
             type: Activity::TYPE_CREATE_STUDENT,
+            description: "created student: $student->first_name $student->last_name",
             actedAt: $student->created_at,
             data: [
                 'id' => $student->id,

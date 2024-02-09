@@ -28,6 +28,7 @@ class StudentDeleted extends ActivityLoggableEvent
         parent::__construct(
             actor: $actor,
             type: Activity::TYPE_DELETE_STUDENT,
+            description: "deleted student: $student->first_name $student->last_name",
             actedAt: $student->deleted_at,
             data: [
                 'student_id' => $student->id,

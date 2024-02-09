@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\StripeWebhookRequest;
-use App\Models\Subscription;
+use App\Jobs\ProcessStripeSubscriptionWebhookEvent;
 use App\Services\MembershipService;
 use App\Services\ProductService;
 use App\Services\SchoolService;
@@ -14,14 +14,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Stripe\Event;
 use Stripe\Stripe;
-use Stripe\Subscription as StripeSubscription;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use UnexpectedValueException;
 
 /**
  * The controller for handling Stripe webhook events.
+ *
  * These events are triggered by making Stripe operations via the Stripe API or directly in the Stripe Dashboard.
- * To avoid API loops, we handle these events by assuming they are triggered by the Stripe Dashboard.
+ *
+ * To avoid API loops, you **MUST NOT** make any Stripe API requests in the webhook handler.
  *
  */
 class StripeWebhookController extends Controller
@@ -50,130 +51,13 @@ class StripeWebhookController extends Controller
         // Handle the event.
         switch ($event->type) {
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_CREATED:
-                $response = $this->handleCustomerSubscriptionCreated($event);
-                break;
-
-            case Event::TYPE_CUSTOMER_SUBSCRIPTION_DELETED:
-                $response = $this->handleCustomerSubscriptionDeleted($event);
-                break;
-
             case Event::TYPE_CUSTOMER_SUBSCRIPTION_UPDATED:
-                $response = $this->handleCustomerSubscriptionUpdated($event);
+            case Event::TYPE_CUSTOMER_SUBSCRIPTION_DELETED:
+                ProcessStripeSubscriptionWebhookEvent::dispatch($event, $marketId);
                 break;
 
             default:
                 return $this->missingMethod();
-        }
-
-        return $response;
-    }
-
-    protected function handleCustomerSubscriptionCreated(Event $event): JsonResponse
-    {
-        $stripeSubscription = $event->data['object'];
-
-        if (!$stripeSubscription instanceof StripeSubscription) {
-            return $this->handleEventError($event, 'Invalid event data.');
-        }
-
-        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
-
-        // Check if the Stripe customer has an associated school.
-        if (is_null($attributes['school'])) {
-            return $this->handleEventError($event, 'The associated school not found.');
-        }
-
-        // Check if the Stripe subscription already exists.
-        if ($attributes['subscription']) {
-            return $this->handleEventError($event, 'The associated subscription already exists.');
-        }
-
-        // Check if the Stripe subscription has an associated membership with an active campaign.
-        if (is_null($attributes['membership'])) {
-            return $this->handleEventError($event, 'The associated membership not found.');
-        } else if (!$attributes['membership']->campaign->isActive()) {
-            return $this->handleEventError($event, 'The associated membership campaign is not active.');
-        }
-
-        // Otherwise, create a new subscription.
-        $this->subscriptionService->create($attributes);
-
-        return $this->successMethod();
-    }
-
-    protected function handleCustomerSubscriptionDeleted(Event $event): JsonResponse
-    {
-        $stripeSubscription = $event->data['object'];
-
-        if (!$stripeSubscription instanceof StripeSubscription) {
-            return $this->handleEventError($event, 'Invalid event data.');
-        }
-
-        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
-
-        // Check if the Stripe customer has an associated school.
-        if (is_null($attributes['school'])) {
-            return $this->handleEventError($event, 'The associated school not found.');
-        }
-
-        // Check if the Stripe subscription has an associated subscription.
-        if ($subscription = $attributes['subscription']) {
-
-            // Skip if the subscription has been canceled.
-            if ($subscription->isCanceled()) {
-                return $this->handleEventError($event, 'The subscription has been canceled.');
-            }
-
-            // Otherwise, update the subscription.
-            $this->subscriptionService->update($subscription, $attributes);
-        } else {
-
-            // If the subscription doesn't exist, create a canceled subscription.
-            if (is_null($attributes['membership'])) {
-                return $this->handleEventError($event, 'The associated membership not found.');
-            }
-
-            $this->subscriptionService->create($attributes);
-        }
-
-        return $this->successMethod();
-    }
-
-    protected function handleCustomerSubscriptionUpdated(Event $event): JsonResponse
-    {
-        $stripeSubscription = $event->data['object'];
-
-        if (!$stripeSubscription instanceof StripeSubscription) {
-            return $this->handleEventError($event, 'Invalid event data.');
-        }
-
-        $attributes = $this->stripeService->parseSubscriptionAttributes($stripeSubscription);
-
-        // Check if the Stripe customer has an associated school.
-        if (is_null($school = $attributes['school'])) {
-            return $this->handleEventError($event, 'The associated school not found.');
-        }
-
-        // Get the refreshed Stripe subscription resource.
-        $this->stripeService->refreshResource($stripeSubscription, $school->market_id);
-
-        // Check if the Stripe subscription has an associated membership.
-        if (is_null($attributes['membership'])) {
-            return $this->handleEventError($event, 'The associated membership not found.');
-        }
-
-        // Check if the Stripe subscription has an associated subscription.
-        if (is_null($subscription = $attributes['subscription'])) {
-            // Create a new subscription if it doesn't exist.
-            $this->subscriptionService->create($attributes);
-        } else {
-            // Skip if the subscription has been cancelled.
-            if ($subscription->status === Subscription::STATUS_CANCELED) {
-                return $this->handleEventError($event, 'The subscription has been canceled.');
-            }
-
-            // Otherwise, update the subscription.
-            $this->subscriptionService->update($subscription, $attributes);
         }
 
         return $this->successMethod();
@@ -225,23 +109,5 @@ class StripeWebhookController extends Controller
         return $this->successResponse(
             message: $message,
         );
-    }
-
-    /**
-     * Handle the event error:
-     * 1. Log the error.
-     * 2. Skip the further processing and respond immediately.
-     *
-     * @param Event  $event
-     * @param string $message
-     *
-     * @return JsonResponse
-     */
-    protected function handleEventError(Event $event, string $message): JsonResponse
-    {
-        Log::channel('stripe')
-            ->error("[$event->type] $message", $event->toArray());
-
-        return $this->successMethod($message);
     }
 }

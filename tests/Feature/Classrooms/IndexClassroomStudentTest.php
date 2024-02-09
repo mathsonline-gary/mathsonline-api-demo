@@ -280,6 +280,7 @@ class IndexClassroomStudentTest extends TestCase
             $students1 = $this->fakeStudent($school1, 5);
             $this->attachStudentsToClassroomGroup($classroom1->defaultClassroomGroup, $students1->pluck('id')->toArray());
 
+            // Fake students in a classroom of another school.
             $school2 = $this->fakeTraditionalSchool();
             $this->fakeSubscription($school2);
             $adminTeacher2 = $this->fakeAdminTeacher($school2);
@@ -287,6 +288,7 @@ class IndexClassroomStudentTest extends TestCase
             $students2 = $this->fakeStudent($school2, 5);
             $this->attachStudentsToClassroomGroup($classroom2->defaultClassroomGroup, $students2->pluck('id')->toArray());
 
+            // Fake students in another classroom of the same school.
             $classroom3 = $this->fakeClassroom($nonAdminTeacher);
             $students3 = $this->fakeStudent($school1, 5);
             $this->attachStudentsToClassroomGroup($classroom3->defaultClassroomGroup, $students3->pluck('id')->toArray());

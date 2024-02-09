@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Traits;
+namespace Tests\Helpers;
 
 use App\Models\Membership;
 use App\Models\School;
@@ -74,6 +74,7 @@ trait SubscriptionTestHelpers
                 case 'current_period_ends_at':
                 case 'canceled_at':
                 case 'ended_at':
+                case 'last_stripe_event_at':
                     if (is_null($value)) {
                         $this->assertNull($subscription->{$attribute}, "The subscription attribute '$attribute' expected to be null.");
                     } else {

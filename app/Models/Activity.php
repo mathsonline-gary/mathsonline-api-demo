@@ -29,6 +29,8 @@ class Activity extends Model
     public const TYPE_UPDATE_STUDENT = 402;
     public const TYPE_DELETE_STUDENT = 403;
 
+    protected $table = 'activities';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -36,6 +38,7 @@ class Activity extends Model
      */
     protected $fillable = [
         'type',
+        'description',
         'data',
         'acted_at',
     ];
@@ -47,7 +50,7 @@ class Activity extends Model
      */
     protected $casts = [
         'type' => 'int',
-        'data' => 'json',
+        'data' => 'array',
         'acted_at' => 'datetime',
     ];
 

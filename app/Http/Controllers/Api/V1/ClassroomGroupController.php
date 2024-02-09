@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\Controller;
 use App\Http\Requests\Classroom\UpdateClassroomGroupRequest;
 use App\Models\Classroom;
+use App\Services\ClassroomGroupService;
 use App\Services\ClassroomService;
 use Illuminate\Support\Facades\DB;
 
 class ClassroomGroupController extends Controller
 {
     public function __construct(
-        protected ClassroomService $classroomService,
+        protected ClassroomService      $classroomService,
+        protected ClassroomGroupService $classroomGroupService,
     )
     {
     }
@@ -30,7 +32,7 @@ class ClassroomGroupController extends Controller
             // Add groups if any.
             if (isset($validated['adds']) && count($validated['adds']) > 0) {
                 foreach ($validated['adds'] as $attributes) {
-                    $this->classroomService->addCustomGroup($classroom, $attributes);
+                    $this->classroomGroupService->createCustom($classroom, $attributes);
                 }
             }
 
@@ -42,19 +44,21 @@ class ClassroomGroupController extends Controller
                     ->get();
 
                 foreach ($groupsToRemove as $group) {
-                    $this->classroomService->deleteCustomGroup($group);
+                    $this->classroomGroupService->deleteCustom($group);
                 }
             }
 
             // Update groups if any.
             if (isset($validated['updates']) && count($validated['updates']) > 0) {
+                $collection = collect($validated['updates']);
+
                 // Find the groups to update.
                 $groupsToUpdate = $classroom->customClassroomGroups()
-                    ->whereIn('id', collect($validated['updates'])->pluck('id'))
+                    ->whereIn('id', $collection->pluck('id'))
                     ->get();
 
                 foreach ($groupsToUpdate as $group) {
-                    $this->classroomService->updateGroup($group, collect($validated['updates'])->firstWhere('id', $group->id));
+                    $this->classroomGroupService->update($group, $collection->firstWhere('id', $group->id));
                 }
             }
         });
